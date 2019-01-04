@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, PreloadAllModules } from '@angular/router';
 import { SelectivePreloadingStrategy } from './selective-preloading-strategy';
 import { LoginComponent } from './componentesgenerales/login/login.component';
 import { AuthGuardService } from './serviciosgenerales/auth-guard.service';
@@ -200,7 +200,7 @@ const appRoutes: Routes = [
     RouterModule.forRoot(
       appRoutes,
       {
-        //preloadingStrategy: SelectivePreloadingStrategy,
+        preloadingStrategy: PreloadAllModules,
         onSameUrlNavigation: 'reload',
         useHash: true
       }
@@ -210,7 +210,7 @@ const appRoutes: Routes = [
     RouterModule
   ],
   providers: [
-    SelectivePreloadingStrategy
+    //SelectivePreloadingStrategy
   ]
 })
 export class AppRoutingModule { }
