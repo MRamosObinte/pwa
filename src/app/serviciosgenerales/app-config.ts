@@ -6,8 +6,8 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class AppConfig {
 
-    //public baseApiPath: string = "https://tws.todocompu.com.ec:1443/Obinte/";
-    public baseApiPath: string = "http://localhost:8080/ShrimpSoftServer/";
+    public baseApiPath: string = "https://tws.todocompu.com.ec:1443/Obinte/";
+    //public baseApiPath: string = "http://localhost:8080/ShrimpSoftServer/";
     
     constructor() {
 
