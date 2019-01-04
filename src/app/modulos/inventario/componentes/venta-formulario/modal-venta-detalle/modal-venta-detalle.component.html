@@ -1,0 +1,332 @@
+<div class="modal-primary">
+  <div class="card m-0">
+    <div class="modal-header p-2">
+      <h4 class="modal-title">{{constantes.TAG_DETALLE_VENTA}}</h4>
+      <button type="button" class="close" style="color: white;" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+        <span>&times;</span>
+      </button>
+    </div>
+    <fieldset class="modal-body" [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <!-- Es el detalle con los valores finales, sin inputs -->
+      <form *ngIf="tipo === 'valores'">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="header">
+            <tr class="text-center">
+              <th style="width:80px" pResizableColumn></th>
+              <th style="width:80px" pResizableColumn>0%</th>
+              <th style="width:80px" pResizableColumn>{{venta.vtaIvaVigente}}%</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PARCIALES}}</td>
+              <td>
+                <span class="f-r">{{venta.vtaBase0 | number : '1.2-2'}}</span>
+              </td>
+              <td>
+                <span class="f-r">{{venta.vtaBaseImponible | number : '1.2-2'}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_RECARGO}}</td>
+              <td>
+                <span class="f-r">{{venta.vtaRecargoBase0 | number : '1.2-2'}}</span>
+              </td>
+              <td>
+                <span class="f-r">{{venta.vtaRecargoBaseImponible | number : '1.2-2'}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_DESCUENTOS}}</td>
+              <td>
+                <span class="f-r">{{venta.vtaDescuentoBase0 | number : '1.2-2'}}</span>
+              </td>
+              <td>
+                <span class="f-r">{{venta.vtaDescuentoBaseImponible | number : '1.2-2'}}</span>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_IVA}}</td>
+              <td></td>
+              <td>
+                <span class="f-r">{{venta.vtaMontoIva}}</span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="summary">
+            <h1>{{venta.vtaTotal}}</h1>
+          </ng-template>
+        </p-table>
+      </form>
+      <!-- Es el detalle con recargo y decuentos -->
+      <form *ngIf="tipo === 'detalle' && !vistaSoloParcial">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <!--CC-->
+            <tr *ngIf="tipoEmpresa !== 'COMERCIAL'">
+              <td class="totales-tabla">{{constantes.TAG_CC}}</td>
+              <td class="p-0">
+                <select class="form-control form-control-sm mousetrap" name="pisNumero" [(ngModel)]="itemCopia.pisNumero">
+                  <option selected>{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="pis.pisNumero" *ngFor="let pis of listadoPiscinaTO"> {{pis.pisNombre}}
+                    ({{pis.pisNumero}})</option>
+                </select>
+              </td>
+            </tr>
+            <!--Parcial-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PARCIAL}}</td>
+              <td class="p-0">
+                <div class="input-group">
+                  <input class="form-control form-control-sm text-right"  id="parcial" [disabled]="(!caja.permisoCambiarPrecio && item.catPrecioFijo && item.estadoPrecio) || (caja.permisoCambiarPrecio && !item.catPrecioFijo && item.estadoPrecio) || !item.estadoProducto"
+                    required [(ngModel)]="itemCopia.parcial" name="parcial" [appAutonumeric]="autonumericCambios"
+                    [appAutonumericValue]="itemCopia.parcial" value="{{itemCopia.parcial}}" (blur)="calcularParcialInput(itemCopia)"
+                    maxlength="20">
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary btn-sm pb-0 pt-0 pl-1 pr-1" tabindex="-1" type="button" (click)="verDatosParcial()"
+                      title="{{constantes.MSJ_VER_DATOS_PARCIAL}}" [disabled]="(!caja.permisoCambiarPrecio && item.catPrecioFijo && item.estadoPrecio) || (caja.permisoCambiarPrecio && !item.catPrecioFijo && item.estadoPrecio) || !item.estadoProducto">
+                      <i class="{{constantes.ICON_CALCULADORA}}"></i>
+                    </button>
+                  </span>
+                </div>
+              </td>
+            </tr>
+            <!--Recargo-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_RECARGO}}</td>
+              <td class="p-0">
+                <input [disabled]="(!caja.permisoCambiarPrecio && item.catPrecioFijo && item.estadoPrecio) || (caja.permisoCambiarPrecio && !item.catPrecioFijo && item.estadoPrecio) || !item.estadoProducto || !caja.permisoAplicarDescuentos"
+                  class="form-control form-control-sm text-right" required [(ngModel)]="itemCopia.detPorcentajeRecargo"
+                  name="detPorcentajeRecargo" [appAutonumeric]="autonumericCambios" [appAutonumericValue]="itemCopia.detPorcentajeRecargo"
+                  value="{{itemCopia.detPorcentajeRecargo}}" (blur)="calculoValoresDescuentoRecargo(itemCopia)">
+              </td>
+            </tr>
+            <!--Descuentos-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_DESCUENTOS}}</td>
+              <td class="p-0">
+                <input [disabled]="(!caja.permisoCambiarPrecio && item.catPrecioFijo && item.estadoPrecio) || (caja.permisoCambiarPrecio && !item.catPrecioFijo && item.estadoPrecio) || !item.estadoProducto || !caja.permisoAplicarDescuentos"
+                  class="form-control form-control-sm text-right" required [(ngModel)]="itemCopia.detPorcentajeDescuento"
+                  name="detPorcentajeDescuento" [value]="itemCopia.detPorcentajeDescuento" [appAutonumeric]="autonumericCambios"
+                  [appAutonumericValue]="itemCopia.detPorcentajeDescuento" value="{{itemCopia.detPorcentajeDescuento}}"
+                  (blur)="calculoValoresDescuentoRecargo(itemCopia)">
+              </td>
+            </tr>
+            <!--iva-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_IVA}}</td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label text-right">{{itemCopia.vtIva | number :
+                  '1.2-2'}}</label>
+              </td>
+            </tr>
+            <!--total-->
+            <tr *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR">
+              <td class="totales-tabla">{{constantes.TAG_TOTAL}}</td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label text-right">{{itemCopia.total | number :
+                  '1.2-2'}}</label>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+      <!-- Es el detalle para cambiar la cantidad y calcular laconversion de bultos -->
+      <form *ngIf="tipo === 'cantidad'">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PRODUCTO}} </td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label">{{item.proNombre}}</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PRODUCTO_MEDIDA}} </td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label">{{item.proMedida}}</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_CONVERSION}} </td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label text-right">{{item.conversion | number :
+                  '1.2-2'}}</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_BULTOS}} </td>
+              <td class="p-0">
+                <input name="cantidad" id="bultos" type="text" [(ngModel)]="conversion" class="form-control form-control-sm text-right"
+                  [appAutonumeric]="configAutonumeric" [value]="conversion" required>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+      <!-- Es el modal que permite cambiar el precio con input -->
+      <form *ngIf="tipo === 'precio'">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PRECIO}} </td>
+              <td class="p-0">
+                <input name="precio" id='precio' type="text" [(ngModel)]="valor" class="form-control text-right" [appAutonumeric]="configAutonumeric"
+                  [value]="valor" required>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+      <!-- Es el detalle que permite cambiar el parcial dentro del modal de detalle con recargo y descuento -->
+      <form *ngIf="vistaSoloParcial">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PARCIAL}} </td>
+              <td class="p-0">
+                <input name="valorParcial" class="form-control input-sm text-right" required [(ngModel)]="valor"
+                  [appAutonumeric]="configAutonumeric" [value]="valor">
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+      <!-- El detalle para dar vuelto -->
+      <form *ngIf="tipo === 'cambio'">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_TOTAL_VENTA}} </td>
+              <td class="text-right p-0">
+                <label class="form-control form-control-sm label-input text-right">{{venta.vtaTotal}}</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_EFECTIVO}}</td>
+              <td class="text-right p-0">
+                <input type="text" class="form-control input-sm text-right" [appAutonumeric]="autonumericCambios"
+                  [appAutonumericValue]="venta.vtaPagadoEfectivo" value="{{venta.vtaPagadoEfectivo}}" (blur)="calcularCambio()"
+                  name="efectivo" [(ngModel)]="venta.vtaPagadoEfectivo" required />
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_DINERO_ELECTRONICO}}</td>
+              <td class="text-right p-0">
+                <input [disabled]="!validarElectronico" type="text" class="form-control input-sm text-right" name="dineroElectronico"
+                  [appAutonumeric]="autonumericCambios" [appAutonumericValue]="venta.vtaPagadoDineroElectronico" value="{{venta.vtaPagadoDineroElectronico}}"
+                  (blur)="calcularCambio();" [(ngModel)]="venta.vtaPagadoDineroElectronico" required />
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_TARJETA_CREDITO}}</td>
+              <td class="text-right p-0">
+                <input [disabled]="!validarElectronico" type="text" class="form-control input-sm text-right" name="tarjetaCredito"
+                  [appAutonumeric]="autonumericCambios" [appAutonumericValue]="venta.vtaPagadoTarjetaCredito" value="{{venta.vtaPagadoTarjetaCredito}}"
+                  (blur)="calcularCambio();" [(ngModel)]="venta.vtaPagadoTarjetaCredito" required />
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_OTROS}}</td>
+              <td class="text-right p-0">
+                <input type="text" class="form-control input-sm text-right" (blur)="calcularDiferenciaMontoTotal();"
+                  name="otro" [appAutonumeric]="autonumericCambios" [appAutonumericValue]="venta.vtaPagadoOtro" value="{{venta.vtaPagadoOtro}}"
+                  [(ngModel)]="venta.vtaPagadoOtro" required />
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_CAMBIO}}</td>
+              <td class="text-right p-0 pr-11">
+                <label style="font-size: 50px; ">{{cambio| number : '1.2-2'}}</label>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+    </fieldset>
+    <div class="col-md-12 modal-footer">
+      <div class="text-center">
+        <!--CAMBIO-->
+        <div class="btn-group" *ngIf="tipo === 'cambio'">
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" data-loading-text="Guardando..." [disabled]="!montoTotalPagoValido"
+              (click)="aceptarVenta(false)" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GENERADO}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+            <button type="button" data-loading-text="..." [disabled]="!montoTotalPagoValido" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+              data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item p-1" (click)="aceptarVenta(true)">{{constantes.TAG_PENDIENTE}}</a>
+            </div>
+          </div>
+        </div>
+        <button *ngIf="tipo === 'cambio'" class="btn btn-sm btn-primary ml-2" type="button" title="{{constantes.ATAJO_CANCELAR}}"
+          (click)="activeModal.dismiss('Cross click')">
+          <i class="{{constantes.ICON_CANCELAR}}"></i> {{constantes.LABEL_CANCELAR}}</button>
+        <!--CANTIDAD-->
+        <button *ngIf="tipo === 'cantidad'" class="btn btn-sm btn-primary" type="button" title="{{constantes.ATAJO_ACEPTAR}}"
+          (click)="calcularCantidadBultos(item)">
+          <i class="{{constantes.ICON_OK_SWAL}}"></i> {{constantes.LABEL_ACEPTAR}}</button>
+        <!--VALORES-->
+        <button *ngIf="tipo === 'valores'" class="btn btn-sm btn-primary" type="button" title="{{constantes.ATAJO_ACEPTAR}}"
+          (click)="activeModal.dismiss('Cross click')">
+          <i class="{{constantes.ICON_OK_SWAL}}"></i> {{constantes.LABEL_ACEPTAR}}</button>
+        <!--PRECIO-->
+        <button *ngIf="tipo === 'precio'" class="btn btn-sm btn-primary" type="button" title="{{constantes.ATAJO_ACEPTAR}}"
+          (click)="accion === constantes.ACCION_CONSULTAR?activeModal.dismiss('Cross click'):calcularPrecio(item)">
+          <i class="{{constantes.ICON_OK_SWAL}}"></i> {{constantes.LABEL_ACEPTAR}}</button>
+        <!--DETALLE-->
+        <button *ngIf="tipo === 'detalle' && !vistaSoloParcial" class="btn btn-sm btn-primary" type="button" title="{{constantes.ATAJO_ACEPTAR}}"
+          (click)="validarDetalle(itemCopia)">
+          <i class="{{constantes.ICON_OK_SWAL}}"></i> {{constantes.LABEL_ACEPTAR}}</button>
+        <!--VISTA DE PARCIAL-->
+        <button *ngIf="vistaSoloParcial" class="btn btn-sm btn-primary mr-1" type="button" title="{{constantes.ATAJO_ACEPTAR}}"
+          (click)="calcularParcialModal(item)">
+          <i class="{{constantes.ICON_OK_SWAL}}"></i> {{constantes.LABEL_ACEPTAR}}</button>
+        <button *ngIf="vistaSoloParcial" class="btn btn-sm btn-primary mr-1" type="button" title="{{constantes.ATAJO_CANCELAR}}"
+          (click)="cancelarParcial()">
+          <i class="{{constantes.ICON_CANCELAR}}"></i> {{constantes.LABEL_CANCELAR}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

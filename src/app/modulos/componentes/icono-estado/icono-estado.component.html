@@ -1,0 +1,11 @@
+<span ngbTooltip="{{valorActual}}" container="body">
+  <i class="{{constantes.ICON_DESMAYORIZAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_PENDIENTE"></i>
+  <i class="{{constantes.ICON_ANULAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_ANULADO"></i>
+  <i class="{{constantes.ICON_REVERSAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_REVERSADO"></i>
+  <i class="{{constantes.ICON_BLOQUEAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_BLOQUEADO"></i>
+  <i class="{{constantes.ICON_APROBAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_PEDIDO_APROBADO"></i>
+  <i class="{{constantes.ICON_EJECUTAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_POR_APROBAR_PEDIDO"></i>
+  <i class="{{constantes.ICON_APROBAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_OC_APROBADO"></i>
+  <i class="{{constantes.ICON_EJECUTAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_POR_APROBAR_OC"></i>
+  <i class="{{constantes.ICON_MAYORIZAR}}" aria-hidden="true" *ngIf="valorActual === constantes.ETIQUETA_EJECUTADO"></i>
+</span>

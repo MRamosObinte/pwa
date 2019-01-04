@@ -1,0 +1,174 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activarProveedor}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i>
+        <strong>{{constantes.TITULO_FILTROS}}</strong>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmProveedor='ngForm' name="frmProveedor">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_CATEGORIA}}</b>
+              &nbsp;
+              <a (click)="listarInvProveedorCategoriaTO()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CATEGORIAS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaCategorias" name="categoria" [showClear]="true" [(ngModel)]="categoriaSeleccionada"
+              optionLabel="pcDetalle" (ngModelChange)="limpiarResultado()" [disabled]="vistaFormulario" placeholder="{{constantes.TAG_TODOS}}"
+              class="mousetrap">
+              <ng-template let-item pTemplate="selectedItem">
+                {{categoriaSeleccionada?.pcDetalle}} ({{categoriaSeleccionada?.pcCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.pcDetalle}} ({{fs.value.pcCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer text-muted" *ngIf="!vistaFormulario">
+        <div class="text-right">
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" id="btnBuscarProveedor" (click)="buscarProveedores(false)"
+              title="{{constantes.ATAJO_BUSCAR}}">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="buscarProveedores(true)">{{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activarProveedor,'col-lg-12 col-md-12 col-sm-12':activarProveedor}">
+    <div class="card m-0" *ngIf="listaResultadoProveedores?.length>0 && vistaListado">
+      <div class="card-header p-1">
+        <button id="btnActivarProveedor" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS" (click)="activarProveedor= !activarProveedor"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <b> {{constantes.INVENTARIO_PROVEEDORES_LISTADO}}</b>
+        <div class="card-header-actions">
+          <!--sm-->
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirProveedor" (click)="imprimirProveedor()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+            </button>
+            <!--Exportar filtrado-->
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary" id="btnExportarProveedor" (click)="exportarTodos()"
+                placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split mr-1"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="abrirExportar()">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item"> <input type="checkbox" [(ngModel)]="exportarTodosEstado" (change)="cambiarEstadoExportar()" />&nbsp;
+                  <b>{{constantes.TAG_OPCIONES}}</b> </a>
+                <a class="dropdown-item" *ngFor="let item of columnDefsExportar"><input type="checkbox" [(ngModel)]="item.check"
+                    (change)="cambiarEstadoItemExportar()" />&nbsp;{{item.headerName}}</a>
+                <a class="dropdown-item text-right">
+                  <button type="button" class="btn btn-sm btn-primary" id="btnExportarProveedor" (click)="exportarProveedor()">
+                    <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+                  </button>
+                </a>
+              </div>
+            </div>
+            <!--Fin de exportar filtrado-->
+          </div>
+          <!--lg-->
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirProveedor" (click)="imprimirProveedor()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <!--Exportar filtrado-->
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary" id="btnExportarProveedor" (click)="exportarTodos()"
+                placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split mr-1"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" (click)="abrirExportar()">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item"> <input type="checkbox" [(ngModel)]="exportarTodosEstado" (change)="cambiarEstadoExportar()" />&nbsp;
+                  <b>{{constantes.TAG_OPCIONES}}</b> </a>
+                <a class="dropdown-item" *ngFor="let item of columnDefsExportar"><input type="checkbox" [(ngModel)]="item.check"
+                    (change)="cambiarEstadoItemExportar()" />&nbsp;{{item.headerName}}</a>
+                <a class="dropdown-item text-right">
+                  <button type="button" class="btn btn-sm btn-primary" id="btnExportarProveedor" (click)="exportarProveedor()">
+                    <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+                  </button>
+                </a>
+              </div>
+            </div>
+            <!--Fin de exportar filtrado-->
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body" style="padding: 0 0 0 0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaResultadoProveedores" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (gridSizeChanged)="redimencionarColumnas()" (gridReady)="onGridReady($event)"
+          (cellContextMenu)="mostrarContextMenu($event.data, $event.event)" (contextmenu)="$event.preventDefault()"
+          (rowSelected)="objectSelect = $event.node.data" (cellFocused)="filaFocused($event)" (filterChanged)="actualizarFilas()"
+          (gridColumnsChanged)="redimencionarColumnas()" (cellDoubleClicked)="consultarProveedor()">
+        </ag-grid-angular>
+      </div>
+    </div>
+    <div *ngIf="vistaFormulario">
+      <app-proveedor-formulario [parametros]="parametrosFormulario" (cerrarFormularioProveedor)="cerrarFormularioProveedor($event)"
+        (activarEstado)="cambiarEstadoActivar($event)"></app-proveedor-formulario>
+    </div>
+  </div>
+
+  <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

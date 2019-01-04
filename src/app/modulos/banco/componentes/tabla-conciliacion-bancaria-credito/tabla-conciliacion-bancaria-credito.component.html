@@ -1,0 +1,7 @@
+<ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 750px);" class="ag-theme-balham"
+  [rowData]="listaConciliacionBancariaCredito" [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection"
+  [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+  [rowDragManaged]="true" [animateRows]="true" [suppressClickEdit]=true (gridReady)="onGridReady($event)" (rowSelected)="creditoSeleccionado= $event.node.data"
+  (cellFocused)="filaFocused($event)" (filterChanged)="actualizarFilas()" [suppressDragLeaveHidesColumns]="true"
+  (gridSizeChanged)="redimencionarColumnas()" [suppressRowClickSelection]="true">
+</ag-grid-angular>

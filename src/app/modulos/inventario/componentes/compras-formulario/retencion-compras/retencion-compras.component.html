@@ -1,0 +1,346 @@
+<form #frmRetencion='ngForm' complete="off" class="card m-0">
+  <div class="card-header" style="padding: 0.5rem 0.5rem;">
+    <button id="btnActivarRetencion" class="btn btn-sm btn-primary" *ngIf="!screamXS" (click)="cambiarEstadoActivar()"
+      type="button">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{constantes.TAG_RETENCION}} - {{empresaSeleccionada?.empNombre}}</b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Guardar-->
+        <button id="btnGuardarRetencion" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_GUARDAR}}"
+          (click)="guardarRetencion(frmRetencion)" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_CREADO || accion === constantes.ACCION_MAYORIZAR">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          id="btnCancelarRetencion" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Guardar-->
+        <button id="btnGuardarRetencion" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_GUARDAR}}"
+          (click)="guardarRetencion(frmRetencion)" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_CREADO || accion === constantes.ACCION_MAYORIZAR">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          id="btnCancelarRetencion" (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-1">
+
+    <!--Sustento-->
+    <div class="card">
+      <div class="card-body row">
+        <label class="control-label col-col-lg-2 col-md-2"><strong>{{constantes.TAG_SUSTENTO}}:</strong></label>
+        <div class="col-lg-7 col-md-7">
+          <select class="form-control form-control-sm mousetrap" name="sustento" [(ngModel)]="anxCompraTO.compSustentotributario"
+            required [disabled]="accion === constantes.ACCION_CONSULTAR">
+            <option disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+            <option [ngValue]="sus.susCodigo" *ngFor="let sus of listadoSustentos"> {{sus?.susDescripcion}}
+              ({{sus?.susCodigo}})
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!--Tabs-->
+    <div class="card mb-1">
+      <div class="card-body m-0 p-0">
+        <ul class="nav nav-tabs nav-justified" role="tablist" id="ulOpciones" style="box-shadow: inset 0 -1px 0 #ddd;">
+          <li role="presentation" class="nav-item">
+            <a class="nav-link active p-1" href data-target="#retencion" aria-controls="retencion" role="tab"
+              data-toggle="tab">
+              <b>{{constantes.TAG_RETENCION}}</b>
+            </a>
+          </li>
+          <li role="presentation" class="nav-item" *ngIf="invCompraTO.compMontoIva && invCompraTO.compMontoIva >0">
+            <a class="nav-link p-1" href data-target="#retencionIva" aria-controls="retencionIva" role="tab"
+              data-toggle="tab">
+              <b>{{constantes.TAG_RETENCION_IVA}}</b>
+            </a>
+          </li>
+          <li role="presentation" class="nav-item" *ngIf="invCompraTO.compDocumentoTipo && (invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_DEBITO || invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_CREDITO)">
+            <a class="nav-link p-1" href data-target="#complemento" aria-controls="complemento" role="tab" data-toggle="tab">
+              <b>{{constantes.TAG_COMPLEMENTO_NC_ND}}</b>
+            </a>
+          </li>
+          <li role="presentation" class="nav-item" *ngIf="invCompraTO.compDocumentoTipo && invCompraTO.compDocumentoTipo === constantes.CODIGO_REEMBOLSO">
+            <a class="nav-link p-1" href data-target="#reembolso" aria-controls="reembolso" role="tab" data-toggle="tab">
+              <b>{{constantes.TAG_REEMBOLSO}}</b>
+            </a>
+          </li>
+        </ul>
+
+        <div class="tab-content panel" style="border-top-width: 0px;">
+          <div role="tabpanel" class="tab-pane fade show active" id="retencion">
+            <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+              <div class="row">
+                <!--Numero-->
+                <div class="form-group form-group-sm col-lg-4">
+                  <label>
+                    <strong>{{constantes.TAG_NUMERO}}</strong>
+                  </label>
+                  <label class="form-control form-control-sm label-input" *ngIf="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR &&  comprobarRetencionAutorizadaProcesamiento)">{{anxCompraTO.compRetencionNumero
+                    }}
+                  </label>
+                  <p-inputMask class="mousetrap mascara" name="numeroDoc" [(ngModel)]="anxCompraTO.compRetencionNumero"
+                    mask="999-999-999999999" (onBlur)="anxCompraTO.compRetencionNumero ? validarNumeroDocumento() : null"
+                    [ngClass]="{'has-error': !numeroDocValido000}" *ngIf="accion === constantes.ACCION_CREADO || accion === constantes.ACCION_CREAR || (accion === constantes.ACCION_MAYORIZAR  && !comprobarRetencionAutorizadaProcesamiento)"></p-inputMask>
+                </div>
+
+                <!--Nro autorizacion-->
+                <div class="form-group form-group-sm col-lg-4">
+                  <label>
+                    <strong>{{constantes.TAG_AUTORIZACION}} </strong>
+                  </label>
+                  <label class="form-control form-control-sm text-uppercase label-input">{{anxCompraTO.compRetencionAutorizacion
+                    }}
+                  </label>
+                </div>
+
+                <!--Fecha-->
+                <div class="form-group form-group-sm col-lg-4">
+                  <label>
+                    <strong>{{constantes.TAG_FECHA}} </strong>
+                  </label>
+                  <p-calendar class="mousetrap calendar" name="fechaRetencion" [(ngModel)]="fechaRetencion" [showIcon]="true"
+                    [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true" placeholder="DD/MM/YYYY"
+                    [disabled]="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR && comprobarRetencionAutorizadaProcesamiento)"
+                    (onBlur)="validarFechaDiasHabiles()" (onSelect)="validarFechaDiasHabiles()" [inputStyleClass]="isFechaDentroDeDiasHabiles == false || isFechaMismoMes == false? 'has-error height-26' : 'height-26' "></p-calendar>
+                </div>
+              </div>
+            </fieldset>
+
+            <!--Detalle-->
+            <div class="card">
+              <div class="card-header">
+                <strong>{{constantes.TAG_DETALLE}}</strong>
+              </div>
+              <div class="card-body m-0 p-0" *ngIf="listAnxCompraDetalleRetencionTO?.length>0">
+                <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 650px); min-height: 95px"
+                  class="ag-theme-balham" [rowData]="listAnxCompraDetalleRetencionTO" [columnDefs]="columnDefs"
+                  [enableSorting]="true" [rowSelection]="rowSelection" [enableColResize]="true" [components]="components"
+                  [context]="context" [frameworkComponents]="frameworkComponents" [rowDragManaged]="true" (rowDragEnd)="refrescarOrdenDetalle()"
+                  [animateRows]="true" [suppressClickEdit]=true (gridReady)="onGridReady($event)" (rowSelected)="detalleSeleccionado = $event.node.data"
+                  (cellFocused)="filaFocused($event)" (filterChanged)="actualizarFilas()" (contextmenu)="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_CREADO || (accion === constantes.ACCION_MAYORIZAR  && !comprobarRetencionAutorizadaProcesamiento)?  $event.preventDefault():null"
+                  (cellContextMenu)="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_CREADO || (accion === constantes.ACCION_MAYORIZAR  && !comprobarRetencionAutorizadaProcesamiento)? mostrarContextMenu($event.data,$event.rowIndex, $event.event):null"
+                  (cellEditingStopped)="alCambiarValorDeCelda($event)" [stopEditingWhenGridLosesFocus]="true"
+                  [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()">
+                </ag-grid-angular>
+              </div>
+              <div class="card-footer">
+                <div class="row">
+                  <!--Totales-->
+                  <div class="form-group form-group-sm offset-1 col-lg-6">
+                    <input [(ngModel)]="invCompraTO.compRetencionAsumida" class="form-check-input" name="compRetencionAsumida"
+                      type="checkbox"> {{constantes.TAG_ASUMIR_RETENCION}}
+                  </div>
+                  <div class="offset-l-3 offset-md-3 col-lg-2">
+                    <label><strong>{{constantes.TAG_TOTAL_RETENCION}}: </strong> {{anxCompraTO.valorRetencion | number
+                      :
+                      '1.2-2'}}</label>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+          <div role="tabpanel" class="tab-pane fade" id="retencionIva" *ngIf="invCompraTO.compMontoIva && invCompraTO.compMontoIva >0">
+            <div class="row">
+              <div class="form-group form-group-sm input-group-sm col-lg-3">
+              </div>
+              <div class="form-group form-group-sm input-group-sm col-lg-3">
+                <label><strong>{{constantes.TAG_BASE_IMPONIBLE}}</strong></label>
+              </div>
+              <div class="form-group form-group-sm input-group-sm col-lg-3">
+                <label><strong>%</strong></label>
+              </div>
+              <div class="form-group form-group-sm input-group-sm col-lg-3">
+                <label><strong>{{constantes.TAG_VALOR_RETENIDO}}</strong></label>
+              </div>
+              <!--Bienes-->
+              <div class="form-group form-group-sm input-group-sm col-lg-3">
+                <label><strong>{{constantes.TAG_BIENES}}</strong></label>
+              </div>
+              <div class="form-group form-group-sm input-group-sm col-lg-3 col-md-3">
+                <input type="text" name="compBaseivabienes" [appAutonumeric]="configAutonumeric" [appAutonumericValue]="anxCompraTO.compBaseivabienes"
+                  value="{{anxCompraTO.compBaseivabienes}}" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="anxCompraTO.compBaseivabienes"
+                  class="form-control form-control-sm text-uppercase mousetrap text-right" required (blur)="calcularPorcRetBienes()"
+                  [disabled]="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR &&  comprobarRetencionAutorizadaProcesamiento)">
+              </div>
+              <div class="form-group form-group-sm input-group-sm col-lg-3 col-md-3 ">
+                <select class="form-control form-control-sm mousetrap" name="compPorcentajebienes" [(ngModel)]="anxCompraTO.compPorcentajebienes"
+                  (ngModelChange)="calcularPorcRetBienes()" required [disabled]="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR &&  comprobarRetencionAutorizadaProcesamiento)">
+                  <option disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="item.clave" *ngFor="let item of listadoBienes"> {{item?.valor}}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group form-group-sm input-group-sm col-lg-3 col-md-3 ">
+                <label class="form-control form-control-sm text-right label-input">{{anxCompraTO.compValorbienes |
+                  number
+                  : '1.2-2'}}</label>
+              </div>
+              <!--Servicios-->
+              <div class="form-group form-group-sm input-group-sm col-lg-3 col-md-3 ">
+                <label><strong>{{constantes.TAG_SERVICIOS}}</strong></label>
+              </div>
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm">
+                <input type="text" name="compBaseivaservicios" [appAutonumeric]="configAutonumeric"
+                  [appAutonumericValue]="anxCompraTO.compBaseivaservicios" value="{{anxCompraTO.compBaseivaservicios}}"
+                  placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="anxCompraTO.compBaseivaservicios" class="form-control form-control-sm text-uppercase mousetrap text-right"
+                  required (blur)="calcularPorcRetServicios()" [disabled]="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR &&  comprobarRetencionAutorizadaProcesamiento)">
+              </div>
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm">
+                <select class="form-control form-control-sm mousetrap" name="compPorcentajeservicios" [(ngModel)]="anxCompraTO.compPorcentajeservicios"
+                  required (ngModelChange)="calcularPorcRetServicios()" [disabled]="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR &&  comprobarRetencionAutorizadaProcesamiento)">
+                  <option disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="item.clave" *ngFor="let item of listadoServicios"> {{item?.valor}}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm">
+                <label class="form-control form-control-sm text-right label-input">{{anxCompraTO.compValorservicios |
+                  number
+                  : '1.2-2'}}</label>
+              </div>
+              <!--Sericios 100%-->
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm">
+                <label><strong>{{constantes.TAG_SERVICIOS_100}}</strong></label>
+              </div>
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm">
+                <input type="text" name="compBaseivaserviciosprofesionales" [appAutonumeric]="configAutonumeric"
+                  [appAutonumericValue]="anxCompraTO.compBaseivaserviciosprofesionales" value="{{anxCompraTO.compBaseivaserviciosprofesionales}}"
+                  placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="anxCompraTO.compBaseivaserviciosprofesionales"
+                  class="form-control form-control-sm text-uppercase mousetrap text-right" required (blur)="calcularPorcRetServiciosProfesional()"
+                  [disabled]="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR && comprobarRetencionAutorizadaProcesamiento)">
+              </div>
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm">
+                <select class="form-control form-control-sm mousetrap" name="compPorcentajeserviciosprofesionales"
+                  [(ngModel)]="anxCompraTO.compPorcentajeserviciosprofesionales" required (ngModelChange)="calcularPorcRetServiciosProfesional()"
+                  [disabled]="accion === constantes.ACCION_CONSULTAR || (accion === constantes.ACCION_MAYORIZAR && comprobarRetencionAutorizadaProcesamiento)">
+                  <option disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="item.clave" *ngFor="let item of listadoServicios100"> {{item?.valor}}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm">
+                <label class="form-control form-control-sm text-right label-input">{{anxCompraTO.compValorserviciosprofesionales
+                  | number : '1.2-2'}}</label>
+              </div>
+
+              <div class="form-group form-group-smcol-lg-3 col-md-3 input-group-sm">
+                <label><strong>{{constantes.TAG_TOTAL}}</strong></label>
+              </div>
+              <div class="form-group form-group-sm col-lg-3 col-md-3 input-group-sm text-right">
+                <label><strong>{{totalIva| number : '1.2-2'}}</strong></label>
+              </div>
+              <div class="form-group col-lg-6 col-md-6 input-group-sm">
+              </div>
+            </div>
+
+          </div>
+          <div role="tabpanel" class="tab-pane fade" id="complemento" *ngIf="invCompraTO.compDocumentoTipo && (invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_DEBITO || invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_CREDITO)">
+            <div class="row">
+              <div class="form-group form-group-sm col-md-4">
+                <label>
+                  <strong>{{constantes.TAG_TIPO_DOCUMENTO}}</strong>
+                </label>
+                <select id="documento" class="form-control form-control-sm mousetrap color-no-disabled" name="compModificadoDocumentoTipo"
+                  [(ngModel)]="anxCompraTO.compModificadoDocumentoTipo" required (ngModelChange)="validarDocumentoComplemento()">
+                  <option [ngValue]="doc.tcCodigo" *ngFor="let doc of listaDocumentos">
+                    {{doc.tcDescripcion}} ({{doc?.tcCodigo}})
+                  </option>
+                </select>
+              </div>
+
+              <!--Numero-->
+              <div class="form-group form-group-sm col-lg-4">
+                <label>
+                  <strong>{{constantes.TAG_NUMERO}}</strong>
+                </label>
+                <label class="form-control form-control-sm label-input" *ngIf="accion === constantes.ACCION_CONSULTAR">{{anxCompraTO.compModificadoDocumentoNumero
+                  }}
+                </label>
+                <p-inputMask class="mousetrap mascara" name="compModificadoDocumentoNumero" [(ngModel)]="anxCompraTO.compModificadoDocumentoNumero"
+                  mask="999-999-999999999" required (onBlur)="validarDocumentoComplemento()" [ngClass]="{'has-error': !numeroDocValidoComplemento000 || numeroRepetido}"
+                  *ngIf="accion !== constantes.ACCION_CONSULTAR"></p-inputMask>
+              </div>
+
+              <!--Nro rizacion-->
+              <div class="form-group form-group-sm col-lg-4">
+                <label>
+                  <strong>{{constantes.TAG_AUTORIZACION}} </strong>
+                </label>
+                <label class="form-control form-control-sm label-input" *ngIf="accion === constantes.ACCION_CONSULTAR">{{anxCompraTO.compModificadoAutorizacion
+                  }}
+                </label>
+                <input class="form-control form-control-sm mousetrap text-uppercase" name="compModificadoAutorizacion"
+                  maxlength="49" onkeypress='return event.charCode >= 48 && event.charCode <= 57' type="text" required
+                  placeholder="{{constantes.TAG_SIN_DETALLE}}" [(ngModel)]="anxCompraTO.compModificadoAutorizacion"
+                  (blur)="validarNumeroAutorizacionComplemento()" [ngClass]="{'has-error': !numeroAutorizacionValidaLongitud}"
+                  *ngIf="accion !== constantes.ACCION_CONSULTAR">
+              </div>
+            </div>
+          </div>
+          <div role="tabpanel" class="tab-pane fade" id="reembolso" *ngIf="invCompraTO.compDocumentoTipo && invCompraTO.compDocumentoTipo === constantes.CODIGO_REEMBOLSO">
+            <div class="card">
+              <div class="card-header">
+                <strong>{{constantes.TAG_DETALLE}}</strong>
+              </div>
+              <div class="card-body m-0 p-0" *ngIf="listAnxCompraReembolsoTO?.length>0">
+                <ag-grid-angular #agGridReembolso id="agGridReembolso" style="width: 100%; height: calc(100vh - 650px);"
+                  class="ag-theme-balham" [rowData]="listAnxCompraReembolsoTO" [columnDefs]="columnDefsReembolso"
+                  [enableSorting]="true" [rowSelection]="rowSelection" [enableColResize]="true" [components]="components"
+                  [context]="context" [frameworkComponents]="frameworkComponents" [rowDragManaged]="true" [animateRows]="true"
+                  [suppressClickEdit]=true (gridReady)="onGridReadyReembolso($event)" (rowSelected)="anxCompraReembolsoTOSeleccionado = $event.node.data"
+                  (cellFocused)="filaFocusedReembolso($event)" (contextmenu)="accion !== constantes.ACCION_CONSULTAR?  $event.preventDefault():null"
+                  (cellContextMenu)="accion !== constantes.ACCION_CONSULTAR? mostrarContextMenuReembolso($event.data,$event.rowIndex, $event.event):null"
+                  (cellEditingStopped)="alCambiarValorDeCeldaReembolso($event)" [stopEditingWhenGridLosesFocus]="true"
+                  [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()">
+                </ag-grid-angular>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Forma pago-->
+    <div class="card">
+      <div class="card-body row">
+        <label class="control-label col-col-lg-2 col-md-2"><strong>{{constantes.TAG_FORMA_PAGO}}:</strong></label>
+        <div class="col-lg-6 col-md-6">
+          <select class="form-control form-control-sm mousetrap" name="formaPago" [(ngModel)]="formaPagoSeleccionada"
+            required [compareWith]="inicializarFormaPago" [disabled]="accion === constantes.ACCION_CONSULTAR">
+            <option disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+            <option [ngValue]="fp" *ngFor="let fp of listaFormaPago"> {{fp?.fpDetalle}} ({{fp?.fpCodigo}})
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</form>
+<p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+<p-contextMenu #menuOpcionesReembolso appendTo="body" [model]="opcionesReembolso"></p-contextMenu>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

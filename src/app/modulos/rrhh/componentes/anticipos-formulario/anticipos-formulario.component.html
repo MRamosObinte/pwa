@@ -1,0 +1,104 @@
+<div *ngIf="listadoAnticipos?.length>0">
+  <form #frmDatos='ngForm' autocomplete="off" class="card m-0">
+    <div class="card-header p-1">
+      <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+        title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <b> {{titulo}} - {{empresaSeleccionada.empNombre}}</b>
+      <div class="card-header-actions" *ngIf="!esContable">
+        <!--Sin etiquetas-->
+        <div class="btn-group d-lg-none">
+          <!--Guardar-->
+          <div class="btn-group mr-1">
+            <button id="btnGuardar" type="button" title="{{constantes.ATAJO_GUARDAR}}" class="btn btn-sm btn-primary mr-1"
+              placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}" (click)="guardar()">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"></span>
+            </button>
+          </div>
+          <!--Cancelar y/o regresar-->
+          <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+            (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+            <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+              aria-hidden="true"></i>
+          </button>
+        </div>
+        <!-- Con etiquetas-->
+        <div class="btn-group d-none d-lg-block">
+          <!--Guardar-->
+          <div class="btn-group mr-1">
+            <button id="btnGuardar" type="button" title="{{constantes.ATAJO_GUARDAR}}" class="btn btn-sm btn-primary mr-1"
+              placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}" (click)="guardar()">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+            </button>
+          </div>
+          <!--Cancelar y/o regresar-->
+          <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+            (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+            <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+              aria-hidden="true"></i>
+            {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+          </button>
+        </div>
+      </div>
+      <div class="card-header-actions" *ngIf="esContable">
+        <app-botones-accion [conContable]="conContableCopia" [data]="data" (enviarAccion)="accionesBotones($event)"></app-botones-accion>
+      </div>
+    </div>
+
+    <div class="card-body p-0">
+      <div class="p-1" *ngIf="esContable">
+        <app-contable-cabecera [data]="data" [conContable]="conContableCopia" [tipoSeleccionado]="tipoSeleccionado"
+          [empresaSeleccionada]="empresaSeleccionada" (accionFechaValido)="fechaContableValido = $event"></app-contable-cabecera>
+      </div>
+      <div class="row" *ngIf="!esContable">
+        <div class="col-sm-4 col-md-4 pr-0">
+          <div class="input-group p-1">
+            <input type="text" [(ngModel)]="filtroGlobal" name="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+              style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100">
+            <div class="input-group-append">
+              <span class="input-group-text">
+                <i class="{{constantes.ICON_BUSCAR}}"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-md-6">
+          <div class="input-group p-1">
+            <input type="text" [(ngModel)]="observacionesContable" appUppercase name="observacionesContable" class="form-control form-control-sm text-uppercase input-filter mousetrap"
+              style="font-family: Arial, FontAwesome;" placeholder="&#xf007; {{constantes.TAG_OBSERVACION_GENERAL}}..."
+              size="100">
+            <div class="input-group-append">
+              <span class="input-group-text">
+                <i class="{{constantes.ICON_EDITAR}}"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-2 col-md-2 pl-0">
+          <div class="float-right pr-1">
+            <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" class="ocultar-en-tabla" name="columnDefsSelected"
+              optionLabel="headerName" maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}"
+              defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+          </div>
+        </div>
+      </div>
+      <div class="p-1">
+        <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listadoAnticipos"
+          [columnDefs]="columnDefsSelected" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()"
+          [rowSelection]="rowSelection" [enableColResize]="true" [context]="context" (cellEditingStopped)="terminadoEditar($event)"
+          [pinnedBottomRowData]="pinnedBottomRowData" [suppressDragLeaveHidesColumns]="true" [suppressClickEdit]=true
+          (gridReady)="onGridReady($event)" [stopEditingWhenGridLosesFocus]="true" (rowSelected)="objetoSeleccionado = $event.node.data"
+          (filterChanged)="actualizarFilas()" (cellFocused)="filaFocused($event)" (contextmenu)="data && data.accion === constantes.ACCION_MAYORIZAR?$event.preventDefault():null"
+          (cellContextMenu)="data && data.accion === constantes.ACCION_MAYORIZAR?mostrarContextMenu($event.data, $event.event):null">
+        </ag-grid-angular>
+      </div>
+    </div>
+    <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+  </form>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

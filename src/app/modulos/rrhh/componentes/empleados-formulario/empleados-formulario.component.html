@@ -1,0 +1,954 @@
+<form #frmDatos='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{accion}} {{constantes.TALENTO_HUMANO_EMPLEADOS.toLowerCase()}} - {{empresaSeleccionada.empNombre}}
+    </b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Guardar-->
+        <div *ngIf="accion !== constantes.ACCION_CONSULTA" class="btn-group mr-1">
+          <button id="btnGuardar" type="button" class="btn btn-sm btn-primary" (click)="insertar(frmDatos)" placement="top"
+            ngbTooltip="{{constantes.LABEL_GUARDAR}}" title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> </span>
+          </button>
+        </div>
+        <!--Cancelar y/o regresar-->
+        <button type="button" id="btnCancelar" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}"
+          id="btnCancelar" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Guardar-->
+        <div *ngIf="accion !== constantes.ACCION_CONSULTAR" class="btn-group mr-1">
+          <button id="btnGuardar" type="button" class="btn btn-sm btn-primary" (click)="insertar(frmDatos)" placement="top"
+            ngbTooltip="{{constantes.LABEL_GUARDAR}}" title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"> </i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}} </span>
+          </button>
+        </div>
+        <!--Cancelar y/o regresar-->
+        <button type="button" id="btnCancelar" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}"
+          id="btnCancelar" (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_TRABAJADOR}}</b>
+        </div>
+        <div class="card-body collapse show m-0 p-0">
+          <div class="mb-0">
+            <ul class="nav nav-tabs nav-justified nav-empresa" role="tablist" style="box-shadow: inset 0 -1px 0 #ddd;">
+              <li role="presentation" class="nav-item">
+                <a class="nav-link active p-1" href data-target="#personal" aria-controls="personal" role="tab"
+                  data-toggle="tab">
+                  <b>{{constantes.TAG_PERSONAL}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#iess" aria-controls="iess" role="tab" data-toggle="tab">
+                  <b>{{constantes.TAG_IESS}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#sri" aria-controls="sri" role="tab" data-toggle="tab">
+                  <b>{{constantes.TAG_SRI}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#financiero" aria-controls="financiero" role="tab"
+                  data-toggle="tab">
+                  <b>{{constantes.TAG_FINANCIERO}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#descuentos" aria-controls="descuentos" role="tab"
+                  data-toggle="tab">
+                  <b>{{constantes.TAG_DESCUENTOS}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item" *ngIf="accion != constantes.ACCION_CREAR">
+                <a class="nav-link p-1" href data-target="#saldos" aria-controls="saldos" role="tab" data-toggle="tab">
+                  <b>{{constantes.TAG_SALDOS}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#foto" aria-controls="foto" role="tab" data-toggle="tab">
+                  <b>{{constantes.TAG_FOTO}}</b>
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content panel" style="border-top-width: 0px;">
+              <div role="tabpanel" class="tab-pane fade show active" id="personal">
+                <!--datos individuales-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_INFORMACION_INDIVIDUAL}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseIA"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseIA">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_EMPRESA}}</strong>
+                        </label>
+                        <label class="form-control form-control-sm text-uppercase mousetrap input-label">
+                          {{empresaSeleccionada.empNombre}}
+                        </label>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SECTOR}}</strong>
+                        </label>
+                        <select [compareWith]="compareSectores" class="form-control form-control-sm text-uppercase  mousetrap"
+                          name="sector" [(ngModel)]="sectorSeleccionado" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="sector" *ngFor="let sector of sectores"> {{sector?.secNombre}}
+                            ({{sector?.prdSectorPK.secCodigo}})
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_CATEGORIA}}</strong>
+                        </label>
+                        <select [compareWith]="compareCategorias" class="form-control form-control-sm text-uppercase  mousetrap"
+                          name="categoria" [(ngModel)]="categoriaSeleccionada" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="categoria" *ngFor="let categoria of categorias">
+                            {{categoria?.rhCategoriaPK.catNombre}}</option>
+                        </select>
+                      </div>
+                      <!--segunda fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_RESIDENCIA}}</strong>
+                        </label>
+                        <select (change)="cambioResidencia()" class="form-control form-control-sm  text-uppercase mousetrap"
+                          name="residencia" [(ngModel)]="empleado.empResidenciaTipo" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="residencia.clave" *ngFor="let residencia of residencias">
+                            {{residencia?.valor}}</option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_PAIS}}</strong>
+                        </label>
+                        <select *ngIf="empleado.empResidenciaTipo != '01'" class="form-control text-uppercase form-control-sm  mousetrap"
+                          name="pais" [(ngModel)]="empleado.empResidenciaPais" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="pais.paisCodigo" *ngFor="let pais of paises"> {{pais?.paisNombre}}
+                          </option>
+                        </select>
+                        <label *ngIf="empleado.empResidenciaTipo == '01'" class="form-control form-control-sm input-label">
+                          {{paisLocal?.paisNombre}}</label>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_TIPO_IDENTIFICACION}}</strong>
+                        </label>
+                        <select *ngIf="empleado.empResidenciaTipo != '01'" class="form-control form-control-sm text-uppercase  mousetrap"
+                          name="identificacion" [(ngModel)]="empleado.empTipoId" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="identificacion.clave" *ngFor="let identificacion of tiposIdentidad">
+                            {{identificacion?.valor}}</option>
+                        </select>
+                        <label *ngIf="empleado.empResidenciaTipo == '01'" class="form-control form-control-sm input-label">
+                          {{tipoIdentidadLocal?.valor}}</label>
+                      </div>
+                      <!--tercera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_NUMERO_IDENTIFICACION}}</strong>
+                        </label>
+                        <input [ngClass]="{'has-error':rptaCedula || rptaRepetido}" type="nidentificacion" name="nidentificacion"
+                          pKeyFilter="pint" (keypress)="soloNumeros($event)" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                          [(ngModel)]="empleado.rhEmpleadoPK.empId" class="form-control form-control-sm text-uppercase mousetrap"
+                          required [disabled]="!empleado.empTipoId" (blur)="validarIdentificacion(empleado.rhEmpleadoPK.empId)">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-8 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_APELLIDOS}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="apellidos" name="apellidos" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empApellidos"
+                          required>
+                      </div>
+                      <!--cuarta fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_NOMBRE}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="nombres" name="nombres" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empNombres"
+                          required>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_GENERO}}</strong>
+                        </label>
+                        <select class="form-control form-control-sm text-uppercase  mousetrap" name="genero"
+                          [(ngModel)]="empleado.empGenero" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="genero.clave" *ngFor="let genero of generos"> {{genero?.valor}}</option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_FECHA_NACIMIENTO}}</strong>
+                        </label>
+                        <p-calendar class="mousetrap calendar" (onBlur)="validarFechaDeNacimiento()" (ngModelChange)="validarFechaDeNacimiento()"
+                          name="nacimiento" [inputStyleClass]="fechaNacimientoValido ==false ?'has-error mousetrap height-30':'mousetrap height-30' "
+                          [(ngModel)]="empleado.empFechaNacimiento" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                          [required]="true" placeholder="DD/MM/YYYY"></p-calendar>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--datos de residencia-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_DATOS_RESIDENCIA}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseR"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseR">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_PROVINCIA}}</strong>
+                        </label>
+                        <select (change)="cambioProvincia()" class="form-control text-uppercase form-control-sm  mousetrap"
+                          name="provincia" [(ngModel)]="empleado.empProvincia" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="provincia.codigo" *ngFor="let provincia of provincias">
+                            {{provincia?.nombre}}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_CANTON}}</strong>
+                        </label>
+                        <select class="form-control form-control-sm text-uppercase  mousetrap" name="canton"
+                          [(ngModel)]="empleado.empCanton" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="canton.codigo" *ngFor="let canton of cantones"> {{canton?.nombre}}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_CIUDAD}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="ciudad" name="ciudad" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empLugarNacimiento"
+                          required>
+                      </div>
+                      <!--segunda fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_DIRECCION}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="direccion" name="direccion" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empDomicilio"
+                          required>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_NUMERO_CASA}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="ncasa" name="ncasa" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empNumero"
+                          required>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_TELEFONO}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="telefono" name="telefono" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empTelefono"
+                          minlength="9" required>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--informacion familiar-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_INFORMACION_FAMILIAR}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseIF"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseIF">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_ESTADO_CIVIL}}</strong>
+                        </label>
+                        <select (change)="cambioCargasFamiliares()" class="form-control text-uppercase form-control-sm  mousetrap"
+                          name="ecivil" [(ngModel)]="empleado.empEstadoCivil" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="ecivil.clave" *ngFor="let ecivil of estadosCivil"> {{ecivil?.valor}}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_NUMERO_CARGAS_FAMILIARES}}</strong>
+                        </label>
+                        <input type="text" id="cf" (ngModelChange)="cambioCargasFamiliares()" appUppercase class="pr-2 text-right form-control form-control-sm text-uppercase mousetrap"
+                          name="cf" [appAutonumeric]="autonumeric30Cargas" [appAutonumericValue]="empleado.empCargasFamiliares"
+                          value="{{empleado.empCargasFamiliares}}" placeholder="{{constantes.TAG_OPCIONAL}}" [ngClass]="{'has-error':!cargaFamiliarValida}"
+                          [(ngModel)]="empleado.empCargasFamiliares">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_EMAIL}}
+                            <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                              autoClose="outside" ngbPopover="{{constantes.MSJ_EMAIL}}" container="body"></span>
+                          </strong>
+                        </label>
+                        <span class="ui-fluid">
+                          <p-chips [(ngModel)]="correos" name="emails" class="mousetrap" [inputStyleClass]="accion===constantes.ACCION_CREAR || correos.length==0 ? 
+                            'form-control form-control-sm grande text-lowercase' : 'form-control form-control-sm chico text-lowercase'"
+                            [allowDuplicate]="false" (onAdd)="clickear()" addOnTab="false" id="chip" placeholder="{{constantes.TAG_OPCIONAL}}"
+                            [disabled]="accion === constantes.ACCION_CONSULTAR" (onBlur)="tamanioGrande()" (onFocus)="tamanioChico()"
+                            id="correosolo">
+                            <ng-template let-item pTemplate="item">
+                              {{item}}
+                            </ng-template>
+                          </p-chips>
+                        </span>
+                      </div>
+                      <!--tercera fila-->
+                      <div class="form-group form-group-sm col-sm-12 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="observaciones" name="observaciones" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empObservaciones">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="iess">
+                <!--Fechas-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_FECHAS}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseF"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseF">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_PRIMER_INGRESO}}</strong>
+                        </label>
+                        <p-calendar class="mousetrap calendar" name="empFechaPrimerIngreso" [inputStyleClass]="'mousetrap height-30' "
+                          [(ngModel)]="empleado.empFechaPrimerIngreso" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                          placeholder="DD/MM/YYYY" [required]="(empleado.empMotivoSalida!=null && empleado.empMotivoSalida!='') || (empleado.empFechaPrimeraSalida)"></p-calendar>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_PRIMERA_SALIDA}}
+                            <span class="fa fa-info-circle text-primary" placement="top" triggers="mouseenter:mouseleave"
+                              autoClose="outside" ngbPopover="{{constantes.MSJ_FECHA_PRIMERA_SALIDA}}" container="body"></span>
+                          </strong>
+                        </label>
+                        <p-calendar class="mousetrap calendar" name="empFechaPrimeraSalida" [inputStyleClass]="'mousetrap height-30' "
+                          [(ngModel)]="empleado.empFechaPrimeraSalida" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                          [minDate]="empleado.empFechaPrimerIngreso" [appMinDate]="empleado.empFechaPrimerIngreso"
+                          [maxDate]="empleado.empFechaAfiliacionIess" [appMaxDate]="empleado.empFechaAfiliacionIess"
+                          placeholder="DD/MM/YYYY" [required]="(empleado.empMotivoSalida!=null && empleado.empMotivoSalida!='') || (empleado.empFechaPrimerIngreso)"></p-calendar>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_MOTIVO_SALIDA}}</strong>
+                        </label>
+                        <select class="form-control form-control-sm text-uppercase  mousetrap" name="empMotivoSalida"
+                          [(ngModel)]="empleado.empMotivoSalida" [required]="(empleado.empFechaPrimerIngreso) || (empleado.empFechaPrimeraSalida)">
+                          <option selected ngValue="">{{constantes.TAG_NINGUNA}}</option>
+                          <option [ngValue]="motivo.clave" *ngFor="let motivo of motivos"> {{motivo?.valor}}</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--IEES-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_IESS}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseIEES"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseIESS">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_FECHA_AVISO_ENTRADA}}</strong>
+                        </label>
+                        <p-calendar class="mousetrap calendar" name="empFechaAfiliacionIess" [inputStyleClass]="'mousetrap height-30' "
+                          [(ngModel)]="empleado.empFechaAfiliacionIess" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                          [minDate]="empleado.empFechaPrimerIngreso" [appMinDate]="empleado.empFechaPrimerIngreso"
+                          [maxDate]="fechaActual" [appMaxDate]="fechaActual" [required]="true" placeholder="DD/MM/YYYY"
+                          (ngModelChange)="cambioAvisoDeEntrada()"></p-calendar>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_NUMERO_REGISTRO_NOVEDAD}}</strong>
+                        </label>
+                        <input type="text" id="empCodigoAfiliacionIess" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empCodigoAfiliacionIess" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empCodigoAfiliacionIess"
+                          required>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_NUMERO_ACTIVIDAD_SECTORIAL}}</strong>
+                        </label>
+                        <input type="text" id="empCodigoCargo" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empCodigoCargo" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empCodigoCargo"
+                          required>
+                      </div>
+                      <!--segunda fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SUELDO}}</strong>
+                        </label>
+                        <input type="text" id="empSueldoIess" [ngClass]="{'has-error':!sueldoValido || empleado.empSueldoIess<=0}"
+                          (blur)="validarSueldo()" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empSueldoIess" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empSueldoIess"
+                          value="{{empleado.empSueldoIess}}" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empSueldoIess"
+                          required>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SALARIO_NETO}}</strong>
+                        </label>
+                        <div class="switch" style="display: block!important;">
+                          <label>
+                            <input id="empSalarioNeto" name="empSalarioNeto" type="checkbox" [(ngModel)]="empleado.empSalarioNeto">
+                            <span class="lever"></span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_EXTENSION_SALUD_CONYUGE}}</strong>
+                        </label>
+                        <div class="switch" style="display: block!important;">
+                          <label>
+                            <input id="empExtensionCoberturaIess" name="empExtensionCoberturaIess" type="checkbox"
+                              [(ngModel)]="empleado.empExtensionCoberturaIess">
+                            <span class="lever"></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!--TAG_PARAMETROS_LABORALES-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_PARAMETROS_LABORALES}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapsePL"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapsePL">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_CARGO}}</strong>
+                        </label>
+                        <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap"
+                          id="empCargo" name="empCargo" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empCargo"
+                          required>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_FORMA_PAGO}}</strong>
+                        </label>
+                        <select class="form-control text-uppercase form-control-sm  mousetrap" name="empFormaPago"
+                          [(ngModel)]="empleado.empFormaPago" disabled required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="fp.clave" *ngFor="let fp of formasDePago"> {{fp?.valor}}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_BONO_FIJO}}</strong>
+                        </label>
+                        <input type="text" id="empBonoFijo" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empBonoFijo" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empBonoFijo"
+                          value="{{empleado.empBonoFijo}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empBonoFijo">
+                      </div>
+                      <!--segunda fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong ngbTooltip="{{constantes.TAG_BONO_FIJO_NO_DEDUCIBLES}}">{{constantes.TAG_BONO_FIJO_ND}}</strong>
+                        </label>
+                        <input type="text" id="empBonoFijoNd" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empBonoFijoNd" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empBonoFijoNd"
+                          value="{{empleado.empBonoFijoNd}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empBonoFijoNd">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_OTROS_INGRESOS}}</strong>
+                        </label>
+                        <input type="text" id="empOtrosIngresos" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empOtrosIngresos" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empOtrosIngresos"
+                          value="{{empleado.empOtrosIngresos}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empOtrosIngresos">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong ngbTooltip="{{constantes.TAG_OTROS_INGRESOS_NO_DEDUCIBLES}}">{{constantes.TAG_OTROS_INGRESOS_ND}}</strong>
+                        </label>
+                        <input type="text" id="empOtrosIngresosNd" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empOtrosIngresosNd" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empOtrosIngresosNd"
+                          value="{{empleado.empOtrosIngresosNd}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empOtrosIngresosNd">
+                      </div>
+                      <!--segunda fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_FONDO_DE_RESERVA}}</strong>
+                        </label>
+                        <select class="form-control form-control-sm  text-uppercase mousetrap" name="empCancelarFondoReservaMensualmente"
+                          [(ngModel)]="empleado.empCancelarFondoReservaMensualmente" required>
+                          <option selected [ngValue]="true">{{constantes.TAG_MENSUALMENTE}}</option>
+                          <option [ngValue]="false">{{constantes.TAG_ACUMULADO}}</option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_DECIMO_TERCER_SUELDO}}</strong>
+                        </label>
+                        <select class="form-control form-control-sm  text-uppercase mousetrap" name="empCancelarXiiiSueldoMensualmente"
+                          [(ngModel)]="empleado.empCancelarXiiiSueldoMensualmente" required>
+                          <option selected [ngValue]="true">{{constantes.TAG_MENSUALMENTE}}</option>
+                          <option [ngValue]="false">{{constantes.TAG_ACUMULADO}}</option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_DECIMO_CUARTO_SUELDO}}</strong>
+                        </label>
+                        <select class="form-control form-control-sm  text-uppercase mousetrap" name="empCancelarXivSueldoMensualmente"
+                          [(ngModel)]="empleado.empCancelarXivSueldoMensualmente" required>
+                          <option selected [ngValue]="true">{{constantes.TAG_MENSUALMENTE}}</option>
+                          <option [ngValue]="false">{{constantes.TAG_ACUMULADO}}</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="sri">
+                <!--TAG_PRELIMINAR_FORMULARIO_GASTOS_PERSONALES-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_PRELIMINAR_FORMULARIO_GASTOS_PERSONALES}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseGastosPersonales"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseGastosPersonales">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_APLICA_RETENCION}}</strong>
+                        </label>
+                        <div class="switch" style="display: block!important;">
+                          <label>
+                            <input id="empRetencion" name="empRetencion" type="checkbox" [(ngModel)]="empleado.empRetencion">
+                            <span class="lever"></span>
+                          </label>
+                        </div>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2" *ngIf="empleado.empRetencion">
+                        <label>
+                          <strong>{{constantes.TAG_VIVIENDA}}</strong>
+                        </label>
+                        <input type="text" id="empVivienda" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empVivienda" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empVivienda"
+                          value="{{empleado.empVivienda}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empVivienda">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2" *ngIf="empleado.empRetencion">
+                        <label>
+                          <strong>{{constantes.TAG_EDUCACION}}</strong>
+                        </label>
+                        <input type="text" id="empEducacion" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empEducacion" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empEducacion"
+                          value="{{empleado.empEducacion}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empEducacion">
+                      </div>
+                    </div>
+                    <!--SEGUNDA fila-->
+                    <div class="row" *ngIf="empleado.empRetencion">
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SALUD}}</strong>
+                        </label>
+                        <input type="text" id="empSalud" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empSalud" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empSalud"
+                          value="{{empleado.empSalud}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empSalud">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_VESTIMENTA}}</strong>
+                        </label>
+                        <input type="text" id="empVestuario" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empVestuario" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empVestuario"
+                          value="{{empleado.empVestuario}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empVestuario">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_ALIMENTACION}}</strong>
+                        </label>
+                        <input type="text" id="empAlimentacion" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empAlimentacion" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empAlimentacion"
+                          value="{{empleado.empAlimentacion}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empAlimentacion">
+                      </div>
+                      <!--TERCERAA fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_REBAJA_DISCAPACIDAD}}</strong>
+                        </label>
+                        <input type="text" id="empRebajaDiscapacidad" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empRebajaDiscapacidad" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empRebajaDiscapacidad"
+                          value="{{empleado.empRebajaDiscapacidad}}" placeholder="{{constantes.TAG_OPCIONAL}}"
+                          [(ngModel)]="empleado.empRebajaDiscapacidad">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_REBAJA_TERCERA_EDAD}}</strong>
+                        </label>
+                        <input type="text" id="empRebajaTerceraEdad" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empRebajaTerceraEdad" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empRebajaTerceraEdad"
+                          value="{{empleado.empRebajaTerceraEdad}}" placeholder="{{constantes.TAG_OPCIONAL}}"
+                          [(ngModel)]="empleado.empRebajaTerceraEdad">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_INGRESO_CON_OTROS_TRABAJADORES}}</strong>
+                        </label>
+                        <input type="text" id="empSueldoOtraCompania" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empSueldoOtraCompania" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empSueldoOtraCompania"
+                          value="{{empleado.empSueldoOtraCompania}}" placeholder="{{constantes.TAG_OPCIONAL}}"
+                          [(ngModel)]="empleado.empSueldoOtraCompania">
+                      </div>
+                      <!--CUARTA fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_APORTE_PERSONAL_OTROS_EMPLEADORES}}</strong>
+                        </label>
+                        <input type="text" id="empOtrasDeducciones" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empOtrasDeducciones" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empOtrasDeducciones"
+                          value="{{empleado.empOtrasDeducciones}}" placeholder="{{constantes.TAG_OPCIONAL}}"
+                          [(ngModel)]="empleado.empOtrasDeducciones">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_UTILIDADES}}</strong>
+                        </label>
+                        <input type="text" id="empUtilidades" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empUtilidades" [appAutonumeric]="autonumeric92" [appAutonumericValue]="empleado.empUtilidades"
+                          value="{{empleado.empUtilidades}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="empleado.empUtilidades">
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_APLICA_CONVENIO}}</strong>
+                        </label>
+                        <div class="switch" style="display: block!important;">
+                          <label>
+                            <input id="empConvenio" name="empConvenio" type="checkbox" [(ngModel)]="empleado.empConvenio">
+                            <span class="lever"></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div *ngIf="empleado.empRetencion" class="text-center pb-2">{{constantes.TAG_VALORES_ANUALES_ANO_EN_CURSO}}</div>
+                  </div>
+                </div>
+                <!--TAG_DISCAPACIDAD-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_DISCAPACIDAD}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDiscapacidad"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseDiscapacidad">
+                    <div class="row">
+                      <!--PRIMERA fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_TIPO_DISCAPACIDAD}}</strong>
+                        </label>
+                        <select class="form-control text-uppercase form-control-sm  mousetrap" name="empDiscapacidadTipo"
+                          [(ngModel)]="empleado.empDiscapacidadTipo" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="empDiscapacidadTipo.clave" *ngFor="let empDiscapacidadTipo of discapacidades">
+                            {{empDiscapacidadTipo?.valor}}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2" *ngIf="empleado.empDiscapacidadTipo && empleado.empDiscapacidadTipo!='01'">
+                        <label>
+                          <strong>{{constantes.TAG_PORCENTAJE_DISCAPACIDAD}}</strong>
+                        </label>
+                        <input type="text" id="pd" appUppercase class="pr-2 text-right form-control form-control-sm text-uppercase mousetrap"
+                          name="pd" [appAutonumeric]="autonumeric30Cargas" [appAutonumericValue]="empleado.empDiscapacidadPorcentaje"
+                          value="{{empleado.empDiscapacidadPorcentaje}}" placeholder="{{constantes.TAG_OPCIONAL}}"
+                          [ngClass]="{'has-error':empDiscapacidadPorcentaje<=0}" [(ngModel)]="empleado.empDiscapacidadPorcentaje"
+                          required>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2" *ngIf="empleado.empDiscapacidadTipo && empleado.empDiscapacidadTipo!='01' && empleado.empDiscapacidadTipo!='02'">
+                        <label>
+                          <strong>{{constantes.TAG_TIPO_IDENTIFICACION}}</strong>
+                        </label>
+                        <select class="form-control text-uppercase form-control-sm  mousetrap" name="empDiscapacidadTipoIdentidad"
+                          [(ngModel)]="empleado.empDiscapacidadIdTipo" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="empDiscapacidadTipo.clave" *ngFor="let empDiscapacidadTipo of tiposIdentidadDiscapacidad">
+                            {{empDiscapacidadTipo?.valor}}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row" *ngIf="empleado.empDiscapacidadTipo && empleado.empDiscapacidadTipo!='01' && empleado.empDiscapacidadTipo!='02'">
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_NUMERO_IDENTIFICACION}}</strong>
+                        </label>
+                        <input [ngClass]="{'has-error':empleado.rhEmpleadoPK.empId === empleado.empDiscapacidadIdNumero}"
+                          type="nidentificacionD" name="nidentificacionD" pKeyFilter="pint" (keypress)="soloNumeros($event)"
+                          placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empDiscapacidadIdNumero"
+                          class="form-control form-control-sm text-uppercase mousetrap" required>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="financiero">
+                <!--TAG_BANCO-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_DATOS_FINANCIEROS}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDatosFinancieros"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseDatosFinancieros">
+                    <div class="row">
+                      <!--CUARTA fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_BANCO}}</strong>
+                        </label>
+                        <select class="form-control text-uppercase form-control-sm  mousetrap" name="banco" [(ngModel)]="empleado.empBanco">
+                          <option selected ngValue="">{{constantes.TAG_NO_APLICA}}</option>
+                          <option [ngValue]="banco.banCodigo" *ngFor="let banco of bancos"> {{banco?.banNombre}}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2" *ngIf="empleado.empBanco && empleado.empBanco != 'NO_APLICA'">
+                        <label>
+                          <strong>{{constantes.TAG_TIPO_CUENTA}}</strong>
+                        </label>
+                        <select class="form-control text-uppercase form-control-sm  mousetrap" name="cuenta"
+                          [(ngModel)]="empleado.empCuentaTipo" required>
+                          <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="cuenta.clave" *ngFor="let cuenta of cuentasBancarias"> {{cuenta?.valor}}
+                          </option>
+                        </select>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2" *ngIf="empleado.empBanco && empleado.empBanco != 'NO_APLICA'">
+                        <label>
+                          <strong>{{constantes.TAG_NUMERO_CUENTA}}</strong>
+                        </label>
+                        <input type="text" id="empCuentaNumero" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                          name="empCuentaNumero" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="empleado.empCuentaNumero"
+                          required>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="descuentos">
+                <div>
+                  <app-descuentos [descuentos]="descuentos" [gridApi]="gridApi" [motivosDeAnticipos]="motivosDeAnticipos"
+                    [autonumeric92]="autonumeric92" [empleado]="empleado" [accion]="accion"></app-descuentos>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="saldos" *ngIf="accion != constantes.ACCION_CREAR">
+                <!--SALDOS-->
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b> {{constantes.TAG_SALDOS}}</b>
+                    <div class="card-header-actions">
+                      <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseSaldos"
+                        aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                        <i class="fa fa-minus"></i>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseSaldos">
+                    <div class="row">
+                      <!--primera fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_FECHA_ULTIMO_SUELDO}}</strong>
+                        </label>
+                        <p-calendar class="mousetrap calendar" name="empFechaUltimoSueldo" [inputStyleClass]="'mousetrap height-30' "
+                          [(ngModel)]="empleado.empFechaUltimoSueldo" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                          placeholder="DD/MM/YYYY" [disabled]="true"></p-calendar>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SALDO_ANTERIOR}}</strong>
+                        </label>
+                        <label class="form-control form-control-sm text-uppercase mousetrap input-label">
+                          {{empleado.empSaldoAnterior | number : '1.2-2'}}
+                        </label>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SALDO_ANTICIPO}}</strong>
+                        </label>
+                        <label class="form-control form-control-sm text-uppercase mousetrap input-label">
+                          {{empleado.empSaldoAnticipos | number : '1.2-2'}}
+                        </label>
+                      </div>
+                      <!--SEGUNDA fila-->
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SALDO_BONOS}}</strong>
+                        </label>
+                        <label class="form-control form-control-sm text-uppercase mousetrap input-label">
+                          {{empleado.empSaldoBonos | number : '1.2-2'}}
+                        </label>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SALDO_BONOS_ND}}</strong>
+                        </label>
+                        <label class="form-control form-control-sm text-uppercase mousetrap input-label">
+                          {{empleado.empSaldoBonosNd | number : '1.2-2'}}
+                        </label>
+                      </div>
+                      <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+                        <label>
+                          <strong>{{constantes.TAG_SALDO_PRESTAMOS}}</strong>
+                        </label>
+                        <label class="form-control form-control-sm text-uppercase mousetrap input-label">
+                          {{empleado.empSaldoPrestamos | number : '1.2-2'}}
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="foto">
+                <div class="card mb-1">
+                  <div class="card-header">
+                    <b>{{constantes.TITULO_IMAGEN_DE_PERFIL}}</b>
+                  </div>
+                  <div class="card-body usuario" style="text-align: center;">
+                    <p-fileUpload name="listadoImagenes" [showCancelButton]="false" [showUploadButton]="false"
+                      invalidFileTypeMessageSummary="{0}:  {{constantes.MSJ_ARCHIVO_NO_VALIDO}}, "
+                      invalidFileSizeMessageSummary="{0}:  {{constantes.MSJ_TAMANIO_ARCHIVO_NO_VALIDO}}"
+                      invalidFileTypeMessageDetail="{{constantes.MSJ_ARCHIVO_PERMITIDO}}: {0}." chooseLabel="{{constantes.TAG_SELECCIONE}}"
+                      cancelLabel="{{constantes.LABEL_CANCELAR}}" accept="image/*" maxFileSize="1000000" (onSelect)="seleccionarImagenes($event)"
+                      invalidFileSizeMessageDetail="El tamaño máximo de carga es 1 MB.">
+                      <ng-template pTemplate="toolbar"></ng-template>
+                      <ng-template let-file pTemplate="file"></ng-template>
+                      <ng-template pTemplate="content"></ng-template>
+                    </p-fileUpload>
+                    <div class="card">
+                      <div *ngIf="archivoPerfilByte">
+                        <img #img class="foto-perfil card-img-top img-responsive" src="{{archivoPerfilByte}}" alt="Card image cap"
+                          width="50">
+                        <div class="card-footer text-muted text-center">
+                          <button class="btn btn-sm btn-danger mr-1" (click)="eliminarItem()"> <i class="{{constantes.ICON_ELIMINAR}}"
+                              aria-hidden="true"></i></button>
+                          <button class="btn btn-sm btn-primary" (click)="visualizar(archivoPerfilByte)"> <i class="{{constantes.ICON_CONSULTAR}}"
+                              aria-hidden="true"></i></button>
+                        </div>
+                      </div>
+                    </div>
+                    <p-dialog header="Visualización de imagen" styleClass="visualizadorImagenes" [(visible)]="visualizarImagen"
+                      modal="true" minWidth="200" minHeight="200" showHeader="false">
+                      <img #img class="card-img-top img-responsive" src="{{archivoPerfilByte}}" alt="Card image cap">
+                    </p-dialog>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

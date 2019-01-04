@@ -1,0 +1,318 @@
+<div *ngIf="vistaFormulario">
+  <!-- FORMULARIO DE ORDEN DE PEDIDO -->
+  <div class="card m-0">
+    <div class="card-header" style="padding: 0.5rem 0.5rem;">
+      <button id="btnActivarFormOrdenPedido" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="cambiarActivar()"
+        type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <strong>{{ frmTitulo }}
+        <strong *ngIf="accion!=constantes.ACCION_CREAR"> No. {{invPedidos.invPedidosPK.pedNumero}}</strong>
+        <span class="text-primary">: {{ empresaSeleccionada.empNombre }}</span>
+      </strong>
+      <div class="card-header-actions">
+        <!--  BOTONES   -->
+        <div class="btn-group">
+          <!-- Registrador -->
+          <div *ngIf="(accion === constantes.ACCION_CREAR|| accion === constantes.ACCION_MAYORIZAR) && !motivoSeleccionado.pmAprobacionAutomatica && funcionesUsuario.indexOf('Registrador')>-1"
+            class="btn-group mr-1">
+            <button id="btnGuardarOrdenPedido" type="button" class="btn btn-sm btn-primary" placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}"
+              (click)="accion===constantes.ACCION_CREAR ? guardarOrdenPedido(frmOrdenPedido, false): actualizarOrdenPedido(frmOrdenPedido, false)">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="accion===constantes.ACCION_CREAR ? guardarOrdenPedido(frmOrdenPedido, true): actualizarOrdenPedido(frmOrdenPedido, true)">{{
+                constantes.LABEL_GUARDAR_PENDIENTE }}
+              </a>
+            </div>
+          </div>
+          <!-- Registrador y aprobador -->
+          <div *ngIf="(accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && motivoSeleccionado.pmAprobacionAutomatica && funcionesUsuario.indexOf('Registrador')>-1 && funcionesUsuario.indexOf('Aprobador')>-1"
+            class="btn-group mr-1">
+            <button id="btnGuardarOrdenPedido" type="button" class="btn btn-sm btn-primary" (click)="accion === constantes.ACCION_CREAR ? guardarOrdenPedido(frmOrdenPedido, false, 'registrar_aprobar') : actualizarOrdenPedido(frmOrdenPedido, false,'registrar_aprobar')"
+              placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="accion === constantes.ACCION_CREAR ? guardarOrdenPedido(frmOrdenPedido, true) : actualizarOrdenPedido(frmOrdenPedido, true)">{{
+                constantes.LABEL_GUARDAR_PENDIENTE}}
+              </a>
+            </div>
+          </div>
+          <!--Reporte historial Y exportar-->
+          <button id="btnImprimirOrdenPedido" *ngIf="accion === constantes.ACCION_CONSULTAR && !invPedidos.pedPendiente && !invPedidos.pedAnulado"
+            type="button" class="btn btn-sm btn-primary mr-1" (click)="imprimirInvPedidos(false, true)" placement="top"
+            ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" [disabled]="cargando">
+            <i class="fa fa-print" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+          </button>
+          <button id="btnExportarOrdenPedido" *ngIf="accion === constantes.ACCION_CONSULTAR && !invPedidos.pedPendiente && !invPedidos.pedAnulado"
+            type="button" class="btn btn-sm btn-primary mr-1" (click)="exportarInvPedidos(true)" placement="top"
+            ngbTooltip="{{constantes.LABEL_EXPORTAR}}" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar && !cargando">
+            <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+          </button>
+          <!-- Anular-->
+          <button id="btnAnularOrdenPedido" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+            placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularOrdenPedido()">
+            <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.ACCION_ANULAR}}</span>
+          </button>
+          <!-- Eliminar -->
+          <button id="btnEliminarOrdenPedido" *ngIf="accion === constantes.ACCION_ELIMINAR" type="button" class="btn btn-sm btn-danger mr-1"
+            placement="top" ngbTooltip="{{constantes.ACCION_ELIMINAR}}" (click)="eliminarOrdenPedido()">
+            <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.ACCION_ELIMINAR}}</span>
+          </button>
+          <!--Cancelar-->
+          <button id="btnCancelarOrdenPedido" *ngIf="!(accion === constantes.ACCION_CONSULTAR)" type="button" class="btn btn-sm btn-default mr-1"
+            (click)="cancelarAccion()" placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}" title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+          </button>
+          <button id="btnCancelarOrdenPedido" *ngIf="accion === constantes.ACCION_CONSULTAR" type="button" class="btn btn-sm btn-default mr-1"
+            (click)="cancelarAccion()" placement="top" ngbTooltip="{{constantes.LABEL_REGRESAR}}" title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-1">
+      <form #frmOrdenPedido="ngForm" autocomplete="off">
+        <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR || accion === constantes.ACCION_ELIMINAR || accion === constantes.ACCION_ANULAR">
+          <!--Informacion general de orden de pedido-->
+          <div class="card mb-1" [ngClass]="{'card-accent-danger': invPedidos.pedPendiente, 'card-accent-success': invPedidos.pedAprobado && !invPedidos.pedEjecutado, 'card-accent-warning': invPedidos.pedAprobado && invPedidos.pedEjecutado, 'card-accent-default': invPedidos.pedAnulado}">
+            <div class="card-header">
+              <strong>{{ constantes.TAG_DATOS_GENERALES }}
+              </strong>
+              <div class="card-header-actions">
+                <span class="mr-2 badge badge-pill" [ngClass]="{'badge-danger': invPedidos.pedPendiente, 'badge-success': invPedidos.pedAprobado && !invPedidos.pedEjecutado, 'badge-warning': invPedidos.pedAprobado && invPedidos.pedEjecutado, 'badge-default': invPedidos.pedAnulado}">{{pedidoEstado}}</span>
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionOrden"
+                  aria-expanded="true" placement="left" ngbTooltip="Ocultar/Mostrar" (click)="collpase()">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInformacionOrden">
+              <div class="row">
+                <!--fecha-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_FECHA}}</b>
+                    </label>
+                    <p-calendar inputId="pedFechaEmision" name="pedFechaEmision" [(ngModel)]="invPedidos.pedFechaEmision"
+                      [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true"></p-calendar>
+                  </div>
+                </div>
+                <!--motivo-->
+                <div class="col-md-3" *ngIf="accion === constantes.ACCION_CREAR">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_MOTIVO}}</b>
+                      &nbsp;
+                      <a (click)="listarMotivos()">
+                        <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                          container="body"></span>
+                      </a>
+                    </label>
+                    <select [(ngModel)]="motivoSeleccionado" class="form-control input-sm" name="motivoSeleccionado"
+                      (change)="traerConfiguracionPedidos()" required [compareWith]="inicializarMotivos">
+                      <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                      <option [ngValue]="motivo" *ngFor="let motivo of listaMotivos">{{motivo.pmDetalle}}
+                        ({{motivo.invPedidosMotivoPK.pmCodigo}})</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!--Registrador-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_REGISTRADOR}}</b>
+                    </label>
+                    <input name="usrRegistradorNombre" [(ngModel)]="usrRegistradorNombre" class="form-control form-control-sm"
+                      disabled>
+                  </div>
+                </div>
+                <!--Fecha y hora de entrega-->
+                <div class="col-md-3" *ngIf="!motivoSeleccionado.pmExigirCliente || !invPedidos.invCliente">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_FECHA_HORA_ENTREGA}}</b>
+                    </label>
+                    <p-calendar name="pedidoFechaHora" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                      [showIcon]="true" [(ngModel)]="invPedidos.pedFechaHoraEntrega" showTime="true" hourFormat="24"
+                      [required]="true" [minDate]="invPedidos.pedFechaEmision" [appMinDate]="invPedidos.pedFechaEmision"></p-calendar>
+                  </div>
+                </div>
+                <!--observaciones-->
+                <div class="col-md-3" *ngIf="!motivoSeleccionado.pmExigirCliente || !invPedidos.invCliente">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <strong>{{constantes.TAG_OBSERVACIONES}} </strong>
+                    </label>
+                    <input id="pedObservacionesRegistra" name="pedObservacionesRegistra" [(ngModel)]="invPedidos.pedObservacionesRegistra"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                      maxlength="1000" required appUppercase>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <!--Informacion de cliente-->
+          <div class="card mb-1" *ngIf="(motivoSeleccionado.pmExigirCliente && (accion === constantes.ACCION_CREAR  ||  accion === constantes.ACCION_MAYORIZAR))  ||  (accion !== constantes.ACCION_CREAR  &&  accion !== constantes.ACCION_MAYORIZAR && invPedidos.invCliente && invPedidos.invCliente.invClientePK.cliCodigo) ">
+            <div class="card-header">
+              <strong>{{ constantes.TAG_DATOS_CLIENTE }}<span class="text-primary">: {{
+                  invPedidos.invCliente.cliRazonSocial}}</span></strong>
+              <div class="card-header-actions">
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionCliente"
+                  aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}" (click)="collpaseCliente()">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInformacionCliente">
+              <div class="row">
+                <!--Orden de compra-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <strong>{{constantes.TAG_ORDEN_COMPRA}} </strong>
+                    </label>
+                    <input id="pedOrdenCompra" name="pedOrdenCompra" [(ngModel)]="invPedidos.pedOrdenCompra"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" class="form-control form-control-sm mousetrap text-uppercase"
+                      maxlength="1000" required appUppercase>
+                    <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_CODIGO_ORDEN_COMPRA}}"
+                      container="body"></span>
+                  </div>
+                </div>
+                <!--cliente-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_CODIGO_CLIENTE}}</b>
+                    </label>
+                    <input id="codCliente" name="txtCodigoCliente" class="form-control form-control-sm mousetrap text-uppercase"
+                      type="text" required (blur)="validarCliente()" (keydown)="buscarCliente($event);" [(ngModel)]="invPedidos.invCliente.invClientePK.cliCodigo"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" appUppercase>
+                  </div>
+                </div>
+                <!--grupo empresarial-->
+                <div class="col-md-3" *ngIf="invPedidos.invCliente.invClienteGrupoEmpresarial && invPedidos.invCliente.invClienteGrupoEmpresarial.geNombre">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.INVENTARIO_GRUPO_EMPRESARIAL}}</b>
+                    </label>
+                    <input id="grupoEmpresarialCliente" name="txtGrupoEmpresarialCliente" class="form-control form-control-sm mousetrap text-uppercase"
+                      type="text" required (blur)="validarCliente()" [(ngModel)]="invPedidos.invCliente.invClienteGrupoEmpresarial.geNombre"
+                      disabled>
+                  </div>
+                </div>
+                <!--Contacto-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label" [ngClass]="{'mb-6-important': accion === constantes.ACCION_CREAR  ||  accion === constantes.ACCION_MAYORIZAR}">
+                      <b>{{constantes.TAG_CONTACTO_NOMBRE}}</b>
+                    </label>
+                    <input id="pedContactoNombre" name="pedContactoNombre" class="form-control form-control-sm mousetrap text-uppercase"
+                      type="text" required [(ngModel)]="invPedidos.pedContactoNombre" disabled *ngIf="accion !== constantes.ACCION_CREAR  &&  accion !== constantes.ACCION_MAYORIZAR">
+                    <span class="ui-fluid" *ngIf="accion === constantes.ACCION_CREAR  ||  accion === constantes.ACCION_MAYORIZAR">
+                      <p-autoComplete name="pedContactoNombre" isAutocomple="true" autofocus inputId="pedContactoNombre"
+                        required="true" [(ngModel)]="contactoPredeterminado" [suggestions]="arrayContactoFiltrada"
+                        (completeMethod)="filtrarContactos($event)" (onSelect)="seleccionarContacto()" field="contacto"
+                        placeholder="{{constantes.TAG_OBLIGATORIO}}" [dropdown]="true" [minLength]="1"
+                        [inputStyleClass]="'text-uppercase'">
+                      </p-autoComplete>
+                    </span>
+                  </div>
+                </div>
+                <!--lugar de entrega-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label" [ngClass]="{'mb-6-important': accion === constantes.ACCION_CREAR  ||  accion === constantes.ACCION_MAYORIZAR}">
+                      <b>{{constantes.TAG_LUGAR_ENTREGA}}</b>
+                    </label>
+                    <input id="pedLugarEntrega" name="pedLugarEntrega" class="form-control form-control-sm mousetrap text-uppercase"
+                      type="text" required [(ngModel)]="invPedidos.pedLugarEntrega" disabled *ngIf="accion !== constantes.ACCION_CREAR  &&  accion !== constantes.ACCION_MAYORIZAR">
+                    <span class="ui-fluid" *ngIf="accion === constantes.ACCION_CREAR  ||  accion === constantes.ACCION_MAYORIZAR">
+                      <p-autoComplete name="pedLugarEntrega" isAutocomple="true" autofocus inputId="nombre" required="true"
+                        [(ngModel)]="lugarEntrega" [suggestions]="arrayContactoLugarEntregaFiltrada" (completeMethod)="filtrarLugarEntrega($event)"
+                        (onSelect)="seleccionarLugarEntrega()" field="nombre" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                        [dropdown]="true" [minLength]="1" [inputStyleClass]="'text-uppercase'">
+                      </p-autoComplete>
+                    </span>
+                  </div>
+                </div>
+                <!--telefono-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_TELEFONO}}</b>
+                    </label>
+                    <input name="pedidoTelefono" id="pedidoTelefono" class="form-control form-control-sm mousetrap text-uppercase"
+                      type="text" required [(ngModel)]="invPedidos.pedContactoTelefono" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                      (keypress)="soloNumeros($event)">
+                  </div>
+                </div>
+                <!--Fecha y hora de entrega-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_FECHA_HORA_ENTREGA}}</b>
+                    </label>
+                    <p-calendar name="pedidoFechaHora" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                      [showIcon]="true" [(ngModel)]="invPedidos.pedFechaHoraEntrega" showTime="true" hourFormat="24"
+                      [required]="true" [minDate]="invPedidos.pedFechaEmision" [appMinDate]="invPedidos.pedFechaEmision"></p-calendar>
+                  </div>
+                </div>
+                <!--observaciones-->
+                <div class="col-md-6">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <strong>{{constantes.TAG_OBSERVACIONES}} </strong>
+                    </label>
+                    <input id="pedObservacionesRegistra" name="pedObservacionesRegistra" [(ngModel)]="invPedidos.pedObservacionesRegistra"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                      maxlength="1000" required appUppercase>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <!--Detalle de pedidos-->
+        <div class="card mb-1">
+          <div class="card-header">
+            <strong>{{constantes.PEDIDOS_DETALLE}}</strong>
+          </div>
+          <div class="card-body m-0 p-0">
+            <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listadoResultado"
+              [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+              [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+              [rowDragManaged]="true" [animateRows]="true" [singleClickEdit]="true" [rowClassRules]="rowClassRules"
+              (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)"
+              (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+              (cellEditingStopped)="alCambiarValorDeCelda($event)" [stopEditingWhenGridLosesFocus]="true" (rowDragEnd)="refrescarOrdenDetallePedido()"
+              [suppressDragLeaveHidesColumns]="true" (gridColumnsChanged)="redimensionarColumnas()" (gridSizeChanged)="redimensionarColumnas()">
+            </ag-grid-angular>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

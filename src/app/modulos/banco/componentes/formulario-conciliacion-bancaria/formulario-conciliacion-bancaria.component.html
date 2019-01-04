@@ -1,0 +1,202 @@
+<form #frmConciliacion='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="screamXS" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{accion}} - {{empresaSeleccionada.empNombre}}</b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <button type="button" class="btn btn-sm btn-primary mr-1" *ngIf="accion === constantes.ACCION_NUEVO" (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? insertarCliente(frmConciliacion) : null"
+          title="{{constantes.ATAJO_GUARDAR}}" id="btnGuardar">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion !== constantes.ACCION_CONSULTAR"
+          (click)="cancelar()" id="btnCancelar">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <button type="button" class="btn btn-sm btn-primary mr-1" *ngIf="accion === constantes.ACCION_NUEVO" id="btnGuardar"
+          (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? insertarCliente(frmConciliacion) : null" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion !== constantes.ACCION_CONSULTAR"
+          (click)="cancelar()" id="btnCancelar">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!--FORMULARIO-->
+  <div class="card-body p-1">
+    <fieldset>
+      <!--DATOS PARA VISUALIZAR-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInfo"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInfo">
+          <div class="row">
+            <!--FECHA HASTA-->
+            <div class="form-group form-group-sm col-lg-3 col-sm-3">
+              <label class="control-label">
+                <b>{{constantes.TAG_FECHA_HASTA}}</b>
+              </label>
+              <p-calendar inputId="fechaHasta" class="mousetrap" name="fechaHasta" [(ngModel)]="fechaHasta" [maxDate]="fechaActual"
+                (ngModelChange)="limpiarResultado();inicializarCodigo()" dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true"></p-calendar>
+            </div>
+            <!--CODIGO CONCILIACION-->
+            <div class="form-group form-group-sm col-lg-3 col-sm-3">
+              <label class="control-label">
+                <b>{{constantes.TAG_CODIGO_CONCILIACION}}</b>
+              </label>
+              <input [appFocus]="accion === constantes.ACCION_EDITAR" class="form-control form-control-sm mousetrap text-uppercase"
+                name="detalle" maxlength="150" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="codigoConciliacion"
+                id="detalle" appUppercase required [disabled]="accion === constantes.ACCION_CONSULTAR">
+            </div>
+            <!--CUENTA BANCO-->
+            <div class="form-group form-group-sm col-lg-4 col-sm-3">
+              <label class="control-label">
+                <b>{{constantes.TAG_CUENTA_BANCO}}</b>
+              </label>
+              <select [(ngModel)]="cuentaComboSeleccionado" name="cuentaComboSeleccionado" class="form-control form-control-sm input-sm"
+                required [disabled]="objetoContableEnviar" (ngModelChange)="limpiarResultado()">
+                <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+                <option *ngFor="let cuenta of listadoBancoCuenta" [ngValue]="cuenta">{{cuenta.banNombre}}
+                  ({{cuenta.ctaNumero}})</option>
+              </select>
+            </div>
+            <!--BOTON VISUALIZAR-->
+            <div class="">
+              <button type="button" class="btn btn-sm btn-primary m-3" *ngIf="accion === constantes.ACCION_NUEVO"
+                (click)="obtenerDatos()">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_VISUALIZAR}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--DATOS CUENTA (BANCO)-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_BANCO}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInfoBanco"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInfoBanco">
+          <div class="row">
+            <!--CUENTA CONTABLE-->
+            <div class="form-group-sm col-lg-4">
+              <label>
+                <strong>{{constantes.TAG_CUENTA_CONTABLE}}: </strong>
+              </label>
+              <label class="form-control form-control-sm input-label"> {{cuentaComboSeleccionado?.ctaContable}}</label>
+            </div>
+            <!--CUENTA BANCARIA-->
+            <div class="form-group-sm col-lg-4">
+              <label>
+                <strong>{{constantes.TAG_CUENTA_BANCARIA}}: </strong>
+              </label>
+              <label class="form-control form-control-sm input-label"> {{cuentaComboSeleccionado?.ctaNumero}}</label>
+            </div>
+            <!--TITULAR-->
+            <div class="form-group-sm col-lg-4">
+              <label>
+                <strong>{{constantes.TAG_TITULAR}}: </strong>
+              </label>
+              <label class="form-control form-control-sm input-label"> {{cuentaComboSeleccionado?.ctaTitular}}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--CHEQUES/NOTAS DE DÉBITO-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_CHEQUES_NOTAS_DE_DEBITO}}</b>
+        </div>
+        <div class="card-body m-0 p-0" *ngIf="listaConciliacionBancariaDebito?.length>0">
+          <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 750px);" class="ag-theme-balham"
+            [rowData]="listaConciliacionBancariaDebito" [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection"
+            [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+            [rowDragManaged]="true" [animateRows]="true" [suppressClickEdit]=true (gridReady)="onGridReady($event)"
+            (rowSelected)="debitoSeleccionada= $event.node.data" (cellFocused)="filaFocused($event)" (filterChanged)="actualizarFilas()"
+            [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimencionarColumnas()"
+            [suppressRowClickSelection]="true">
+          </ag-grid-angular>
+        </div>
+      </div>
+      <!--CHEQUES/NOTAS DE CRÉDITO-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DEPOSITOS_NOTAS_DE_CREDITO}}</b>
+        </div>
+        <div class="card-body m-0 p-0" *ngIf="listaConciliacionBancariaCredito?.length>0">
+          <app-tabla-conciliacion-bancaria-credito [listaConciliacionBancariaCredito]="listaConciliacionBancariaCredito"></app-tabla-conciliacion-bancaria-credito>
+        </div>
+      </div>
+      <!--TRANSACCIONES/TOTALES-->
+      <div class="card-body m-0 p-0">
+        <div class="card mb-1">
+          <div class="row pl-3 pr-3">
+            <!--TRANSACCIONES NO CONCILIADAS-->
+            <div class="col-md-4 col-sm-4 p-0">
+              <div class="card-header">
+                <b> {{constantes.TAG_TRANSACCIONES_NO_CONCILIADAS}}</b>
+              </div>
+              <div class="card-body" *ngIf="listaConciliacionBancariaCredito?.length>0 && listaConciliacionBancariaDebito?.length>0">
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_CHEQUES_NOTAS_DE_DEBITO}}:</strong> &nbsp;
+                    <label class="input-label"> {{cuentaComboSeleccionado?.ctaContable}}</label>
+                  </label>
+                </div>
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_DEPOSITOS_NOTAS_DE_CREDITO}}:</strong> &nbsp;
+                    <label class="input-label"> {{cuentaComboSeleccionado?.ctaContable}}</label>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <!--TRANSACCIONES CONCILIADAS-->
+            <div class="col-md-4 col-sm-4 p-0">
+              <div class="card-header">
+                <b> {{constantes.TAG_TRANSACCIONES_CONCILIADAS}}</b>
+              </div>
+              <div class="card-body" *ngIf="listaConciliacionBancariaCredito?.length>0 && listaConciliacionBancariaDebito?.length>0">
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_CHEQUES_NOTAS_DE_DEBITO}}:</strong> &nbsp;
+                    <label class="input-label"> {{cuentaComboSeleccionado?.ctaContable}}</label>
+                  </label>
+                </div>
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_DEPOSITOS_NOTAS_DE_CREDITO}}:</strong> &nbsp;
+                    <label class="input-label"> {{cuentaComboSeleccionado?.ctaContable}}</label>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>

@@ -1,0 +1,45 @@
+<div class="btn-group pull-right">
+  <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirContable" (click)="imprimirContable()" title="{{constantes.ATAJO_IMPRIMIR}}"
+    *ngIf="!conContable.conPendiente && !conContable.conAnulado && !conContable.conReversado && data.accion !== constantes.ACCION_CREAR && data.accion !== constantes.ACCION_ELIMINAR && data.accion !== constantes.ACCION_ANULAR && data.accion !== constantes.ACCION_REVERSAR">
+    <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+    <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+  </button>
+  <button type="button" class="btn btn-sm btn-danger mr-1" id="btnEliminarContable" (click)="eliminar()" title="{{constantes.ATAJO_ELIMINAR}}"
+    *ngIf="data.accion === constantes.ACCION_ELIMINAR">
+    <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+    <span class="d-none d-md-inline"> {{constantes.ACCION_ELIMINAR}}</span>
+  </button>
+  <button type="button" class="btn btn-sm btn-danger mr-1" id="btnAnularContable" (click)="anular()" title="{{constantes.ATAJO_ANULAR}}"
+    *ngIf="data.accion === constantes.ACCION_ANULAR">
+    <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+    <span class="d-none d-md-inline"> {{constantes.LABEL_ANULAR}}</span>
+  </button>
+  <button type="button" class="btn btn-sm btn-danger mr-1" id="btnReversarContable" (click)="reversar()" title="{{constantes.ATAJO_REVERSAR}}"
+    *ngIf="data.accion === constantes.ACCION_REVERSAR">
+    <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+    <span class="d-none d-md-inline"> {{constantes.LABEL_REVERSAR}}</span>
+  </button>
+  <div class="btn-group" *ngIf="data.accion === constantes.ACCION_MAYORIZAR">
+    <button type="button" class="btn btn-sm btn-primary" id="btnMayorizarContable" (click)="mayorizar(false)" title="{{constantes.ATAJO_GUARDAR}}">
+      <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+      <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+    </button>
+    <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+      style="margin-right: 3px;">
+    </button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" (click)="mayorizar(true)">
+        {{constantes.TAG_PENDIENTE}}</a>
+    </div>
+  </div>
+  <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelarContable" (click)="confirmacionCerrarContable()"
+    title="{{constantes.ATAJO_CANCELAR}}" *ngIf="!(data.accion === constantes.ACCION_CONSULTAR)">
+    <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+    <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+  </button>
+  <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelarContable" (click)="confirmacionCerrarContable()"
+    title="{{constantes.ATAJO_CANCELAR}}" *ngIf="data.accion === constantes.ACCION_CONSULTAR">
+    <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+    <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+  </button>
+</div>

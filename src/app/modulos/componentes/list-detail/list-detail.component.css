@@ -1,0 +1,50 @@
+.collection {
+    margin: 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+}
+
+div.list-items {
+    width: 100%;
+    height: calc(100vh - 200px);
+    overflow: auto;
+}
+
+.collection .collection-item {
+    background-color: #fff;
+    line-height: 1.5rem;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.collection .collection-item.detail {
+    min-height: 28px;
+    padding-left: 10px;
+    position: relative;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.column-data {
+    margin: 0;
+    padding: 0;
+}
+
+.column-data .row {
+    margin: 0;
+    padding: 0;
+}
+
+.collection .collection-item.col-hover:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+.collection .collection-item.col-hover:hover, 
+.collection .collection-item.col-hover:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}

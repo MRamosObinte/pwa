@@ -1,0 +1,155 @@
+<div [hidden]="vistaFormulario">
+  <div [ngClass]="{'modal-primary': isModal}">
+    <div *ngIf="isModal" class="modal-header p-2">
+      <h4 class="modal-title">{{constantes.TAG_KARDEX}}</h4>
+      <button type="button" class="close text-white" aria-label="Cerrar" (click)="activeModal.dismiss('Cerrar Modal')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div [ngClass]="{'modal-body': isModal}">
+      <form #frmFiltroOrdenPedido="ngForm" class="card mb-2" *ngIf="isModal">
+        <div class="card-body p-1">
+          <div class="row pl-4 pr-4">
+            <div class="form-group col-md-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_BODEGA}}</b>
+              </label>
+              <select [(ngModel)]="parametrosBusqueda.bodega" class="form-control" name="bodegaSeleccionada" (change)="limpiarResultado();"
+                style="height: 27px; font-size: 12px;">
+                <option selected value=null>{{constantes.TAG_TODOS}}</option>
+                <option [ngValue]="bodega.bodCodigo" *ngFor="let bodega of listaBodegas">{{bodega.bodNombre}}
+                  ({{bodega.bodCodigo}})</option>
+              </select>
+            </div>
+            <div class="form-group col-md-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_DESDE}}</b>
+              </label>
+              <p-calendar name="fechaDesde" [(ngModel)]="fechaDesde" (ngModelChange)="limpiarResultado();" [showIcon]="true"
+                [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true" [maxDate]="fechaHasta"
+                [appMaxDate]="fechaHasta"></p-calendar>
+            </div>
+            <div class="form-group col-md-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_HASTA}}</b>
+              </label>
+              <p-calendar name="fechaHasta" [(ngModel)]="fechaHasta" (ngModelChange)="limpiarResultado();" [showIcon]="true"
+                [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true" [minDate]="fechaDesde"
+                [maxDate]="fechaActual" [appMinDate]="fechaDesde" [appMaxDate]="fechaActual"></p-calendar>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer" *ngIf="!deshabilitarOpciones">
+          <div class="text-right">
+            <div class="btn-group">
+              <button id="btnBuscar" type="button" class="btn btn-sm btn-primary" (click)="buscarKardex()" [disabled]="!frmFiltroOrdenPedido?.form.valid">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+                [disabled]="!frmFiltroOrdenPedido?.form.valid">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="buscarKardex()">{{constantes.TAG_SOLO_INACTIVOS}}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+      <div class="card m-0" *ngIf="listadoResultado?.length > 0">
+        <div class="card-header p-1" *ngIf="!isModal">
+          <button id="btnActivarKardex" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="cambiarActivar()"
+            type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+            <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+          </button>
+          <strong>{{parametrosBusqueda.vista === 'kardexValorizado'?constantes.KARDEX_VALORIZADO_LISTADO:
+            constantes.PRODUCCION_KARDEX_LISTADO}}</strong>
+
+          <div class="card-header-actions" *ngIf="!isModal">
+            <div class="btn-group d-lg-none">
+              <button id="btnImprimirKardex" type="button" class="btn btn-sm btn-primary mr-1" (click)="imprimirKardex()"
+                placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+              </button>
+              <button id="btnExportarKardex" type="button" class="btn btn-sm btn-primary mr-1" (click)="exportarKardex()"
+                placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+              </button>
+              <button id="btnCancelarKardex" type="button" class="btn btn-sm btn-default mr-1" (click)="cerrarKardex()"
+                placement="top" ngbTooltip="{{constantes.LABEL_REGRESAR}}" *ngIf="parametrosBusqueda.mostrarBtnRegresar"
+                container="body" title="{{constantes.ATAJO_CANCELAR}}">
+                <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div class="btn-group d-none d-lg-block">
+              <button id="btnImprimirKardex" type="button" class="btn btn-sm btn-primary mr-1" (click)="imprimirKardex()"
+                placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+              </button>
+              <button id="btnExportarKardex" type="button" class="btn btn-sm btn-primary mr-1" (click)="exportarKardex()"
+                placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+              </button>
+              <button id="btnCancelarKardex" type="button" class="btn btn-sm btn-default mr-1" (click)="cerrarKardex()"
+                placement="top" ngbTooltip="{{constantes.LABEL_REGRESAR}}" *ngIf="parametrosBusqueda.mostrarBtnRegresar"
+                container="body" title="{{constantes.ATAJO_CANCELAR}}">
+                <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i> {{constantes.LABEL_REGRESAR}}
+              </button>
+            </div>
+          </div>
+
+        </div>
+        <div class="card-body p-0">
+          <div class="row">
+            <div class="col-sm-5 col-md-6">
+              <div class="input-group p-1">
+                <input type="text" class="form-control form-control-sm input-filter" size="100" style="font-family: Arial, FontAwesome;"
+                  placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100" (input)="gridApi?gridApi.setQuickFilter($event.target.value):null">
+                <div class="input-group-append">
+                  <span class="input-group-text"><i class="{{constantes.ICON_BUSCAR}}"></i></span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-7 col-md-6">
+              <div class="float-right pr-1">
+                <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                  maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+              </div>
+            </div>
+          </div>
+          <!--195px-->
+          <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listadoResultado"
+            [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+            [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+            (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="!isModal?mostrarContextMenu($event.data, $event.event):null"
+            (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" [rowClassRules]="rowClassRules"
+            (gridSizeChanged)="redimensionarColumnas()" (cellDoubleClicked)="!isModal?consultar():null" (cellFocused)="filaFocused($event)">
+          </ag-grid-angular>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p-contextMenu #menuOpciones appendTo="body" [model]="opciones" [baseZIndex]="1100"></p-contextMenu>
+  <div *ngIf="cargando">
+    <app-cargando></app-cargando>
+  </div>
+</div>
+
+<!--FORMULARIO DE VENTAS-->
+<div *ngIf="vistaFormulario && parametrosFormulario">
+  <app-venta-formulario [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada" [tipoDocumento]="tipoDocumento"
+    (enviarAccion)="ejecutarAccion($event)"></app-venta-formulario>
+</div>
+<!--FORMULARIO DE CONSUMOS-->
+<div *ngIf="vistaFormulario && parametrosFormularioConsumo">
+  <app-consumo-formulario [parametros]="parametrosFormularioConsumo" [empresaSeleccionada]="empresaSeleccionada"
+    (enviarAccion)="ejecutarAccionConsumos($event)" (enviarActivar)="cambiarActivar()">
+  </app-consumo-formulario>
+</div>
+<!--FORMULARIO DE TRANSFERENCIAS-->
+<div *ngIf="vistaFormulario && parametrosFormularioTransferencia">
+  <app-transferencias-formulario [data]="parametrosFormularioTransferencia" [empresaSeleccionada]="empresaSeleccionada"
+    (enviarCancelar)="cancelar()" (enviarAccion)="ejecutarAccionTransferencia($event)" (activarEstado)="activar=$event"></app-transferencias-formulario>
+</div>
+<!--FORMULARIO DE COMPRAS-->
+<div *ngIf="vistaFormulario && parametrosCompra">
+  <app-compras-formulario [data]="parametrosCompra" [empresaSeleccionada]="empresaSeleccionada" (enviarAccion)="ejecutarAccionCompras($event)"></app-compras-formulario>
+</div>

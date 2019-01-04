@@ -1,0 +1,134 @@
+<div class="row" *ngIf="!mostrarKardex">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmConsumo='ngForm' name="frmConsumo" class="card m-0 mb-2" autocomplete="off">
+      <fieldset>
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_SECTOR}}</b>
+            </label>
+            <p-dropdown [options]="listaSectores" name="motivo" [showClear]="true" [(ngModel)]="sectorSeleccionado"
+              (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_OPCIONAL}}" optionLabel="secNombre">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ( {{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div> {{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_DESDE}}</b>
+            </label>
+            <p-calendar inputId="fechaDesde" class="mousetrap" name="fechaDesde" [(ngModel)]="fechaDesde" [maxDate]="fechaHasta"
+              [appMaxDate]="fechaHasta" (ngModelChange)="limpiarResultado()" dateFormat="dd/mm/yy" [locale]="es"
+              [showIcon]="true" [required]="true"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar inputId="fechaHasta" class="mousetrap" name="fechaHasta" [(ngModel)]="fechaHasta" [minDate]="fechaDesde"
+              [maxDate]="fechaActual" (ngModelChange)="limpiarResultado()" dateFormat="dd/mm/yy" [locale]="es"
+              [showIcon]="true" [required]="true" [appMaxDate]="fechaActual"></p-calendar>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group mr-1">
+              <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="listadoConsumos(frmConsumo)"
+                title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <!--Listado de consumos por fecha desglosado-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="listaConsumos.length>0">
+    <div class="card m-0">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.INVENTARIO_CONSUMOS_FECHA_LISTADO}}</strong>
+        <div class="card-header-actions">
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimir()" placement="top"
+            ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportar()" placement="top"
+            ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+            <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body" style="padding: 0 0 0 0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <!--195px-->
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaConsumos" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (gridReady)="onGridReady($event)" (filterChanged)="actualizarFilas()"
+          (cellDoubleClicked)="consultarKardex()" (rowSelected)="consumoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)"
+          (cellContextMenu)="!this.isModal?mostrarContextMenu($event.data, $event.event):null" (contextmenu)="!this.isModal?$event.preventDefault():null"
+          (gridColumnsChanged)="redimencionarColumnas()" (gridSizeChanged)="redimencionarColumnas()">
+        </ag-grid-angular>
+      </div>
+      <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+    </div>
+  </div>
+</div>
+<!--kardex-->
+<div *ngIf="mostrarKardex && objetoDesdeFuera">
+  <app-kardex [objetoDesdeFuera]="objetoDesdeFuera" (cerrarKardex)="cerrarKardex($event)"></app-kardex>
+</div>
+<!--end kardex-->
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

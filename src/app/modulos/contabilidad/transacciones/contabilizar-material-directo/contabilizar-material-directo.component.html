@@ -1,0 +1,88 @@
+<div class="row">
+
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card">
+      <div class="card-header">
+        <i class=" {{classTitulo}}"></i>
+        <b>{{frmTitulo}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmFiltro="ngForm" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [(ngModel)]="empresaSeleccionada" class="form-control form-control-sm  mousetrap" name="empresaSeleccionada" 
+              (change)="cambiarEmpresaSelect();" required [appFocus]=true>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}} ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback" *ngIf="false">
+            <label class="control-label mb-0">
+              <b>{{constantes.TAG_SECTOR}}</b>
+            </label>
+            <select [(ngModel)]="sectorSeleccionado" name="sectorSeleccionado" class="form-control input-sm" [disabled]="cargando"
+              (change)="limpiarLista()" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option selected [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}} ({{sector.secCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_DESDE}}</b>
+            </label>
+            <p-calendar name="fechaDesde" [(ngModel)]="fechaDesde" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+              (ngModelChange)="limpiarLista()" [required]="true" [disabled]="cargando" [maxDate]="fechaHasta" [appMaxDate]="fechaHasta"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar name="fechaHasta" [(ngModel)]="fechaHasta" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+              (ngModelChange)="limpiarLista()" [required]="true" [disabled]="cargando" [minDate]="fechaDesde" [maxDate]="fechaActual"
+              [appMinDate]="fechaDesde" [appMaxDate]="fechaActual"></p-calendar>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer">
+        <div class="text-right">
+          <button id="btnBuscar" type="button" class="btn btn-sm btn-primary" (click)="buscarContabilizarMaterialDirecto()" title="{{constantes.ATAJO_BUSCAR}}"
+            [disabled]="!frmFiltro.valid">
+            <i class="{{constantes.ICON_REFRESCAR}}" aria-hidden="true"></i> {{constantes.LABEL_ACTUALIZAR}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+      <div *ngIf="vistaListado">
+        <app-contabilizar-ipp-listado [parametrosBusqueda]="parametroBusquedaListado" [titulo]="constantes.TAG_DIRECTO" [empresaSeleccionada]="empresaSeleccionada" (enviarActivar)="modificarActivar($event)"></app-contabilizar-ipp-listado>
+      </div>
+    </div>
+</div>
+
+<!-- Modal que muestra los errores -->
+<p-dialog header="Aviso" [(visible)]="mostrarDialogo" [modal]="true" [responsive]="true" [contentStyle]="{'max-height':'500px', 'max-width':'550px'}"
+  [baseZIndex]="10000">
+  <div class="alert alert-danger mb-0 pb-0" role="alert">
+    <strong>{{tituloDialogo}}</strong>
+    <p>{{listaMensajes[0]}}</p>
+    <ul>
+      <li *ngFor="let mensaje of listaMensajes; let i=index;" class="mb-0" [ngClass]="{'style-none': mensaje === '', 'd-none': i=== 0}">
+        <span *ngIf="mensaje!=='' && i > 0">{{mensaje}}</span>
+        <hr *ngIf="mensaje==='' && i > 0">
+      </li>
+    </ul>
+  </div>
+  <p-footer>
+    <div class="text-center">
+      <button type="button" (click)="mostrarDialogo=false" class="btn btn-sm btn-primary">{{constantes.LABEL_ACEPTAR}}</button>
+    </div>
+  </p-footer>
+</p-dialog>
+
+<!--Cargando-->
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

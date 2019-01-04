@@ -1,0 +1,93 @@
+<div class="card m-0" *ngIf="listaResultadoBonos?.length>0">
+  <div class="card-header p-1">
+    <button id="btnActivarBonos" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS" (click)="cambiarActivar()" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activarBonos?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <strong>{{titulo}}</strong>
+
+    <div class="card-header-actions" *ngIf="!esContable">
+      <div class="btn-group d-lg-none">
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarBonos" (click)="guardarBonos()"
+          placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelar" title="{{constantes.ATAJO_CANCELAR}}"
+          (click)="cancelar()" ngbTooltip="{{constantes.LABEL_CANCELAR}}">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="btn-group d-none d-lg-block">
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarBonos" (click)="guardarBonos()"
+          placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_MAYORIZAR}}
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelar" title="{{constantes.ATAJO_CANCELAR}}"
+          (click)="cancelar()" ngbTooltip="{{constantes.LABEL_CANCELAR}}">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+          {{constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+
+    <div class="card-header-actions" *ngIf="esContable">
+      <app-botones-accion [conContable]="conContableCopia" [data]="data" (enviarAccion)="accionesBotones($event)"></app-botones-accion>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="p-1" *ngIf="esContable">
+      <app-contable-cabecera [data]="data" [conContable]="conContableCopia" [tipoSeleccionado]="tipoSeleccionado"
+        [empresaSeleccionada]="empresaSeleccionada" (accionFechaValido)="fechaContableValido = $event"></app-contable-cabecera>
+    </div>
+    <div class="row" *ngIf="!esContable">
+
+      <div class="col-sm-4 col-md-4 pr-0">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-md-6">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="observacionAdicional" class="form-control form-control-sm input-filter mousetrap text-uppercase"
+            style="font-family: Arial, FontAwesome;" placeholder="&#xf007; {{constantes.TAG_OBSERVACION_GENERAL}}..."
+            size="100" appUppercase>
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_EDITAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-2 col-md-2">
+        <div class="float-right pr-1">
+          <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+            maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="p-1">
+      <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listaResultadoBonos"
+        [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+        [enableColResize]="true" [components]="components" [context]="context" (gridReady)="onGridReady($event)"
+        (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)" [frameworkComponents]="frameworkComponents"
+        (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimensionarColumnas()" (gridSizeChanged)="redimensionarColumnas()"
+        [stopEditingWhenGridLosesFocus]="true" [singleClickEdit]="true" [pinnedBottomRowData]="pinnedBottomRowData"
+        [suppressDragLeaveHidesColumns]="true" (cellEditingStopped)="alCambiarValorDeCelda($event)" (contextmenu)="data && data.accion === constantes.ACCION_MAYORIZAR?$event.preventDefault():null"
+        (cellContextMenu)="data && data.accion === constantes.ACCION_MAYORIZAR?mostrarContextMenu($event.data, $event.event):null">
+      </ag-grid-angular>
+      <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+
+    </div>
+
+  </div>
+</div>

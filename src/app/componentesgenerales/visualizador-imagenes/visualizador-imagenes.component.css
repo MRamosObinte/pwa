@@ -1,0 +1,8 @@
+.imagen-titulo {
+    /*color: #416273;*/
+    color: #71b3d6;
+}
+
+.carousel-indicators .active {
+    background-color: #148cc9!important;
+}

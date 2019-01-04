@@ -1,0 +1,116 @@
+<div class="modal-primary">
+  <div class="modal-header p-2">
+    <span class="modal-title">
+      <strong>{{constantes.TAG_IMPRIMIR_CHEQUE}} - {{empresaSeleccionada.empNombre}}</strong>
+    </span>
+    <div class="card-header-actions">
+      <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-11">
+      <div class="card m-3">
+        <div class="card-header p-1">
+          <b> <span> <i class="{{constantes.ICON_IMPRIMIR}}"></i>
+              {{cuentaComboSeleccionado.banNombre}} ({{cuentaComboSeleccionado.ctaNumero}})
+            </span> </b>
+          <div class="card-header-actions">
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary" id="btnGuardarGrupoEmp" title="{{constantes.ATAJO_IMPRIMIR}}"
+                [disabled]="chequeSeleccionado.chqNumero==='' || compararFechas('>=')" (click)="imprimirCheque()">
+                <!--editarContactos(frmContactoDatos)-->
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown" id="dropdownMenuButton"
+                aria-haspopup="true" aria-expanded="false">
+                <!--disabled="false"-->
+              </button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                <a [ngClass]="{'btn disabled' : chequeSeleccionado.chqNumero==='' || compararFechas('>='), 
+                  'dropdown-item':chequeSeleccionado.chqNumero!=='' || compararFechas('<')}"
+                  (click)="imprimirChequeCruzado()">{{constantes.TAG_IMPRIMIR_CHEQUE_CRUZADO}}</a>
+                <!--(click)=""-->
+                <a class="dropdown-item" (click)="imprimirNoCheque()">{{constantes.TAG_NO_CHEQUE}}</a>
+              </div>
+            </div>&nbsp;
+            <button class="btn btn-sm btn-default mr-1" type="button" (click)="activeModal.dismiss('Cross click')"
+              title="{{constantes.ATAJO_CANCELAR}}">
+              <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline">
+                {{constantes.LABEL_CANCELAR}}</span>
+            </button>
+          </div>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <form #frmCheque="ngForm" autocomplete="off">
+            <div class="form-group form-group-sm row">
+              <div class="offset-md-8 col-md-4">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_CHEQUE_NUM}} {{chequeNoImpresion.chqNumero}}</strong>
+                </label>
+              </div>
+            </div>
+            <div class="form-group form-group-sm row">
+              <div class="col-md-8">
+                <label class="control-label">
+                  <b>{{constantes.TAG_PAGUESE_ORDEN_DE}}</b>
+                </label>
+                <input name="chqCuentaDetalle" [(ngModel)]="chequeNoImpresion.chqCuentaDetalle" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                  class="form-control form-control-sm mousetrap text-uppercase" appUppercase required [appFocus]="true"
+                  id="chqCuentaDetalle">
+              </div>
+              <div class="col-md-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_DOLAR}} </b>
+                </label>
+                <label class="form-control form-control-sm text-uppercase label-input"> {{chequeNoImpresion.chqValor}}</label>
+              </div>
+            </div>
+            <div class="form-group form-group-sm row">
+              <div class="col-md-8">
+                <label class="control-label">
+                  <b>{{chequeNoImpresion.valorChequeLetras}} {{constantes.TAG_DOLARES}}</b>
+                </label>
+              </div>
+            </div>
+            <div class="form-group form-group-sm row">
+              <div class="col-md-8">
+                <label class="control-label">
+                  <b>{{constantes.TAG_CIUDAD}}</b>
+                </label>
+                <label class="form-control form-control-sm text-uppercase label-input"> {{empresaSeleccionada.empCiudad}}</label>
+              </div>
+              <div class="col-md-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_FECHA}}</b>
+                </label>
+                <p-calendar inputId="fechaActual" class="mousetrap" name="fechaActual" [(ngModel)]="fechaActual"
+                  dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true"></p-calendar>
+              </div>
+            </div>
+            <div class="form-group form-group-sm row">
+              <div class="col-md-12">
+                <label class="control-label">
+                  <b>{{constantes.TAG_CTA}} {{chequeNoImpresion.chqCuentaCodigo}}</b>
+                </label>
+              </div>
+            </div>
+            <div class="form-group form-group-sm row">
+              <div class="col-md-12">
+                <label class="control-label">
+                  <b>{{empresaSeleccionada.empNombre}}</b>
+                </label>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

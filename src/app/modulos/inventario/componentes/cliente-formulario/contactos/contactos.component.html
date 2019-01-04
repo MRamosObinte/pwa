@@ -1,0 +1,192 @@
+<div class="modal-primary">
+  <div class="modal-header p-2">
+    <span class="modal-title">
+      <strong>{{constantes.TAG_CONFIGURAR_CONTACTOS}} - {{empresaSeleccionada.empNombre}} {{razonSocial}}</strong>
+    </span>
+    <div class="card-header-actions">
+      <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+  </div>
+  <div>
+    <div class="row">
+      <div [ngClass]="{'sr-only':activar}" class="col-lg-12 col-md-12 col-sm-11" *ngIf="vistaFormulario">
+        <div class="card m-3">
+          <div class="card-header p-1">
+            <b> <span> <i class="{{constantes.ICON_USUARIO}}"></i> {{accionContacto == constantes.ACCION_CONSULTAR ?
+                constantes.TAG_CONSULTAR_CONTACTO :
+                constantes.TAG_NUEVO_CONTACTO}}</span> </b>
+            <div class="card-header-actions">
+              <button type="button" *ngIf="vistaFormulario && accionContacto === constantes.ACCION_CREAR" class="btn btn-sm btn-primary mr-1"
+                id="btnGuardarGrupoEmp" (click)="apilarContactos(frmContactoDatos)" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button type="button" *ngIf="vistaFormulario && accionContacto === constantes.ACCION_EDITAR" class="btn btn-sm btn-primary mr-1"
+                id="btnGuardarGrupoEmp" (click)="editarContactos(frmContactoDatos)" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button class="btn btn-sm btn-default mr-1" *ngIf="vistaFormulario" type="button" (click)="resetear()"
+                title="{{constantes.ATAJO_CANCELAR}}">
+                <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline">
+                  {{accionContacto == constantes.ACCION_CONSULTAR ? constantes.LABEL_REGRESAR :
+                  constantes.LABEL_CANCELAR}}</span>
+              </button>
+            </div>
+          </div>
+          <fieldset [disabled]="!accionContacto || accionContacto === constantes.ACCION_CONSULTAR" class="card-body pb-0 pt-0">
+            <!--FORMULARIO OPERACIONES-->
+            <form #frmContactoDatos='ngForm' autocomplete="off">
+              <div *ngIf="vistaFormulario">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_CONTACTO_NOMBRE}}</b>
+                  </label>
+                  <input name="contacto" [(ngModel)]="contacto.contacto" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                    class="form-control form-control-sm mousetrap text-uppercase" appUppercase required [appFocus]="accionContacto!==constantes.ACCION_CONSULTAR ? true : false"
+                    id="contacto">
+                </div>
+                <div class="form-group form-group-sm row">
+                  <div class="col-md-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_CARGO_O_FUNCION}}</b>
+                    </label>
+                    <input name="cargo" id="cargo" [(ngModel)]="contacto.cargo" placeholder="{{constantes.TAG_OPCIONAL}}"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_TELEFONO}}</b>
+                    </label>
+                    <input name="telefono" [(ngModel)]="contacto.telefono" placeholder="{{constantes.TAG_OPCIONAL}}"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase (keypress)="soloNumeros($event)">
+                  </div>
+                </div>
+                <div class="form-group form-group-sm">
+                  <label>
+                    <strong>{{constantes.TAG_EMAIL}}
+                      <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                        autoClose="outside" ngbPopover="{{constantes.MSJ_EMAIL}}" container="body"></span>
+                    </strong>
+                  </label>
+                  <span class="ui-fluid">
+                    <p-chips [(ngModel)]="correos" name="emails" class="mousetrap" [inputStyleClass]="accion===constantes.ACCION_CREAR || correos.length==0 ? 
+                    'form-control form-control-sm grande text-lowercase' : 'form-control form-control-sm chico text-lowercase'"
+                      [allowDuplicate]="false" (onAdd)="clickear()" addOnTab="false" id="chip" placeholder="{{constantes.TAG_OPCIONAL}}"
+                      [disabled]="accionContacto === constantes.ACCION_CONSULTAR" (onBlur)="tamanioGrande()" (onFocus)="tamanioChico()"
+                      id="correocontacto">
+                      <ng-template let-item pTemplate="item">
+                        {{item}}
+                      </ng-template>
+                    </p-chips>
+                  </span>
+                </div>
+                <div class="form-group form-group-sm row">
+                  <div class="col-md-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_LUGAR_ENTREGA}}</b>
+                    </label>
+                    <input name="lugarentrega" id="lugarentrega" [(ngModel)]="contacto.lugarEntrega" placeholder="{{constantes.TAG_OPCIONAL}}"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_LUGAR_ENTREGA_2}}</b>
+                    </label>
+                    <input name="lugarentrega2" id="lugarentrega2" [(ngModel)]="contacto.lugarEntrega2" placeholder="{{constantes.TAG_OPCIONAL}}"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase>
+                  </div>
+                </div>
+
+                <div class="form-group form-group-sm row">
+                  <div class="col-md-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_LUGAR_DESTINO}}</b>
+                    </label>
+                    <input name="lugardestino" id="lugardestino" [(ngModel)]="contacto.lugarDestino" placeholder="{{constantes.TAG_OPCIONAL}}"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase>
+                  </div>
+                  <div class="col-md-6 has-feedback">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_TRANSPORTE}}</b>
+                    </label>
+                    <select class="form-control form-control-sm mousetrap text-uppercase" name="transporte"
+                      [(ngModel)]="contacto.transporte" required>
+                      <option [ngValue]="constantes.TAG_TERRESTRE" selected>{{constantes.TAG_TERRESTRE}}</option>
+                      <option [ngValue]="constantes.TAG_FLUVIAL">{{constantes.TAG_FLUVIAL}}</option>
+                      <option [ngValue]="constantes.TAG_MIXTO">{{constantes.TAG_MIXTO}}</option>
+                      <option [ngValue]="constantes.TAG_OTROS">{{constantes.TAG_OTROS}}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_RECORDATORIO}}
+                      <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                        autoClose="outside" ngbPopover="{{constantes.MSJ_RECORDATORIO}}" container="body"></span>
+                    </strong>
+                  </label>
+                  <input name="recordatorio" [(ngModel)]="contacto.recordatorio" placeholder="{{constantes.TAG_OPCIONAL}}"
+                    class="form-control form-control-sm mousetrap text-uppercase" appUppercase>
+                </div>
+                <div class="text-md-center pb-2">
+                  <input type="checkbox" name="predeterminado" [(ngModel)]="contacto.predeterminado">
+                  {{constantes.TAG_PREDETERMINADO}}
+                </div>
+              </div>
+            </form>
+          </fieldset>
+        </div>
+      </div>
+      <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card m-3" *ngIf="listaContactos?.length>0 && !vistaFormulario">
+          <div class="card-header p-1">
+            <strong>{{constantes.INVENTARIO_CONTACTO_LISTADO}}</strong>
+            <div class="card-header-actions">
+              <button type="button" *ngIf="accion !== constantes.ACCION_CONSULTAR && !vistaFormulario" class="btn btn-sm btn-primary mr-1"
+                id="btnNuevoGrupoEmp" (click)="nuevo()" container="body" title="{{constantes.ATAJO_NUEVO}}" ngbTooltip="{{constantes.LABEL_NUEVO}}">
+                <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body m-0 p-0">
+            <div class="row">
+              <div class="col-sm-5 col-md-6">
+                <div class="input-group p-1">
+                  <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                    size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                    size="100">
+                  <div class="input-group-append">
+                    <span class="input-group-text">
+                      <i class="{{constantes.ICON_BUSCAR}}"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-7 col-md-6">
+                <div class="float-right pr-1">
+                  <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                    maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+                </div>
+              </div>
+            </div>
+            <!--listado de contactos-->
+            <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 215px);" class="ag-theme-balham"
+              [rowData]="listaContactos" [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection"
+              [enableColResize]="true" [context]="context" (gridReady)="onGridReady($event)" (rowSelected)="detalleSeleccionado = $event.node.data"
+              (cellFocused)="filaFocused($event)" [frameworkComponents]="frameworkComponents" (contextmenu)="$event.preventDefault()"
+              (cellContextMenu)="mostrarContextMenu($event.data, $event.event)" (gridColumnsChanged)="redimensionarColumnas()"
+              (gridSizeChanged)="redimensionarColumnas()" [overlayNoRowsTemplate]="noDatos" (cellDoubleClicked)="consultar();">
+            </ag-grid-angular>
+            <p-contextMenu #menuOpciones [model]="opciones" appendTo="body" [baseZIndex]="1100"></p-contextMenu>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

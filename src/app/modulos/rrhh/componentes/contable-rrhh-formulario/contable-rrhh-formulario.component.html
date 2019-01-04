@@ -1,0 +1,45 @@
+<ng-container [ngSwitch]="vista">
+  <ng-container *ngSwitchCase="'UTILIDAD'">
+    <app-participacion-utilidades-formulario [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable"
+      [data]="data" [listadoUtilidades]="listadoUtilidades" [tipoSeleccionado]="tipoSeleccionado" [formasDePago]="formasDePagoBS"
+      [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-participacion-utilidades-formulario>
+  </ng-container>
+  <ng-container *ngSwitchCase="'ANTICIPO'">
+    <app-anticipos-formulario [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable"
+      [data]="data" [listadoAnticipos]="listadoAnticipos" [tipoSeleccionado]="tipoSeleccionado" [formasDePago]="formasDePago"
+      [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-anticipos-formulario>
+  </ng-container>
+  <ng-container *ngSwitchCase="'BONO'">
+    <app-bonos-formulario [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable" [data]="data"
+      [listaResultadoBonos]="listaResultadoBonos" [tipoSeleccionado]="tipoSeleccionado" [listadoConceptos]="listadoConceptos"
+      [listadoPiscinas]="listadoPiscinas" [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-bonos-formulario>
+  </ng-container>
+  <ng-container *ngSwitchCase="'XIV'">
+    <app-xiv-sueldo-formulario [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable"
+      [data]="data" [xivSalarioMinimoVital]="salarioMinimo" [listaResultadoXivSueldo]="listaResultadoXivSueldo" [tipoSeleccionado]="tipoSeleccionado"
+      [listaFormasPagoBeneficio]="formasDePagoBS" [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-xiv-sueldo-formulario>
+  </ng-container>
+  <ng-container *ngSwitchCase="'XIII'">
+    <app-xiii-sueldo-formulario [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable"
+      [data]="data" [listaResultadoXiiiSueldo]="listaResultadoXiiiSueldo" [tipoSeleccionado]="tipoSeleccionado" [listaFormasPagoBeneficio]="formasDePagoBS"
+      [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-xiii-sueldo-formulario>
+  </ng-container>
+  <ng-container *ngSwitchCase="'LIQUIDACION'">
+    <app-liquidacion [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable" [data]="data"
+      [rhRol]="rhRol" [tipoSeleccionado]="tipoSeleccionado" [listaFormaPago]="formasDePago" [listaEmpresas]="listaEmpresas"
+      [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-liquidacion>
+  </ng-container>
+  <ng-container *ngSwitchCase="'PRESTAMO'">
+    <app-prestamo-formulario [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable" [data]="data"
+      [rhPrestamo]="rhPrestamo" [tipoSeleccionado]="tipoSeleccionado" [listaFormaPago]="formasDePago" [listaPrestamoMotivo]="listaPrestamoMotivo"
+      [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-prestamo-formulario>
+  </ng-container>
+  <ng-container *ngSwitchCase="'ROL'">
+    <app-rol-pago-formulario [empresaSeleccionada]="empresaSeleccionada" [esContable]="esContable" [conContable]="conContable" [data]="data"
+      [listadoEmpleadosLote]="listadoEmpleadosLote" [tipoSeleccionado]="tipoSeleccionado" [formasDePago]="formasDePago"
+      [titulo]="tituloForm" (enviarAccion)="ejecutarAccion($event)"></app-rol-pago-formulario>
+  </ng-container>
+</ng-container>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

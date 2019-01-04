@@ -1,0 +1,97 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5" *ngIf="!isModal">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{classIcon}}"></i><b>{{tituloForm}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmBodega='ngForm' name="frmBodega">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              [disabled]="objetoContableEnviar" (ngModelChange)="listarBancoCuenta()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_CUENTA}}</b>
+            </label>
+            <select [(ngModel)]="cuentaComboSeleccionado" name="cuentaComboSeleccionado" class="form-control input-sm"
+              required [disabled]="objetoContableEnviar">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option *ngFor="let cuenta of listadoBancoCuenta" [ngValue]="cuenta">{{cuenta.banNombre}}
+                ({{cuenta.ctaNumero}})</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer">
+        <div class="text-right">
+          <div class="btn-group mr-1">
+            <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="!mostrarFormulario ? mostrarFormulario=true : false"
+              title="{{constantes.ATAJO_BUSCAR}}" [disabled]="objetoContableEnviar">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="mostrarFormulario">
+    <div class="card m-0">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.TAG_CAMBIO_FECHA_VENCIMIENTO_CHEQUE}}</strong>
+        <div class="card-header-actions">
+          <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentNuevo" (click)="cambiarFechaVencimientoCheque(frmCheque)"
+            title="{{constantes.ATAJO_GUARDAR}}" id="btnGuardar">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" [ngbTooltip]="tipContentCancelar"
+            (click)="cancelar()" id="btnCancelar">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-1">
+        <div class="card mb-1">
+          <div class="card-header">
+            <strong> {{constantes.TAG_INFORMACION_CHEQUE}}</strong>
+          </div>
+          <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+            <form #frmCheque='ngForm' autocomplete="off" class="row">
+              <div class="form-group col-lg-6 col-sm-6">
+                <label>
+                  <strong>{{constantes.TAG_NUMERO_CHEQUE}}</strong>
+                </label>
+                <input [appFocus]="true" class="form-control form-control-sm text-uppercase mousetrap" name="codigo"
+                  maxlength="30" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}" pattern="{{constantes.PATTERN_CODIGO}}"
+                  appUppercase [(ngModel)]="numeroCheque" [required]="true">
+              </div>
+              <div class="form-group col-lg-6 col-sm-6">
+                <label>
+                  <strong>{{constantes.TAG_FECHA}}</strong>
+                </label>
+                <p-calendar inputId="fechaNueva" class="text-uppercase mousetrap" name="fechaNueva" [(ngModel)]="fechaNueva"
+                  dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true"></p-calendar>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

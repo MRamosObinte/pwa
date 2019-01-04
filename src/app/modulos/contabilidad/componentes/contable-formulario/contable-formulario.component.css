@@ -1,0 +1,6 @@
+tr.ui-state-highlight td.ui-resizable-column input{
+    color: white;
+}
+tr td.ui-resizable-column input{
+    color: black;
+}

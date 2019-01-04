@@ -1,0 +1,269 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <!--Card Filtro-->
+    <div class="card mb-2">
+      <div class="card-header">
+        <i class=" {{classTitulo}}"></i>
+        <b>{{frmTitulo}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmMotivoOrdenCompra="ngForm" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [(ngModel)]="empresaSeleccionada" class="form-control input-sm" name="empresaSeleccionada"
+              [disabled]="vistaFormulario" (change)="cambiarEmpresaSelect();" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_SECTOR}}</strong>
+              &nbsp;
+              <a *ngIf="!vistaFormulario" (click)="listarSectores()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaSectores" name="listaSectores" [showClear]="true" [(ngModel)]="sectorSeleccionado"
+              placeholder="{{constantes.TAG_TODOS}}" optionLabel="secNombre" (ngModelChange)="!vistaFormulario?limpiarResultado():null"
+              [disabled]="vistaFormulario">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-elemento pTemplate="item">
+                <div class=""> {{elemento.value.secNombre}} ({{elemento.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div *ngIf="mostrarDatosCrud">
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <b>{{constantes.TAG_USUARIOS}}</b>
+              </label>
+              <span class="ui-fluid">
+                <p-autoComplete [appFocus]="true" isAutocomple="true" inputId="inputAutocomplete" forceSelection="true"
+                  autofocus [(ngModel)]="listUsuarioSeleccionado" name="listUsuarioSeleccionado" [suggestions]="listaUsuariosFiltrada"
+                  (completeMethod)="filtrarUsuarioEmpresa($event)" styleClass="wid100" [minLength]="1" placeholder="usuarios"
+                  field="usrNombre" [multiple]="true">
+                  <ng-template let-usuariosRegistradores pTemplate="item">
+                    <div class="ui-helper-clearfix">
+                      <div>{{usuariosRegistradores.usrNombre}} {{usuariosRegistradores.usrApellido}}</div>
+                    </div>
+                  </ng-template>
+                </p-autoComplete>
+              </span>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer" *ngIf="vistaFormulario && mostrarDatosCrud">
+        <div class="text-right">
+          <button type="button" class="btn btn-sm btn-primary" (click)="agregarUsuario()">
+            <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_AGREGAR}} </button>&nbsp;
+          <button (click)="cancelarAgregarUsuario()" type="button" class="btn btn-sm btn-default" [disabled]="cargando">
+            <i class="{{constantes.ICON_CANCELAR}}"></i> {{constantes.LABEL_CANCELAR}} </button>
+        </div>
+      </div>
+      <div class="card-footer" *ngIf="!vistaFormulario">
+        <div class="text-right">
+          <button id="btnBuscarMotivoOC" type="button" class="btn btn-sm btn-primary mr-1" (click)="buscarOrdenCompraMotivo()"
+            title="{{constantes.ATAJO_BUSCAR}}">
+            <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+          <button id="btnNuevoMotivoOC" class="btn btn-sm btn-primary" type="button" (click)="nuevoOrdenCompraMotivo()"
+            [disabled]="!frmMotivoOrdenCompra.form.valid || !empresaSeleccionada.listaSisPermisoTO.gruCrear || !sectorSeleccionado?.secActivo"
+            title="{{constantes.ATAJO_NUEVO}}">
+            <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" [hidden]="vistaFormulario">
+    <div class="card m-0" *ngIf="listadoResultado?.length > 0">
+      <div class="card-header p-1">
+        <button id="btnActivarMotivoOC" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="activar = !activar"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <b>{{constantes.TAG_CONFIGURACION_ORDEN_COMPRA}}</b>
+        <div class="card-header-actions">
+          <div class="btn-group">
+            <button id="btnImprimirMotivoOC" type="button" class="btn btn-sm btn-primary mr-1" placement="top"
+              ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" (click)="imprimir()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruImprimir"
+              title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+            </button>
+            <button id="btnExportarMotivoOC" type="button" class="btn btn-sm btn-primary mr-1" placement="top"
+              ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" (click)="exportar()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar"
+              title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <!--Tabla-->
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listadoResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (gridSizeChanged)="redimensionarColumnas()" (gridReady)="onGridReady($event)"
+          (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimensionarColumnas()"
+          [overlayNoRowsTemplate]="noData">
+        </ag-grid-angular>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="vistaFormulario">
+    <div class="card m-0">
+      <div class="card-header p-1">
+        <button id="btnActivarMotivoOC" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="activar = !activar"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <b>{{constantes.TAG_CONFIGURACION_ORDEN_COMPRA}}</b>
+        <div class="card-header-actions">
+          <div class="btn-group">
+            <button *ngIf="accion === constantes.ACCION_CREAR" id="btnGuardarMotivoOC" type="button" (click)="guardar(frmMotivoOC)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i> {{constantes.LABEL_GUARDAR}}</button>
+            <button *ngIf="accion === constantes.ACCION_EDITAR" id="btnGuardarMotivoOC" type="button" (click)="actualizar(frmMotivoOC)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i> {{constantes.LABEL_GUARDAR}}</button>
+            <button id="btnCancelarMotivoOC" *ngIf="accion!==constantes.ACCION_CONSULTAR" (click)="cancelarAccion()"
+              type="button" class="btn btn-sm btn-default mr-1" [disabled]="cargando" title="{{constantes.ATAJO_CANCELAR}}">
+              <i class="{{constantes.ICON_CANCELAR}}"></i> {{constantes.LABEL_CANCELAR}} </button>
+            <button id="btnCancelarMotivoOC" *ngIf="accion===constantes.ACCION_CONSULTAR" (click)="cancelarAccion()"
+              type="button" class="btn btn-sm btn-default mr-1" [disabled]="cargando" title="{{constantes.ATAJO_REGRESAR}}">
+              <i class="{{constantes.ICON_REGRESAR}}"></i> {{constantes.LABEL_REGRESAR}} </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <form #frmMotivoOC="ngForm" class="row">
+          <div [ngClass]="{'col-lg-6 col-md-12 col-sm-12':!invPedidosOrdenCompraMotivo.ocmAprobacionAutomatica,'col-lg-12 col-md-12 col-sm-12':invPedidosOrdenCompraMotivo.ocmAprobacionAutomatica}">
+            <!--Aprobadores-->
+            <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+
+              <div class="form-group form-group-sm has-feedback col-lg-12 col-md-6 col-sm-12">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_CODIGO}}</strong>
+                </label>
+                <p *ngIf="!(accion===constantes.ACCION_CREAR)" class="form-control input-sm">{{invPedidosOrdenCompraMotivo.invPedidosOrdenCompraMotivoPK.ocmCodigo}}</p>
+                <input *ngIf="accion===constantes.ACCION_CREAR" [appFocus]="accion === constantes.ACCION_CREAR" name="ocmCodigo"
+                  [(ngModel)]="invPedidosOrdenCompraMotivo.invPedidosOrdenCompraMotivoPK.ocmCodigo" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                  pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                  maxlength="50" required appUppercase>
+                <span *ngIf="accion===constantes.ACCION_CREAR" class="fa fa-question-circle form-control-feedback mr-3"
+                  placement="left" ngbPopover="{{constantes.MSJ_INFOCODIGO}}" triggers="mouseenter:mouseleave"
+                  container="body"></span>
+              </div>
+
+              <div class="form-group form-group-sm col-lg-12 col-md-6 col-sm-12">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_DETALLE}}</strong>
+                </label>
+                <input [appFocus]="accion===constantes.ACCION_EDITAR" name="ocmDetalle" [(ngModel)]="invPedidosOrdenCompraMotivo.ocmDetalle"
+                  class="form-control form-control-sm text-uppercase mousetrap" required maxlength="1000" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                  appUppercase>
+              </div>
+
+              <div class="col-md-12">
+                <div class="form-group form-group-sm mb-2">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_NOTIFICAR_CORREO}} :</strong>
+                  </label>
+                  <div class="pt-2 pb-2">
+                    <p-toggleButton onLabel="{{constantes.TAG_APROBADOR}}" offLabel="{{constantes.TAG_APROBADOR}}" name="ocmNotificarAprobador"
+                      [(ngModel)]="invPedidosOrdenCompraMotivo.ocmNotificarAprobador" *ngIf="!invPedidosOrdenCompraMotivo.ocmAprobacionAutomatica"
+                      [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                    <p-toggleButton onLabel="{{constantes.TAG_PROVEEDOR}}" offLabel="{{constantes.TAG_PROVEEDOR}}" name="pmNotificarProveedor"
+                      [(ngModel)]="invPedidosOrdenCompraMotivo.ocmNotificarProveedor" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group form-group-sm col-md-12 mb-2">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_OTRAS_OPCIONES}}</strong>
+                </label>
+              </div>
+
+              <div class="form-group form-group-sm col-lg-4 col-md-6 col-sm-12">
+                <div class="switch">
+                  <label>
+                    <input id="ocmCostoFijo" name="ocmCostoFijo" type="checkbox" [(ngModel)]="invPedidosOrdenCompraMotivo.ocmCostoFijo">
+                    <span class="lever"></span>{{constantes.TAG_COSTO_FIJO}}
+                  </label>
+                </div>
+                <div class="switch">
+                  <label>
+                    <input id="ocmAprobacionAutomatica" name="ocmAprobacionAutomatica" type="checkbox" [(ngModel)]="invPedidosOrdenCompraMotivo.ocmAprobacionAutomatica">
+                    <span class="lever"></span>{{constantes.TAG_APROBACION_AUTOMATICA}}
+                  </label>
+                </div>
+              </div>
+
+            </fieldset>
+          </div>
+          <div class="col-lg-6 col-md-12 col-sm-12" [hidden]="invPedidosOrdenCompraMotivo?.ocmAprobacionAutomatica">
+            <!--AprObadores-->
+            <div class="card m-1 mt-2">
+              <div class="card-header p-1">
+                <i class="{{constantes.ICON_USUARIO}}"></i>
+                <strong>{{constantes.PEDIDOS_CONFIGURACION_APROBADOR}}</strong>
+                <button type="button" *ngIf="accion != constantes.ACCION_CONSULTAR && !mostrarDatosCrud && !accionAgregarUsuario && empresaSeleccionada.listaSisPermisoTO.gruCrear"
+                  class="btn btn-sm btn-primary pull-right" (click)="mostrarAgregarUsuario(constantes.TAG_APROBADOR)"
+                  placement="top" ngbTooltip="{{constantes.LABEL_AGREGAR}}" container="body">
+                  <i class="{{constantes.ICON_AGREGAR}}"></i>
+                </button>
+              </div>
+              <div class="card-body" class="no-padding">
+                <div [hidden]="listadoAprobadores.length==0">
+                  <ag-grid-angular #agGridAprobador id="agGridAprobador" style="width: 100%;" class="ag-theme-balham"
+                    [rowData]="listadoAprobadores" [columnDefs]="columnAprobador" [enableCellChangeFlash]="true"
+                    [enableSorting]="true" [rowSelection]="rowSelection" [enableColResize]="true" [components]="components"
+                    [context]="context" [animateRows]="true" (gridSizeChanged)="redimencionarColumnas($event.api)"
+                    [gridAutoHeight]="true" (gridReady)="onGridReadyAprobador($event)" (rowSelected)="usuarioSeleccionado = $event.node.data"
+                    (contextmenu)="accion!==constantes.ACCION_CONSULTAR ? $event.preventDefault() : null"
+                    (cellContextMenu)="accion!==constantes.ACCION_CONSULTAR ? mostrarContextMenuAprobador($event.data, $event.event) : null"
+                    [overlayNoRowsTemplate]="noData">
+                  </ag-grid-angular>
+                </div>
+                <p-contextMenu #cma [model]="opcionesAprobador" appendTo='body'></p-contextMenu>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

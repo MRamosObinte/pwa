@@ -1,0 +1,69 @@
+<form #frmBusqueda='ngForm' name="frmBusqueda" class="card">
+  <fieldset [disabled]="vistaFormulario">
+    <div class="card-header">
+      <span>
+        <i class="{{constantes.ICON_FILTRAR}}"></i>
+        <b> Filtros</b>
+      </span>
+    </div>
+    <div class="card-body">
+      <!--FORMULARIO EMPRESA-->
+      <div class="form-group form-group-sm">
+        <label class="control-label">
+          <b>Empresa</b>
+        </label>
+        <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+          (ngModelChange)="cambiarEmpresaSelect()">
+          <option selected disabled value="">SELECCIONE</option>
+          <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+            ({{empresa.empCodigo}})</option>
+        </select>
+      </div>
+      <div class="form-group form-group-sm">
+        <label class="control-label">
+          <b>Periodo</b>
+        </label>
+        <p-dropdown [options]="listadoPeriodos" name="Periodo" [showClear]="true" [(ngModel)]="periodoSeleccionado"
+          (ngModelChange)="limpiarLista()" placeholder="TODOS" optionLabel="perDetalle" class="mousetrap" [disabled]="vistaFormulario">
+          <ng-template let-item pTemplate="selectedItem">
+            {{periodoSeleccionado?.sisPeriodoPK?.perCodigo}} | {{periodoSeleccionado?.perDetalle}}
+          </ng-template>
+          <ng-template let-fs pTemplate="item">
+            <div class="">{{fs.value.sisPeriodoPK.perCodigo}} | {{fs.value.perDetalle}}</div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="form-group form-group-sm">
+        <label class="control-label">
+          <b>Motivo</b>
+        </label>
+        <p-dropdown [options]="listadoMotivos" name="motivo" [showClear]="true" [(ngModel)]="motivoSeleccionado"
+          (ngModelChange)="limpiarLista()" placeholder="TODOS" optionLabel="vmDetalle" class="mousetrap" [disabled]="vistaFormulario">
+          <ng-template let-item pTemplate="selectedItem">
+            {{motivoSeleccionado?.vmDetalle}} ({{motivoSeleccionado?.vmCodigo}})
+          </ng-template>
+          <ng-template let-fs pTemplate="item">
+            <div class="">{{fs.value.vmDetalle}} ({{fs.value.vmCodigo}})</div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="form-group form-group-sm">
+        <label class="control-label">
+          <b>Filtro</b>
+        </label>
+        <input type="text" [(ngModel)]="filtro" name="filtro" class="form-control form-control-sm mousetrap">
+      </div>
+    </div>
+    <div class="card-footer text-muted">
+      <div class="text-right">
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-primary" (click)="!vistaFormulario ? listarVentas() : null" title="{{constantes.ATAJO_BUSCAR}}">
+            <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+        </div>&nbsp;
+        <button class="btn btn-sm btn-primary" type="button" (click)="!vistaFormulario && verificarPermiso(constantes.ACCION_CREAR, true) ? nuevaVenta() : null"
+          [disabled]="!frmBusqueda.valid" title="{{constantes.ATAJO_NUEVO}}">
+          <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+      </div>
+    </div>
+  </fieldset>
+</form>

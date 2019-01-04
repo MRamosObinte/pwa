@@ -1,0 +1,6 @@
+<div class="ag-header-cell-label ag-header-cell-text" placement="top" container="body" ngbTooltip="{{tooltipName}}">
+  {{name}} &nbsp;&nbsp;&nbsp;&nbsp;
+  <span placement="right" ngbTooltip="{{tooltipText}}" container="body" class="float-right" *ngIf="!noVisible">
+    <input [(ngModel)]="value" type="checkbox" id="{{name}}" (change)="cambiarEstadoCheckCabecera()">
+  </span>
+</div>

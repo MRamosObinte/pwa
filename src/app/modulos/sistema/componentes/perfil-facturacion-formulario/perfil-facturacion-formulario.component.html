@@ -1,0 +1,318 @@
+<div *ngIf="vistaFormulario">
+  <!-- FORMULARIO DE ORDEN DE PEDIDO -->
+  <div class="card m-0">
+    <div class="card-header p-1">
+      <button id="btnActivarPerfilFacturacion" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="cambiarActivar()"
+        type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <strong>{{ frmTitulo }}:
+        <span class="text-primary">{{ empresaSeleccionada.empNombre }}</span>
+      </strong>
+      <div class="card-header-actions">
+        <!--  BOTONES   -->
+        <div class="btn-group">
+          <!-- Registrador -->
+          <button id="btnGuardarPerfilFacturacion" *ngIf="accion===constantes.ACCION_CREAR" type="button" class="btn btn-sm btn-primary mr-1"
+            placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" (click)="guardarPerfilFacturacion(frmPerfilFacturacion)">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+          </button>
+          <button id="btnGuardarPerfilFacturacion" *ngIf="accion===constantes.ACCION_EDITAR" type="button" class="btn btn-sm btn-primary mr-1"
+            placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" (click)="actualizarPerfilFacturacion(frmPerfilFacturacion)">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+          </button>
+          <!--Cancelar-->
+          <button *ngIf="!(accion===constantes.ACCION_CONSULTAR)" type="button" class="btn btn-sm btn-default mr-1" (click)="cancelarAccion()"
+            placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}" title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+          </button>
+          <button *ngIf="accion===constantes.ACCION_CONSULTAR" type="button" class="btn btn-sm btn-default mr-1" (click)="cancelarAccion()"
+            placement="top" ngbTooltip="{{constantes.LABEL_REGRESAR}}" title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-1">
+      <!-- Si la accion de consulta -->
+      <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+        <form #frmPerfilFacturacion="ngForm" autocomplete="off">
+          <!--Usuario Responsable-->
+          <div class="card mb-1 card-accent-primary">
+            <div class="card-header h6">
+              <strong>{{ constantes.TAG_USUARIO_RESPONSABLE }}</strong>
+              <div class="card-header-actions">
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseUsuarioResponsable" aria-expanded="true"
+                  placement="top" ngbTooltip="Ocultar/Mostrar">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseUsuarioResponsable">
+              <div class="row">
+                <div class="col-12">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_USUARIO_RESPONSABLE}}</strong>
+                      &nbsp;
+                      <a (click)="listarUsuariosResponsables()" *ngIf="accion===constantes.ACCION_CREAR">
+                        <span class="fa fa-refresh" placement="top" ngbTooltip="{{constantes.TAG_RECARGAR}}" container="body"></span>
+                      </a>
+                    </label>
+                    <select *ngIf="accion === constantes.ACCION_CREAR" [(ngModel)]="usuarioSeleccionado" class="form-control input-sm" name="usuarioSeleccionado"
+                      required>
+                      <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                      <option [ngValue]="usuario" *ngFor="let usuario of listaUsuarios">{{usuario.usrNombre}} {{usuario.usrApellido}} ({{usuario.usrCodigo}})</option>
+                    </select>
+                    <input *ngIf="accion !== constantes.ACCION_CREAR" type="text" value="{{cajCajaTO.cajaUsuarioNombre}} ({{cajCajaTO.cajaUsuarioResponsable}})"
+                      name="cajaUsuarioNombre" class="form-control form-group-sm" readonly disabled>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--Permisos-->
+          <div class="card mb-1 card-accent-primary">
+            <div class="card-header h6">
+              <strong>{{ constantes.TAG_PERMISOS }}</strong>
+              <div class="card-header-actions">
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapsePermisos" aria-expanded="true"
+                  placement="top" ngbTooltip="Ocultar/Mostrar">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapsePermisos">
+              <div class="row">
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <label>
+                    <input name="permisoEliminarFilas" [(ngModel)]="cajCajaTO.permisoEliminarFilas" type="checkbox" class="mousetrap"> {{constantes.TAG_ELIMINAR_FILAS}}
+                  </label>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <label>
+                    <input name="permisoCambiarFechaRetencion" [(ngModel)]="cajCajaTO.permisoCambiarFechaRetencion" type="checkbox" class="mousetrap"> {{constantes.TAG_CAMBIAR_FECHA_RETENCION}}
+                  </label>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <label>
+                    <input name="permisoCambiarFechaVenta" [(ngModel)]="cajCajaTO.permisoCambiarFechaVenta" type="checkbox" class="mousetrap"> {{constantes.TAG_CAMBIAR_FECHA_VENTA}}
+                  </label>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <label>
+                    <input name="permisoAplicarDescuentos" [(ngModel)]="cajCajaTO.permisoAplicarDescuentos" type="checkbox" class="mousetrap"> {{constantes.TAG_APLICAR_DESCUENTOS}}
+                  </label>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <label>
+                    <input name="permisoClienteCredito" [(ngModel)]="cajCajaTO.permisoClienteCredito" type="checkbox" class="mousetrap"> {{constantes.TAG_CLIENTE_CREDITO}}
+                  </label>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <label>
+                    <input name="permisoCambiarPrecio" [(ngModel)]="cajCajaTO.permisoCambiarPrecio" type="checkbox" class="mousetrap"> {{constantes.TAG_CAMBIAR_PRECIO}}
+                  </label>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <label>
+                    <input name="permisoClienteCrear" [(ngModel)]="cajCajaTO.permisoClienteCrear" type="checkbox" class="mousetrap"> {{constantes.TAG_CREAR_CLIENTE}}
+                  </label>
+                </div>
+              </div>
+              <br>
+              <div class="row">
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_MOTIVO_PERMITIDO}}</strong>
+                      &nbsp;
+                      <a (click)="listarMotivoVenta()" *ngIf="!(accion===constantes.ACCION_CONSULTAR)">
+                        <span class="fa fa-refresh" placement="top" ngbTooltip="{{constantes.TAG_RECARGAR}}" container="body"></span>
+                      </a>
+                    </label>
+                    <p-dropdown [options]="listaMotivoVenta" name="motivoVentaSeleccionado" [showClear]="true" [(ngModel)]="motivoVentaSeleccionado"
+                      placeholder="{{constantes.TAG_SELECCIONE}}" optionLabel="vmDetalle" [disabled]="accion === constantes.ACCION_CONSULTAR">
+                      <ng-template let-item pTemplate="selectedItem">
+                        {{motivoVentaSeleccionado?.vmDetalle}} ({{motivoVentaSeleccionado?.vmCodigo}})
+                      </ng-template>
+                      <ng-template let-elemento pTemplate="item">
+                        <div class=""> {{elemento.value.vmDetalle}} ({{elemento.value.vmCodigo}})</div>
+                      </ng-template>
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_DOCUMENTO_PERMITIDO}}</strong>
+                      &nbsp;
+                      <a (click)="listarDocumentos()" *ngIf="!(accion===constantes.ACCION_CONSULTAR)">
+                        <span class="fa fa-refresh" placement="top" ngbTooltip="{{constantes.TAG_RECARGAR}}" container="body"></span>
+                      </a>
+                    </label>
+                    <p-dropdown [options]="listaTipoComprobante" name="tipoComprobanteSeleccionado" [showClear]="true" [(ngModel)]="tipoComprobanteSeleccionado"
+                      placeholder="{{constantes.TAG_SELECCIONE}}" optionLabel="tcDescripcion" [disabled]="accion === constantes.ACCION_CONSULTAR">
+                      <ng-template let-item pTemplate="selectedItem">
+                        {{tipoComprobanteSeleccionado?.tcDescripcion}} ({{tipoComprobanteSeleccionado?.tcCodigo}})
+                      </ng-template>
+                      <ng-template let-elemento pTemplate="item">
+                        <div class=""> {{elemento.value.tcDescripcion}} ({{elemento.value.tcCodigo}})</div>
+                      </ng-template>
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_BODEGA_PERMITIDA}}</strong>
+                      &nbsp;
+                      <a (click)="listarBodegas()" *ngIf="!(accion===constantes.ACCION_CONSULTAR)">
+                        <span class="fa fa-refresh" placement="top" ngbTooltip="{{constantes.TAG_RECARGAR}}" container="body"></span>
+                      </a>
+                    </label>
+                    <p-dropdown [options]="listaBodega" name="bodegaSeleccionada" [showClear]="true" [(ngModel)]="bodegaSeleccionada" placeholder="{{constantes.TAG_SELECCIONE}}"
+                      optionLabel="bodNombre" [disabled]="accion === constantes.ACCION_CONSULTAR">
+                      <ng-template let-item pTemplate="selectedItem">
+                        {{bodegaSeleccionada?.bodNombre}} ({{bodegaSeleccionada?.bodCodigo}})
+                      </ng-template>
+                      <ng-template let-elemento pTemplate="item">
+                        <div class=""> {{elemento.value.bodNombre}} ({{elemento.value.bodCodigo}})</div>
+                      </ng-template>
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_PRECIO_DE_VENTA}}</strong>
+                      &nbsp;
+                      <a (click)="obtenerEtiquetas()" *ngIf="!(accion===constantes.ACCION_CONSULTAR)">
+                        <span class="fa fa-refresh" placement="top" ngbTooltip="{{constantes.TAG_RECARGAR}}" container="body"></span>
+                      </a>
+                    </label>
+                    <p-dropdown [options]="listaPrecioventa" name="precioVentaSeleccionada" [showClear]="true" [(ngModel)]="precioVentaSeleccionada"
+                      placeholder="{{constantes.TAG_SELECCIONE}}" optionLabel="label" [disabled]="accion === constantes.ACCION_CONSULTAR">
+                      <ng-template let-item pTemplate="selectedItem">
+                        {{precioVentaSeleccionada?.label}}
+                      </ng-template>
+                      <ng-template let-elemento pTemplate="item">
+                        <div class=""> {{elemento.value.label}} {{elemento.value.value}}</div>
+                      </ng-template>
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_FORMA_COBRO}}</strong>
+                      &nbsp;
+                      <a (click)="listarFormasCobro()" *ngIf="!(accion===constantes.ACCION_CONSULTAR)">
+                        <span class="fa fa-refresh" placement="top" ngbTooltip="{{constantes.TAG_RECARGAR}}" container="body"></span>
+                      </a>
+                    </label>
+                    <p-dropdown [options]="listaFormaCobro" name="formaCobroSeleccionado" [showClear]="true" [(ngModel)]="formaCobroSeleccionado"
+                      placeholder="{{constantes.TAG_SELECCIONE}}" optionLabel="fcDetalle" [disabled]="accion === constantes.ACCION_CONSULTAR">
+                      <ng-template let-item pTemplate="selectedItem">
+                        {{formaCobroSeleccionado?.fcDetalle}} ({{formaCobroSeleccionado?.ctaCodigo}})
+                      </ng-template>
+                      <ng-template let-elemento pTemplate="item">
+                        <div class=""> {{elemento.value.fcDetalle}} ({{elemento.value.ctaCodigo}})</div>
+                      </ng-template>
+                    </p-dropdown>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_SECUENCIAL_FACTURAS}}</strong>
+                    </label>
+                    <p-inputMask [(ngModel)]="cajCajaTO.permisoSecuencialFacturas" name="permisoSecuencialFacturas" mask="999-999" placeholder="999-999"
+                      [required]="true" [pattern]="constantes.PATTERN_SECUENCIAL"></p-inputMask>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_SECUENCIAL_NOTAS_CREDITO}}</strong>
+                    </label>
+                    <p-inputMask [(ngModel)]="cajCajaTO.permisoSecuencialNotasCredito" name="permisoSecuencialNotasCredito" mask="999-999" placeholder="999-999"
+                      [required]="true" [pattern]="constantes.PATTERN_SECUENCIAL"></p-inputMask>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_SECUENCIAL_NOTAS_DEBITO}}</strong>
+                    </label>
+                    <p-inputMask [(ngModel)]="cajCajaTO.permisoSecuencialNotasDebito" name="permisoSecuencialNotasDebito" mask="999-999" placeholder="999-999"
+                      [required]="true" [pattern]="constantes.PATTERN_SECUENCIAL"></p-inputMask>
+                  </div>
+                </div>
+                <div class="col-sm-6 col-md-6 col-lg-4">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label  ">
+                      <strong>{{constantes.TAG_SECUENCIAL_RETENCIONES}}</strong>
+                    </label>
+                    <p-inputMask [(ngModel)]="cajCajaTO.permisoSecuencialRetenciones" name="permisoSecuencialRetenciones" mask="999-999" placeholder="999-999"
+                      [required]="true" [pattern]="constantes.PATTERN_SECUENCIAL"></p-inputMask>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!--Usuario Responsable-->
+          <div class="card mb-1 card-accent-primary">
+            <div class="card-header h6">
+              <strong>{{ constantes.TAG_DATOS_DOCUMENTOS_ELECTRONICOS }}</strong>
+              <div class="card-header-actions">
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDatosDocElectronicos" aria-expanded="true"
+                  placement="top" ngbTooltip="Ocultar/Mostrar">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseDatosDocElectronicos">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_ARCHIVO_FIRMA_ELECTRONICA}}</strong>
+                </label>
+                <p-fileUpload [name]="archivoPerfil" [showUploadButton]="false" accept=".p12" [maxFileSize]="1000000" chooseLabel="Escoger"
+                  cancelLabel="Cancelar" invalidFileTypeMessageSummary="{0}:  {{constantes.MSJ_ARCHIVO_NO_VALIDO}}, " invalidFileTypeMessageDetail="{{constantes.MSJ_ARCHIVO_PERMITIDO}}: {0}."
+                  (onSelect)="establecerArchivoElectronico($event)" (onClear)="limpiarArchivoElectronico()" [disabled]="accion === constantes.ACCION_CONSULTAR">
+                  <ng-template let-file pTemplate="file">
+                    <div *ngIf="archivoPerfilByte" class="ui-fileupload-row ng-star-inserted">
+                      <div>{{file.name}}</div>
+                      <div>{{file.size / 1000 | number:'1.3-3'}} KB</div>
+                    </div>
+                  </ng-template>
+                  <ng-template pTemplate="content">
+                    <div *ngIf="!archivoPerfilByte"> {{cajCajaTO.cajaCertificadoFirmaDigitalNombre}}
+                    </div>
+                  </ng-template>
+                </p-fileUpload>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_CLAVE_FIRMA_ELECTRONICA}}</strong>
+                </label>
+                <input type="password" autocomplete="nope" [(ngModel)]="cajCajaTO.cajaCertificadoFirmaDigitalClave" value="{{cajCajaTO.cajaCertificadoFirmaDigitalClave}}"
+                  name="cajaCertificadoFirmaDigitalClave" class="form-control form-group-sm" [required]="cajCajaTO.cajaCertificadoFirmaDigitalNombre?true:false"
+                  readonly onfocus="this.removeAttribute('readonly');">
+              </div>
+            </div>
+          </div>
+        </form>
+      </fieldset>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

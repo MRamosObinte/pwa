@@ -1,0 +1,174 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{classIcon}}"></i><b> {{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <!--FILTRO EMPRESA-->
+      <div class="card-body pb-0 pt-1">
+        <form #frmValidezComprobanteE='ngForm' name="frmValidezComprobanteE">
+          <!--SECCION-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_CLAVE_DE_ACCESO}}</b>
+            </label>
+            <input type="text" [(ngModel)]="codigoAcceso" name="claveAccesoConsultada" class="form-control form-control-sm mousetrap text-uppercase"
+              placeholder="{{constantes.TAG_OBLIGATORIO}}" appMinNumber="57" maxlength="57" appEnteroPositivo required autocomplete="off">
+          </div>
+        </form>
+      </div>
+      <!--BOTÓN BUSCAR-->
+      <div class="card-footer text-muted" *ngIf="!vistaFormulario">
+        <div class="text-right">
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" id="btnBuscar" (click)="buscaValidezComprobanteElectronico(frmValidezComprobanteE)">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--CONFIGURAR CUENTAS CONTABLES-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="vistaFormulario">
+    <div class="card m-0">
+      <div class="card-header p-1">
+        <strong>{{constantes.TAG_INFORMACION_GENERAL}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirXmlAutorizacionElectronica"
+              (click)="imprimirXmlAutorizacionElectronica()" placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}"
+              container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarXmlAutorizacionElectronica"
+              (click)="exportarXmlAutorizacionElectronica()" placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}"
+              container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            </button>
+            <!--Cancelar-->
+            <button (click)="cancelarAccion()" type="button" placement="top" class="btn btn-sm btn-default mr-1" [disabled]="cargando"  container="body">
+                <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirXmlAutorizacionElectronica"
+              (click)="imprimirXmlAutorizacionElectronica()" placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}"
+              container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarXmlAutorizacionElectronica"
+              (click)="exportarXmlAutorizacionElectronica()" placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}"
+              container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+            </button>
+            <!--Cancelar-->
+            <button (click)="cancelarAccion()" type="button" placement="top" class="btn btn-sm btn-default mr-1" [disabled]="cargando"  container="body">
+              <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="card m-1">
+          <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="iva">
+            <div class="row">
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_TIPO_COMPROBANTE}}</strong>&nbsp;
+                  </label>
+                  <input name="ctaIvaPagado" id="ctaIvaPagado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.tipoComprobante">
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_AMBIENTE}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.ambiente">
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_RAZON_SOCIAL_EMISOR}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.razonSocialEmisor">
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_RUC_EMISOR}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.rucEmisor">
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_ESTADO}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.estado">
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_NUMERO_DOCUMENTO}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.numeroDocumento">
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_FECHA_EMISION}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.fechaEmision">
+                </div>
+              </div>
+              <div class="col-lg-3 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_FECHA_AUTORIZACION}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.fechaAutorizacion">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_NUMERO_AUTORIZACION}}</strong>
+                  </label>
+                  <input name="numeroAutorizacion" id="numeroAutorizacion" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.numeroAutorizacion">
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_TOTAL}}</strong>
+                  </label>
+                  <input name="ctaIvaCobrado" id="ctaIvaCobrado" class="form-control form-control-sm text-uppercase mousetrap"
+                    disabled [(ngModel)]="validezComprobante.totalComprobante">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

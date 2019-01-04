@@ -1,0 +1,8 @@
+<button type="button" class="btn btn-primary btn-sm pb-0 pt-0 pl-1 pr-1 mr-1" *ngIf="condicion"
+    (click)="accionAdicional()" title="{{titulo}}">
+    <i class="{{clase}}"></i>
+</button>
+<button type="button" class="btn btn-primary btn-sm pb-0 pt-0" ngbTooltip="{{constantes.TAG_OPCIONES}}" container="body"
+    (click)="mostrarOpciones($event)">
+    <i class="{{constantes.ICON_OPCIONES}}"></i>
+</button>

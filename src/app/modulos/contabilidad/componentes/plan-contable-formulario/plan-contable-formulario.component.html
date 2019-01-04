@@ -1,0 +1,67 @@
+<form #frmPlanContableDatos='ngForm' autocomplete="off" class="card m-0">
+  <fieldset>
+    <div class="card-header p-1">
+      <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+        title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <b class="pl-2"> {{tituloForm}} </b>
+      <div class="card-header-actions">
+        <!--BOTON GUARDAR NUEVO -->
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="insertarPlanContable()"
+          *ngIf="accion === constantes.ACCION_NUEVO">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+        <!--BOTON GUARDAR MODIFICADO -->
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="actualizarPlanContable()"
+          *ngIf="accion === constantes.ACCION_EDITAR">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+        <!--BOTON CANCELAR -->
+        <button class="btn btn-sm btn-default mr-1" id="btnCancelar" type="button" (click)="cancelar()">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}</button>
+      </div>
+    </div>
+    <!--FORMULARIO PLAN CONTABLE -->
+    <div class="card-body p-1">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapsePlanContable"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapsePlanContable">
+          <div class="row">
+            <!--CODIGO-->
+            <div class="form-group col-lg-6 col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_CODIGO}}</b>
+              </label>
+              <input [appFocus]="accion === constantes.ACCION_NUEVO" name="codigo" #codigo="ngModel" [(ngModel)]="planContableTO.cuentaCodigo"
+                [disabled]="deshabilitarCampoCodigo" placeholder="{{constantes.TAG_OBLIGATORIO}}" class="form-control form-control-sm"
+                required maxlength="{{tamanioEstructura}}" onKeypress="if (event.keyCode < 45 || event.keyCode > 57) event.returnValue = false;">
+              <span *ngIf="accion === constantes.ACCION_NUEVO" class="fa fa-question-circle form-control-feedback"
+                placement="right" ngbPopover="Ingrese sólo números y longitud menor o igual de {{tamanioEstructura}} dígitos"
+                container="body"></span>
+            </div>
+            <!--DETALLE-->
+            <div class="form-group col-lg-6 col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_DETALLE}}</b>
+              </label>
+              <input [appFocus]="accion === constantes.ACCION_EDITAR" class="form-control form-control-sm mousetrap" name="detalle"
+                maxlength="150" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="planContableTO.cuentaDetalle"
+                id="detalle" required [disabled]="accion == constantes.ACCION_CONSULTAR">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

@@ -1,0 +1,15 @@
+<div class="card m-0" *ngIf="listaResumenBiologico?.length>0">
+  <div class="card-header p-1">
+    <strong>{{constantes.INVENTARIO_LISTA_RESUMEN_BIOLOGICO}}</strong>
+  </div>
+  <div class="card-body" style="padding: 0 0 0 0">
+    <!--195px-->
+    <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(60vh - 100px);" class="ag-theme-balham"
+      [rowData]="listaResumenBiologico" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+      [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+      [frameworkComponents]="frameworkComponents" (gridReady)="onGridReady($event)" (filterChanged)="actualizarFilas()"
+      (rowSelected)="filaSeleccionada = $event.node.data" (gridColumnsChanged)="redimencionarColumnas()"
+      (gridSizeChanged)="redimencionarColumnas()">
+    </ag-grid-angular>
+  </div>
+</div>

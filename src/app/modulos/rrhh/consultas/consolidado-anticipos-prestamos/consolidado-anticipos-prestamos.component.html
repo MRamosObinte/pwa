@@ -1,0 +1,94 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmConAntPres='ngForm' name="frmConAntPres" class="card m-0 mb-2" autocomplete="off">
+      <fieldset>
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="estadoformulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_CATEGORIA}}</strong>
+              &nbsp;
+              <a (click)="!estadoformulario ? listarCategorias() : null" *ngIf="!estadoformulario">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CATEGORIAS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaCategorias" name="bodega" [showClear]="true" [(ngModel)]="categoriaSeleccionada"
+              [disabled]="estadoformulario" (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}"
+              optionLabel="catNombre">
+              <ng-template let-item pTemplate="selectedItem">
+                {{categoriaSeleccionada?.catNombre}}
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div> {{fs.value.catNombre}}</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_TRABAJADOR}}</b>
+            </label>
+            <input [appFocus]="true" type="text" name="trabajador" placeholder="{{constantes.TAG_OPCIONAL}}"
+              [(ngModel)]="trabajador.rhEmpleadoPK.empId" class="form-control form-control-sm text-uppercase mousetrap"
+              (keydown)="abrirModalTrabajadores($event)" (blur)="validarEmpleado()" [ngbTooltip]="trabajador.empNombres ? trabajador.empNombres : null"
+              appUppercase [disabled]="estadoformulario">
+            <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_COINCIDENCIA_EMPLEADO}}"
+              triggers="mouseenter:mouseleave" container="body" *ngIf="!estadoformulario"></span>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_DESDE}}</b>
+            </label>
+            <p-calendar inputId="fechaDesde" class="mousetrap" name="fechaDesde" [(ngModel)]="fechaDesde" [appMaxDate]="fechaActual"
+              (ngModelChange)="limpiarResultado()" dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true"
+              [disabled]="estadoformulario" [maxDate]="fechaHasta"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar inputId="fechaHasta" class="mousetrap" name="fechaHasta" [(ngModel)]="fechaHasta" [disabled]="estadoformulario"
+              (ngModelChange)="limpiarResultado()" dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true"
+              [minDate]="fechaDesde" [appMinDate]="fechaDesde" [maxDate]="fechaActual" [appMaxDate]="fechaActual"></p-calendar>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group mr-1">
+              <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="listarDetallePrestamos(frmConAntPres)"
+                [disabled]="estadoformulario" title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <!--Listado de detalle anticipos-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="mostrarListado">
+    <app-consolidado-anticipos-prestamos-listado [parametrosBusqueda]="parametrosListado" [empresaSeleccionada]="empresaSeleccionada"
+      (estadoformulario)="estadoformulario=$event" (enviarActivar)="activar=$event" (enviarAccion)="ejecutarAccion($event)"></app-consolidado-anticipos-prestamos-listado>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

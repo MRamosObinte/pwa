@@ -1,0 +1,76 @@
+<!--CABECERA-->
+<form #frmContableDetalle='ngForm' autocomplete="off">
+  <div class="card mb-1" [ngClass]="{'card-accent-danger': conContable.conReversado || conContable.conPendiente}">
+    <div class="card-header">
+      <strong>{{constantes.TAG_DATOS_GENERALES}}</strong>
+      <div class="card-header-actions">
+        <span class="mr-2 badge badge-pill" [ngClass]="{'bg-danger': conContable.conPendiente,'bg-reversado':conContable.conReversado}">{{conContable.conPendiente?constantes.ETIQUETA_PENDIENTE:
+          conContable.conAnulado?constantes.ETIQUETA_ANULADO:
+          conContable.conReversado?constantes.ETIQUETA_REVERSADO:
+          conContable.conBloqueado?constantes.ETIQUETA_BLOQUEADO:''}}
+        </span>
+        <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionContable"
+          aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar" (click)="collpase()">
+          <i class="fa fa-minus"></i>
+        </a>
+      </div>
+    </div>
+    <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0 " id="collapseInformacionContable">
+      <div class="row">
+        <!--Fecha-->
+        <div class="col-lg-3 col-md-3">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_FECHA}}</strong>
+            </label>
+            <p-calendar inputId="iniFecha" name="iniFecha" [(ngModel)]="conContable.conFecha" dateFormat="dd/mm/yy"
+              [locale]="es" [showIcon]="true" [minDate]="fechaMin" [maxDate]="fechaMax" [appMinDate]="fechaMin"
+              [appMaxDate]="fechaMax" [inputStyleClass]="fechaValido ==false ?'has-error':'' " (ngModelChange)="verificarFechaValida()"
+              [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR || data.accion===constantes.ACCION_ELIMINAR"
+              required></p-calendar>
+          </div>
+        </div>
+        <!--Tipo de Comoprobante-->
+        <div class="col-lg-3 col-md-3">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_TIPO_COMPROBANTES}}</b>
+            </label>
+            <label class="form-control form-control-sm text-uppercase label-input ocultar-en-tabla">{{tipoSeleccionado?.tipDetalle}}
+              ({{tipoSeleccionado?.tipCodigo}})</label>
+          </div>
+        </div>
+        <!--Concepto-->
+        <div class="col-lg-6 col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_BENEFICIARIO}}</strong>
+            </label>
+            <label class="form-control form-control-sm text-uppercase label-input ocultar-en-tabla">{{conContable.conConcepto}}</label>
+          </div>
+        </div>
+        <!--Detalle-->
+        <div class="col-lg-6 col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_DETALLE}}</strong>
+            </label>
+            <label class="form-control form-control-sm text-uppercase label-input ocultar-en-tabla">{{conContable.conDetalle}}</label>
+          </div>
+        </div>
+        <!--Observaciones-->
+        <div class="col-lg-6 col-md-6">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+            </label>
+            <input [appDescripcion]="conContable.conObservaciones" appUppercase class="form-control form-control-sm text-uppercase"
+              type="text" [(ngModel)]="conContable.conObservaciones" placeholder="{{constantes.TAG_SIN_OBSERVACIONES}}"
+              [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR || data.accion===constantes.ACCION_ELIMINAR"
+              (ngModelChange)="conContable.conObservaciones=conContable.conObservaciones.trim()" name="obs">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

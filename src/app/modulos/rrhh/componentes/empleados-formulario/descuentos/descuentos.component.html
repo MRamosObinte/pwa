@@ -1,0 +1,12 @@
+<div *ngIf="descuentos && descuentos.length==0" class="text-center">
+  <button class="btn btn-sm btn-primary" (click)="nuevo()">{{constantes.ACCION_NUEVO}}</button>
+</div>
+<div *ngIf="descuentos && descuentos.length>0">
+  <ag-grid-angular #agGrid id="agGrid" style="width: 100%;" class="ag-theme-balham" [rowData]="descuentos" [columnDefs]="columnDefs"
+    [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()" [rowSelection]="rowSelection" [gridAutoHeight]="true"
+    (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+    [enableColResize]="true" (cellFocused)="filaFocused($event)" [context]="context" (gridReady)="onGridReady($event)"
+    [suppressDragLeaveHidesColumns]="true" [stopEditingWhenGridLosesFocus]="true">
+  </ag-grid-angular>
+</div>
+<p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>

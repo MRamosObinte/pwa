@@ -1,0 +1,267 @@
+<form #frmConsumoDatos='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{titulo}} - {{empresaSeleccionada.empNombre}}</b>
+    <div class="card-header-actions" *ngIf="!vistaDistribucion">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Imprimir-->
+        <button id="btnImprimirConsumo" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}"
+          (click)="imprimirConsumo()" title="{{constantes.ATAJO_IMPRIMIR}}">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Distribuir-->
+        <button type="button" *ngIf="accion === constantes.ACCION_MAYORIZAR || accion === constantes.ACCION_CREAR"
+          class="btn btn-sm btn-primary mr-1" title="{{constantes.ATAJO_DISTRIBUIR}}" id="btnDistribuirConsumo"
+          ngbTooltip="{{constantes.TAG_DISTRIBUIR}}" (click)="distribuirConsumo()">
+          <i class="{{constantes.ICON_DISTRIBUIR}}" aria-hidden="true"></i>
+        </button>
+        <!--Guardar-->
+        <div *ngIf="accion === constantes.ACCION_CREAR" class="btn-group mr-1">
+          <button id="btnGuardarConsumo" type="button" class="btn btn-sm btn-primary" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? insertarConsumo(frmConsumoDatos, false) : null"
+            placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}">
+            <i class="{{constantes.ICON_MAYORIZAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> </span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? insertarConsumo(frmConsumoDatos, true) : null">{{constantes.TAG_INCLUIR_PENDIENTES}}</a>
+          </div>
+        </div>
+        <!--Mayorizar-->
+        <div *ngIf="accion === constantes.ACCION_MAYORIZAR" class="btn-group mr-1">
+          <button id="btnGuardarConsumo" type="button" class="btn btn-sm btn-primary" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? mayorizarConsumo(frmConsumoDatos, false) : null"
+            placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}">
+            <i class="{{constantes.ICON_MAYORIZAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> </span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? mayorizarConsumo(frmConsumoDatos, true) : null">{{constantes.TAG_INCLUIR_PENDIENTES}}</a>
+          </div>
+        </div>
+        <!--Anular-->
+        <button id="btnAnularConsumo" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularConsumo()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Restaurar-->
+        <button id="btnRestaurarConsumo" *ngIf="accion === constantes.ACCION_RESTAURAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_RESTAURAR}}" (click)="restaurarConsumo()">
+          <i class="{{constantes.ICON_OK_SWAL}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarConsumo"
+          ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Imprimir-->
+        <button id="btnImprimirConsumo" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}"
+          (click)="imprimirConsumo()" title="{{constantes.ATAJO_IMPRIMIR}}">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_IMPRIMIR}}</span>
+        </button>
+        <!--Distribuir-->
+        <button type="button" *ngIf="accion === constantes.ACCION_MAYORIZAR || accion === constantes.ACCION_CREAR"
+          class="btn btn-sm btn-primary mr-1" title="{{constantes.ATAJO_DISTRIBUIR}}" id="btnDistribuirConsumo"
+          ngbTooltip="{{constantes.TAG_DISTRIBUIR}}" (click)="distribuirConsumo()">
+          <i class="{{constantes.ICON_DISTRIBUIR}}" aria-hidden="true"> </i> {{constantes.TAG_DISTRIBUIR}}
+        </button>
+        <!--Guardar-->
+        <div *ngIf="accion === constantes.ACCION_CREAR" class="btn-group mr-1">
+          <button id="btnGuardarConsumo" type="button" class="btn btn-sm btn-primary" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? insertarConsumo(frmConsumoDatos, false) : null"
+            placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}">
+            <i class="{{constantes.ICON_MAYORIZAR}}" aria-hidden="true"> </i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}} </span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? insertarConsumo(frmConsumoDatos, true) : null">{{constantes.TAG_INCLUIR_PENDIENTES}}</a>
+          </div>
+        </div>
+        <!--Mayorizar-->
+        <div *ngIf="accion === constantes.ACCION_MAYORIZAR" class="btn-group mr-1">
+          <button id="btnGuardarConsumo" type="button" class="btn btn-sm btn-primary" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? mayorizarConsumo(frmConsumoDatos, false) : null"
+            placement="top" ngbTooltip="{{constantes.LABEL_MAYORIZAR}}">
+            <i class="{{constantes.ICON_MAYORIZAR}}" aria-hidden="true"> </i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}} </span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="consumoService.verificarPermiso(accion, empresaSeleccionada, true) ? mayorizarConsumo(frmConsumoDatos, true) : null">{{constantes.TAG_INCLUIR_PENDIENTES}}</a>
+          </div>
+        </div>
+        <!--Anular-->
+        <button id="btnAnularConsumo" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularConsumo()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_ANULAR}}</span>
+        </button>
+        <!--Restaurar-->
+        <button id="btnRestaurarConsumo" *ngIf="accion === constantes.ACCION_RESTAURAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_RESTAURAR}}" (click)="restaurarConsumo()">
+          <i class="{{constantes.ICON_OK_SWAL}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_RESTAURAR}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarConsumo"
+          (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+    <div class="card-header-actions" *ngIf="vistaDistribucion">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Aceptar-->
+        <button id="btnAceptar" type="button" title="{{constantes.ATAJO_ACEPTAR}}" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.LABEL_ACEPTAR}}" (click)="aceptarDistribucion()">
+          <i class="{{constantes.ICON_OK_SWAL}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarConsumo"
+          ngbTooltip="{{constantes.LABEL_CANCELAR}}" (click)="cancelarDistribucion()">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Aceptar-->
+        <button id="btnAceptar" type="button" title="{{constantes.ATAJO_ACEPTAR}}" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.LABEL_ACEPTAR}}" (click)="aceptarDistribucion()">
+          <i class="{{constantes.ICON_OK_SWAL}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_ACEPTAR}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarConsumo"
+          (click)="cancelarDistribucion()" ngbTooltip="{{constantes.LABEL_CANCELAR}}">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+          {{constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <div class="card mb-1" [ngClass]="{'card-accent-danger': invConsumos.consPendiente}">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <span class="mr-2 badge badge-pill" *ngIf="invConsumos.consPendiente" [ngClass]="{'badge-danger': invConsumos.consPendiente}">PENDIENTE</span>
+            <span class="mr-2 badge badge-pill" *ngIf="invConsumos.consAnulado" [ngClass]="{'badge-default': invConsumos.consAnulado}">ANULADO</span>
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseProductoCodigo"
+              aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseProductoCodigo">
+          <div class="row">
+            <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_EMPRESA}}</strong>
+              </label>
+              <label class="form-control form-control-sm text-uppercase mousetrap input-label">
+                {{empresaSeleccionada.empNombre}} ({{empresaSeleccionada.empCodigo}})
+              </label>
+            </div>
+            <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_MOTIVO}}</strong>
+              </label>
+              <label class="form-control form-control-sm text-uppercase mousetrap input-label" *ngIf="accion===constantes.ACCION_MAYORIZAR">
+                {{motivoSeleccionado?.cmDetalle}} ({{motivoSeleccionado?.cmCodigo}})
+              </label>
+              <select id="selectMotivo" class="form-control form-control-sm  mousetrap" name="motivo" [(ngModel)]="motivoSeleccionado"
+                required *ngIf="accion!==constantes.ACCION_MAYORIZAR" (change)="seleccionarBodega()" [compareWith]="inicializarMotivos">
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="motivo" *ngFor="let motivo of listaConsumoMotivo"> {{motivo?.cmDetalle}}
+                  ({{motivo?.cmCodigo}})</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_BODEGA}}</strong>
+              </label>
+              <select id="selectBodega" class="form-control form-control-sm  mousetrap" name="bodega" [(ngModel)]="bodegaSeleccionado"
+                required (change)="obtenerPiscinasParaConsumoDetalle()" [disabled]="motivoSeleccionado?.cmBodega && bodegaSeleccionado">
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="bodega" *ngFor="let bodega of listaBodega"> {{bodega?.bodNombre}}
+                  ({{bodega?.bodCodigo}})</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_FECHA}}</strong>
+              </label>
+              <p-calendar class="mousetrap calendar" name="fechaConsumo" [inputStyleClass]="isFechaValido == false ? 'has-error ' : '' "
+                [(ngModel)]="invConsumos.consFecha" [showIcon]="true" [maxDate]="fechaActual" [appMaxDate]="fechaActual"
+                [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true" (ngModelChange)="cambioLaFecha()"
+                placeholder="DD/MM/YYYY"></p-calendar>
+            </div>
+            <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_REFERENCIA}}</strong>
+              </label>
+              <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap" id="referencia"
+                name="referencia" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invConsumos.consReferencia">
+            </div>
+            <div class="form-group form-group-sm col-sm-4 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+              </label>
+              <input type="text" appUppercase class="form-control text-uppercase form-control-sm mousetrap" name="observacion"
+                placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invConsumos.consObservaciones">
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <div class="card mb-1" [hidden]="vistaDistribucion" *ngIf="bodegaSeleccionado?.bodCodigo && motivoSeleccionado?.cmCodigo">
+      <div class="card-header">
+        <strong>{{constantes.CONSUMO_DETALLE}}</strong>
+      </div>
+      <div class="card-body m-0 p-0" *ngIf="listaInvConsumosDetalle?.length>0">
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 395px); min-height: 300px;" class="ag-theme-balham"
+          [rowData]="listaInvConsumosDetalle" [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection"
+          [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+          [rowDragManaged]="true" (rowDragEnd)="refrescarOrdenDetalle($event)" [animateRows]="true" [suppressClickEdit]=true
+          (gridReady)="onGridReady($event)" (rowSelected)="detalleSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)"
+          (filterChanged)="actualizarFilas()" (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenu($event.data,$event.rowIndex, $event.event)"
+          (cellEditingStopped)="alCambiarValorDeCelda($event)" [stopEditingWhenGridLosesFocus]="true"
+          [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()">
+        </ag-grid-angular>
+      </div>
+    </div>
+
+  </div>
+  <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+</form>
+<div *ngIf="vistaDistribucion">
+  <app-distribuciones [empresaSeleccionada]="empresaSeleccionada" [listaInvConsumosDetalleDistribucion]="listaInvConsumosDetalleDistribucion"
+    [parametros]="parametrosDistribucion" [invProducto]="invProducto"></app-distribuciones>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

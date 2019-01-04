@@ -1,0 +1,76 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmCobros='ngForm' name="frmCobros" class="card m-0 mb-2" autocomplete="off">
+      <fieldset>
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <!--PERIODO-->
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_PERIODO}}</strong>
+              &nbsp;
+              <a (click)="listarPeriodos()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_PERIODOS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaPeriodos" name="periodo" [(ngModel)]="periodoSeleccionado" required optionLabel="perDetalle"
+              (ngModelChange)="limpiarResultado()" [disabled]="mostrarContabilidaAcciones">
+              <ng-template let-item pTemplate="selectedItem">
+                {{periodoSeleccionado?.perDetalle}}
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class=""> {{fs.value.perDetalle}}</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <!--NUMERO COBRO-->
+          <div class="form-group form-group-sm has-feedback pb-0">
+            <label class="control-label">
+              <b>{{constantes.TAG_NRO_COBRO}}</b>
+            </label>
+            <input name="txtBusqueda" (blur)="completarCeros()" [(ngModel)]="numeroCobro" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+              class="form-control input-sm" maxlength="7" required pattern="{{constantes.PATTERN_NUMEROS}}" pKeyFilter="pint"
+              (keypress)="soloNumeros($event)">
+            <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_INGRESE_SOLO_NUMEROS}}"
+              container="body"></span>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group mr-1">
+              <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="buscarCobrosIndividual(frmCobros)"
+                title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaFormulario">
+      <app-cobro-formulario [parametrosFormulario]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarAccion)="ejecutarAccion($event)"></app-cobro-formulario>
+    </div>
+  </div>
+</div>

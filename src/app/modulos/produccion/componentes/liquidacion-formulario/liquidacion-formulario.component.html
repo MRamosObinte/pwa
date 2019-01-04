@@ -1,0 +1,279 @@
+<form #frmLiquidacionPesca='ngForm' autocomplete="off" class="card m-0" *ngIf="mostrarFormularioLiquidacion">
+  <div class="card-header p-1">
+    <button id="btnActivarLiquidacionPesca" class="btn btn-sm btn-primary" *ngIf="!screamXS" (click)="cambiarActivar()"
+      type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activarFormulario?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{tituloForm}}: </b>
+    <strong class="text-primary">{{empresaSeleccionada.empNombre}}</strong>
+    <div class="card-header-actions">
+      <!--Anular-->
+      <button type="button" class="btn btn-sm btn-danger mr-1" *ngIf="accion === constantes.ACCION_ANULAR" id="btnAnularLiquidacionPesca"
+        (click)="anularLiquidacionPesca()" title="{{constantes.ATAJO_ANULAR}}">
+        <i class="{{constantes.ICON_ANULAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_ANULAR}}</span>
+      </button>
+      <!--Restaurar-->
+      <button type="button" class="btn btn-sm btn-primary mr-1" *ngIf="accion === constantes.ACCION_RESTAURAR" id="btnRestaurarLiquidacionPesca"
+        (click)="restaurarLiquidacionPesca()" title="{{constantes.ATAJO_RESTAURAR}}">
+        <i class="{{constantes.ICON_RESTAURAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_RESTAURAR}}</span>
+      </button>
+      <!--Mayorizar-->
+      <div class="btn-group" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR">
+        <button type="button" class="btn btn-sm btn-primary" id="btnGuardarLiquidacionPesca" (click)="insertarLiquidacionPesca(frmLiquidacionPesca)"
+          title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+          style="margin-right: 3px;">
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" (click)="insertarLiquidacionPesca(frmLiquidacionPesca,true)">
+            {{constantes.TAG_PENDIENTE}}</a>
+        </div>
+      </div>
+      <!--Imprimir-->
+      <button id="btnImprimirConsumo" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}"
+        (click)="imprimirLiquidacion()" title="{{constantes.ATAJO_IMPRIMIR}}" *ngIf="accion === constantes.ACCION_CONSULTAR && !prdLiquidacion.liqPendiente">
+        <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.ACCION_IMPRIMIR}}</span>
+      </button>
+      <!--Cancelar o regresar-->
+      <button type="button" class="btn btn-sm btn-default mr-1" *ngIf="accion === constantes.ACCION_CONSULTAR" id="btnCancelarLiquidacionPesca"
+        title="{{constantes.ATAJO_CANCELAR}}" (click)="cancelarLiquidacionPesca()">
+        <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-default mr-1" *ngIf="accion !== constantes.ACCION_CONSULTAR" id="btnCancelarLiquidacionPesca"
+        title="{{constantes.ATAJO_CANCELAR}}" (click)="cancelarLiquidacionPesca()">
+        <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+      </button>
+    </div>
+  </div>
+  <!--Formulario de piscina-->
+  <div class="card-body p-1">
+    <div class="card mb-1" [ngClass]="{'card-accent-danger':prdLiquidacion.liqPendiente}">
+      <div class="card-header">
+        <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+        <div class="card-header-actions">
+          <span class="mr-2 badge badge-pill" [ngClass]="{'bg-danger': prdLiquidacion.liqPendiente}">{{
+            prdLiquidacion.liqPendiente?constantes.ETIQUETA_PENDIENTE:
+            prdLiquidacion.liqAnulado?constantes.ETIQUETA_ANULADO:''}}
+          </span>
+          <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDatosGenerales"
+            aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}" (click)="collapse()">
+            <i class="fa fa-minus"></i>
+          </a>
+        </div>
+      </div>
+      <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseDatosGenerales">
+        <div class="row">
+          <!--Sector-->
+          <div class="col-lg-4 col-md-4">
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <strong>{{constantes.TAG_SECTOR}}</strong>
+              </label>
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion !== constantes.ACCION_CREAR">
+                {{prdLiquidacion.prdPiscina.prdSector.secNombre}}
+                ({{prdLiquidacion.prdPiscina.prdSector.prdSectorPK.secCodigo}})</label>
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion === constantes.ACCION_CREAR">
+                {{secSeleccionado.secNombre}}
+                ({{secSeleccionado.secCodigo}}) </label>
+            </div>
+          </div>
+          <!--Corridas-->
+          <div class="col-lg-4 col-md-4">
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <strong>{{constantes.TAG_CORRIDA_MAY}}</strong>
+              </label>
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR && prdLiquidacion.prdCorrida">
+                {{corridaSeleccionada?.corFechaDesde | date:'dd/MM/yyyy'}} |
+                {{corridaSeleccionada?.corFechaHasta | date:'dd/MM/yyyy'}}
+                ({{corridaSeleccionada?.prdCorridaPK.corNumero}})</label>
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR && !prdLiquidacion.prdCorrida">
+                {{constantes.TAG_SIN_CORRIDA}}</label>
+              <select class="form-control form-control-sm mousetrap" name="corrida" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR"
+                required [(ngModel)]="corridaSeleccionada" [compareWith]="inicializarCorridas" (ngModelChange)="inicializarFechas()">
+                <option disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="corrida" *ngFor="let corrida of listaCorridas">{{corrida.corFechaDesde |
+                  date:'dd/MM/yyyy'}} |
+                  {{corrida.corFechaHasta | date:'dd/MM/yyyy'}}
+                  ({{corrida?.prdCorridaPK.corNumero}})</option>
+              </select>
+            </div>
+          </div>
+          <!--Motivos-->
+          <div class="form-group col-lg-4 col-sm-6">
+            <div class="form-group form-group-sm">
+              <label>
+                <strong>{{constantes.TAG_MOTIVO}}</strong>
+              </label>
+              <span class="form-control form-control-sm text-uppercase label-input" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">
+                {{motivoSeleccionado?.lmDetalle}} ({{motivoSeleccionado?.prdLiquidacionMotivoPK?.lmCodigo}})</span>
+              <select class="form-control form-control-sm mousetrap" name="motivo" required [(ngModel)]="motivoSeleccionado"
+                *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR">
+                <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="motivo" *ngFor="let motivo of listaMotivos"> {{motivo?.lmDetalle}}
+                  ({{motivo?.prdLiquidacionMotivoPK?.lmCodigo}})
+                </option>
+              </select>
+            </div>
+          </div>
+          <!--Cliente-->
+          <div class="col-lg-4 col-md-4">
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <strong>{{constantes.TAG_CLIENTE}}</strong>
+              </label>
+              <span class="form-control form-control-sm text-uppercase label-input" [ngbTooltip]="cliente.cliRazonSocial ? cliente.cliRazonSocial : ''"
+                *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">{{cliente.cliCodigo}}</span>
+
+              <input id="codCliente" type="text" name="cliente" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                [(ngModel)]="cliente.cliCodigo" pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                maxlength="100" (keydown)="buscarCliente($event)" (blur)="validarCliente()" required appUppercase *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR"
+                [ngbTooltip]="cliente.cliRazonSocial ? cliente.cliRazonSocial : null" container="body">
+            </div>
+          </div>
+          <!--Fecha-->
+          <div class="col-lg-4 col-md-4">
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <strong>{{constantes.TAG_FECHA}}</strong>
+              </label>
+              <p-calendar inputId="fechaDesde" class="mousetrap" name="fechaDesde" [(ngModel)]="fechaDesde" [maxDate]="fechaHasta ? fechaHasta : (fechaFinCorrida ? fechaFinCorrida : fechaActual)"
+                [minDate]="fechaInicioCorrida ? fechaInicioCorrida : fechaActual" [appMinDate]="fechaInicioCorrida ? fechaInicioCorrida : fechaActual"
+                [appMaxDate]="fechaHasta ? fechaHasta : (fechaFinCorrida ? fechaFinCorrida : fechaActual)" dateFormat="dd/mm/yy"
+                [locale]="es" [showIcon]="true" [required]="true" [disabled]="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR"></p-calendar>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <fieldset [disabled]="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">
+      <div class="card mb-1">
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0">
+          <div class="row">
+            <!--Lote-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm" [ngClass]="{ 'has-error':!isLoteValido}">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LOTE}}</strong>
+                </label>
+                <input id="lote" class="form-control form-control-sm text-uppercase mousetrap" name="liqLote"
+                  [appDescripcion]="prdLiquidacion.liqLote" appUppercase type="text" [(ngModel)]="prdLiquidacion.liqLote"
+                  placeholder="{{constantes.TAG_SIN_DETALLE}}" required (blur)="validarLote()">
+              </div>
+            </div>
+            <!--Libras enviadas-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LIBRAS_ENVIADAS}}</strong>
+                </label>
+                <input class="form-control form-control-sm text-uppercase text-right mousetrap" name="liqLibrasEnviadas"
+                  type="text" [(ngModel)]="prdLiquidacion.liqLibrasEnviadas" [appAutonumeric2]="prdLiquidacion.liqLibrasEnviadas"
+                  value="{{prdLiquidacion.liqLibrasEnviadas}}" (updateValue)="prdLiquidacion.liqLibrasEnviadas = $event"
+                  [appMinNumber]="0" required>
+              </div>
+            </div>
+            <!--Libras recibidas-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LIBRAS_RECIBIDAS}}</strong>
+                </label>
+                <input class="form-control form-control-sm text-uppercase text-right mousetrap" name="liqLibrasRecibidas"
+                  type="text" [(ngModel)]="prdLiquidacion.liqLibrasRecibidas" [appAutonumeric2]="prdLiquidacion.liqLibrasRecibidas"
+                  value="{{prdLiquidacion.liqLibrasRecibidas}}" (updateValue)="prdLiquidacion.liqLibrasRecibidas = $event"
+                  [appMinNumber]="0" required (blur)="validacionLibrasBasuraLibrasRecibidas()">
+              </div>
+            </div>
+            <!--Libras basura-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm" [ngClass]="{ 'has-error':!isValidoLbsBasura}">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LIBRAS_BASURA}}</strong>
+                </label>
+                <input class="form-control form-control-sm text-uppercase text-right mousetrap" name="liqLibrasBasura"
+                  type="text" [(ngModel)]="prdLiquidacion.liqLibrasBasura" [appAutonumeric2]="prdLiquidacion.liqLibrasBasura"
+                  value="{{prdLiquidacion.liqLibrasBasura}}" (updateValue)="prdLiquidacion.liqLibrasBasura = $event"
+                  [appMinNumber]="0" (blur)="validacionLibrasBasuraLibrasRecibidas()" required>
+              </div>
+            </div>
+            <!--Libras netas-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LIBRAS_NETAS}}</strong>
+                </label>
+                <label class="form-control form-control-sm text-right label-input">{{prdLiquidacion.liqLibrasNetas|
+                  number:'1.2-2'}} </label>
+              </div>
+            </div>
+            <!--Libras entero-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LIBRAS_ENTERO}}</strong>
+                </label>
+                <label class="form-control form-control-sm text-right label-input">{{prdLiquidacion.liqLibrasEntero|
+                  number:'1.2-2'}} </label>
+              </div>
+            </div>
+            <!--Libras cola-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm" [ngClass]="{ 'has-error':!isValidoColas}">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LIBRAS_COLA}}</strong>
+                </label>
+                <input class="form-control form-control-sm text-uppercase text-right mousetrap" name="liqLibrasCola"
+                  type="text" [(ngModel)]="prdLiquidacion.liqLibrasCola" [appAutonumeric2]="prdLiquidacion.liqLibrasCola"
+                  value="{{prdLiquidacion.liqLibrasCola}}" (updateValue)="prdLiquidacion.liqLibrasCola = $event"
+                  [appMinNumber]="0" required (blur)="validacionDeLbColasLbColProcLbNetas('COLA');">
+              </div>
+            </div>
+            <!--Libras cola procesada-->
+            <div class="col-lg-3 col-md-3">
+              <div class="form-group form-group-sm" [ngClass]="{ 'has-error':!isValidoColasProcesadas}">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_LIBRAS_COLA_PROCESADA}}</strong>
+                </label>
+                <input class="form-control form-control-sm text-uppercase text-right mousetrap" name="liqLibrasColaProcesadas"
+                  type="text" [(ngModel)]="prdLiquidacion.liqLibrasColaProcesadas" [appAutonumeric2]="prdLiquidacion.liqLibrasColaProcesadas"
+                  value="{{prdLiquidacion.liqLibrasColaProcesadas}}" (updateValue)="prdLiquidacion.liqLibrasColaProcesadas = $event"
+                  [appMinNumber]="0" required (blur)="validacionDeLbColasLbColProcLbNetas('COLA_PROCESADA')">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Listado-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <strong>{{constantes.PRODUCCION_DETALLE_LIQUIDACION_PESCA}}</strong>
+        </div>
+        <div class="card-body m-0 p-0">
+          <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listaDetalle"
+            [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+            [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+            [rowDragManaged]="true" [animateRows]="true" [singleClickEdit]="true" [rowClassRules]="rowClassRules"
+            (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)"
+            (contextmenu)=" (accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR)?  $event.preventDefault():null"
+            (cellContextMenu)="(accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR)?  mostrarContextMenu($event.data,$event.rowIndex, $event.event):null"
+            [stopEditingWhenGridLosesFocus]="true" (cellValueChanged)="alCambiarValorDeCelda($event)"
+            [suppressDragLeaveHidesColumns]="true" (gridColumnsChanged)="redimensionarColumnas()" (gridSizeChanged)="redimensionarColumnas()"
+            [pinnedBottomRowData]="pinnedBottomRowData" (rowDragEnd)="refrescarDetalle()">
+          </ag-grid-angular>
+          <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>

@@ -1,0 +1,158 @@
+<div [ngClass]="{'modal-primary': esModal}">
+  <div *ngIf="esModal" class="modal-header p-2">
+    <span class="modal-title">
+      <strong>{{constantes.TAG_PRODUCTO_PRESENTACION_CAJA}} - {{empresaSeleccionada.empNombre}}
+        ({{empresaSeleccionada.empCodigo}}) {{razonSocial}}
+      </strong>
+    </span>
+    <button type="button" class="close" aria-label="Cerrar" (click)="cerrarPresCaja()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div [ngClass]="{'modal-body': esModal}">
+    <div class="row">
+      <div [ngClass]="{'sr-only':activar}" class="col-lg-12 col-md-12 col-sm-11">
+        <div class="card m-0 mb-2">
+          <div class="card-header p-1">
+            <i class="{{classTitulo}}"></i>
+            <b>{{frmTitulo}}</b>
+            <div class="card-header-actions" *ngIf="vistaFormulario">
+              <button *ngIf="accion === constantes.ACCION_CREAR" id="btnGuardarPresentacionCaja" type="button" (click)="guardarProductoPresentacionCajas(frmProductoPresentacionCajas)"
+                class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button *ngIf="accion === constantes.ACCION_EDITAR" id="btnGuardarPresentacionCaja" type="button" (click)="actualizarProductoPresentacionCajas(frmProductoPresentacionCajas)"
+                class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button (click)="resetearFormulario()" type="button" class="btn btn-sm btn-default mr-1" [disabled]="cargando"
+                title="{{constantes.ATAJO_CANCELAR}}">
+                <i class="{{constantes.ICON_CANCELAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body pb-0 pt-1">
+            <form #frmProductoPresentacionCajas="ngForm" autocomplete="off">
+              <div *ngIf="vistaFormulario">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_CODIGO}}</strong>
+                  </label>
+                  <p *ngIf="!(accion===constantes.ACCION_CREAR)" class="form-control input-sm">{{invProductoPresentacionCajasTO.prescCodigo}}</p>
+                  <input *ngIf="accion === constantes.ACCION_CREAR" type="text" [appFocus]="accion === constantes.ACCION_CREAR"
+                    name="prescCodigo" [(ngModel)]="invProductoPresentacionCajasTO.prescCodigo" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                    pattern="{{constantes.PATTERN_CODIGO}}" class="form-control input-sm mousetrap text-uppercase"
+                    required minlength="1" maxlength="30" appUppercase>
+                  <span *ngIf="accion === constantes.ACCION_CREAR" class="fa fa-question-circle form-control-feedback"
+                    placement="right" ngbPopover="{{constantes.MSJ_INFOCODIGO}}" triggers="mouseenter:mouseleave"
+                    container="body"></span>
+                </div>
+                <div class="form-group form-group-sm">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_DETALLE}}</strong>
+                  </label>
+                  <input [appFocus]="accion===constantes.ACCION_EDITAR" name="prescDetalle" [(ngModel)]="invProductoPresentacionCajasTO.prescDetalle"
+                    placeholder="{{constantes.TAG_OBLIGATORIO}}" pattern="{{constantes.PATTERN_SOLO_LETRAS}}" class="form-control input-sm mousetrap text-uppercase"
+                    required minlength="1" maxlength="500" appUppercase>
+                </div>
+                <div class="form-group form-group-sm">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_ABREVIADO}}</strong>
+                  </label>
+                  <input name="prescAbreviado" [(ngModel)]="invProductoPresentacionCajasTO.prescAbreviado" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                    pattern="{{constantes.PATTERN_SOLO_LETRAS}}" class="form-control input-sm mousetrap text-uppercase"
+                    required minlength="1" maxlength="500" appUppercase>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer" *ngIf="!vistaFormulario">
+            <div class="text-right">
+              <button id="btnBuscarPresentacionCaja" type="button" class="btn btn-sm btn-primary mr-1" (click)="buscarProductoPresentacionCajas()"
+                [disabled]="cargando" title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> &nbsp; {{constantes.LABEL_BUSCAR}}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div [ngClass]="{'col-lg-8 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+        <div class="card m-0" *ngIf="listadoInvProductoPresentacionCajasComboListadoTO?.length > 0 && !vistaFormulario">
+          <div class="card-header p-1">
+            <b>{{constantes.INVENTARIO_PRODUCTO_PRESENTACION_SISTEMA_CAJA_LISTADO}}</b>
+            <div class="card-header-actions">
+              <div class="btn-group d-lg-none">
+                <button id="btnNuevoPresentacionCaja" class="btn btn-sm btn-primary mr-1" type="button" (click)="nuevoProductoPresentacionCajas()"
+                  placement="top" title="{{constantes.ATAJO_NUEVO}}" ngbTooltip="{{constantes.LABEL_NUEVO}}">
+                  <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirPresentacionCaja" (click)="imprimirPresentacionCaja()"
+                  placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                  <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarPresentacionCaja" (click)="exportarPresentacionCaja()"
+                  placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                  <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div class="btn-group d-none d-lg-block">
+                <button id="btnNuevoPresentacionCaja" class="btn btn-sm btn-primary mr-1" type="button" (click)="nuevoProductoPresentacionCajas()"
+                  placement="top" title="{{constantes.ATAJO_NUEVO}}" ngbTooltip="{{constantes.LABEL_NUEVO}}">
+                  <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}
+                </button>
+                <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirPresentacionCaja" (click)="imprimirPresentacionCaja()"
+                  placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                  <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+                </button>
+                <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarPresentacionCaja" (click)="exportarPresentacionCaja()"
+                  placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                  <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+                </button>
+              </div>
+            </div>
+
+          </div>
+          <div class="card-body p-0">
+            <!--La primera linea es para la seleccion-->
+            <div class="row">
+              <div class="col-sm-5 col-md-6">
+                <div class="input-group p-1">
+                  <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                    size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                    size="100">
+                  <div class="input-group-append">
+                    <span class="input-group-text">
+                      <i class="{{constantes.ICON_BUSCAR}}"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-7 col-md-6">
+                <div class="float-right pr-1">
+                  <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                    maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+                </div>
+              </div>
+            </div>
+            <!--listado de producto-presentacion-caja-->
+            <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 220px);" class="ag-theme-balham"
+              [rowData]="listadoInvProductoPresentacionCajasComboListadoTO" [columnDefs]="columnDefsSelected"
+              [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection" [enableColResize]="true"
+              [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+              (gridSizeChanged)="redimencionarColumnas()" (gridReady)="onGridReady($event)" (rowSelected)="pPresentacionCajaSeleccionado = $event.node.data"
+              (cellContextMenu)="mostrarContextMenu($event.data, $event.event)" (contextmenu)="$event.preventDefault()"
+              (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimencionarColumnas()" (cellFocused)="filaFocused($event)">
+            </ag-grid-angular>
+            <!--end listado de presentacion-caja-->
+            <p-contextMenu #menuOpciones appendTo="body" [model]="opciones" [baseZIndex]="1100"></p-contextMenu>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

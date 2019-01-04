@@ -1,0 +1,96 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmCorrida='ngForm' name="frmCorrida" class="card m-0 mb-2">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--Empresa-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [appFocus]="true" class="form-control form-control-sm mousetrap" name="empresa" required
+              [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listadoEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <!--Sector-->
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_SECTOR}}</b>
+              &nbsp;
+              <a (click)="listarSectores()" *ngIf="!vistaFormulario">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listadoSectoresTO" name="sector" [(ngModel)]="sectorSeleccionado" optionLabel="secNombre"
+              (ngModelChange)="limpiarResultado(); listarPiscinas()" placeholder="{{constantes.TAG_TODOS}}" class="mousetrap"
+              [disabled]="vistaFormulario" [required]="true">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <!--Piscina-->
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_PISCINA}}</b>
+              &nbsp;
+              <a (click)="listarPiscinas()" *ngIf="!vistaFormulario">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_PISCINAS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listadoPiscinaTO" name="piscina" [required]="true" [(ngModel)]="piscinaSeleccionado"
+              optionLabel="pisNombre" (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" class="mousetrap"
+              [disabled]="vistaFormulario">
+              <ng-template let-item pTemplate="selectedItem">
+                {{piscinaSeleccionado?.pisNombre}} ({{piscinaSeleccionado?.pisNumero}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.pisNombre}} ({{fs.value.pisNumero}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group">
+              <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="!vistaFormulario ? listarCorridas() : null"
+                title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+            </div>&nbsp;
+            <button class="btn btn-sm btn-primary" id="btnNuevo" type="button" (click)="!vistaFormulario && verificarPermiso(constantes.ACCION_CREAR, true) ? nuevaCorrida() : null"
+              [disabled]="!frmCorrida.valid" title="{{constantes.ATAJO_NUEVO}}">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaFormulario">
+      <app-corrida-formulario [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarAccion)="ejecutarAccion($event)" (enviarActivar)="activar=!$event">
+      </app-corrida-formulario>
+    </div>
+    <div [hidden]="vistaFormulario">
+      <app-corrida-listado [parametrosBusqueda]="parametrosListado" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarActivar)="activar=!$event" (enviarAccion)="ejecutarAccion($event)"></app-corrida-listado>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

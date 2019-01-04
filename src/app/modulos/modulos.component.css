@@ -1,0 +1,33 @@
+.sidebar .sidebar-nav .nav .nav-title{
+  font-size: 1rem;
+}
+.active-link {
+  color: #fff;
+  background: #3a4248;
+}
+.nav-link-2 {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  text-decoration: none;
+}
+.nav-link-2:hover {
+  color: #fff;
+  background: #537f93;
+}
+
+.pantalla-completa{
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: #000;
+}
+.content {
+  color: #fff;
+}
+.opaco {
+  opacity: .4;
+}

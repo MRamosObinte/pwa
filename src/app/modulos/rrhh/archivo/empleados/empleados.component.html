@@ -1,0 +1,64 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmEmpleado='ngForm' name="frmEmpleado" class="card m-0 mb-2">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--Empresa-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [appFocus]="true" class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}} ({{empresa.empCodigo}})
+              </option>
+            </select>
+          </div>
+          <!--Busqueda-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_FILTRAR}}</b>
+            </label>
+            <input class="form-control form-control-sm mousetrap text-uppercase" placeholder="OPCIONAL" name="busqueda" [(ngModel)]="busqueda"
+              appUppercase [disabled]="vistaFormulario">
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group">
+              <button id="btnBuscar" type="button" class="btn btn-sm btn-primary" (click)="!vistaFormulario ? listarEmpleado(false) : null" title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="!vistaFormulario ? listarEmpleado(true) : null">{{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+              </div>
+            </div>&nbsp;
+            <button id="btnNuevo" class="btn btn-sm btn-primary" type="button" (click)="nuevaEmpleado()" [disabled]="!frmEmpleado.valid" title="{{constantes.ATAJO_NUEVO}}">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaFormulario">
+      <app-empleados-formulario [empresaSeleccionada]="empresaSeleccionada" [parametrosFormulario]="parametrosFormulario" [data]="data"
+        (enviarAccion)="ejecutarAccion($event)"></app-empleados-formulario>
+    </div>
+    <div [hidden]="vistaFormulario">
+      <app-empleados-listado [parametrosBusqueda]="parametrosListado" [empresaSeleccionada]="empresaSeleccionada" (enviarActivar)="activar=!$event"
+        (enviarAccion)="ejecutarAccion($event)"></app-empleados-listado>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

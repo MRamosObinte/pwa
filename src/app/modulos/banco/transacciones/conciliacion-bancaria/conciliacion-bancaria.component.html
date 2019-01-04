@@ -1,0 +1,112 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmConciliacion='ngForm' name="frmConciliacion" class="card m-0 mb-2" autocomplete="off">
+      <fieldset>
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <!--CRITERIO-->
+          <div class="form-group form-group-sm has-feedback pb-0">
+            <label class="control-label">
+              <b>{{constantes.TAG_CRITERIO}}</b>
+            </label>
+            <input name="txtBusqueda" [(ngModel)]="criterio" placeholder="{{constantes.TAG_OBLIGATORIO}}" class="form-control input-sm"
+              required pattern="{{constantes.PATTERN_NUMEROS}}">
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group mr-1">
+              <button type="button" id="btnBuscar" class="btn btn-sm btn-primary mr-1" (click)="buscarConciliacion()"
+                title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+              <button class="btn btn-sm btn-primary" id="btnNuevo" type="button" (click)="nuevaConciliacion()" title="{{constantes.ATAJO_NUEVO}}">
+                <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <!--Listado-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" [hidden]="vistaFormulario">
+    <div class="card m-0" *ngIf="listaResultado?.length>0">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.BANCOS_CONCILIACION_BANCARIA_LISTADO}}</strong>
+        <div class="card-header-actions">
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimirCarFunCuentasPorCobrarListadoVentas()"
+            placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportarCarFunCuentasPorCobrarListadoVentas()"
+            placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+            <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body" style="padding: 0 0 0 0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <!--195px-->
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (gridReady)="onGridReady($event)" (filterChanged)="actualizarFilas()"
+          (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)"
+          (gridColumnsChanged)="redimencionarColumnas()" (gridSizeChanged)="redimencionarColumnas()">
+        </ag-grid-angular>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="vistaFormulario">
+    <app-formulario-conciliacion-bancaria [parametrosFormulario]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+      (enviarAccion)="ejecutarAccion($event)" (enviarActivar)="activar=!$event" (enviarCancelar)="cancelar($event)"></app-formulario-conciliacion-bancaria>
+  </div>
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

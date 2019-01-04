@@ -1,0 +1,753 @@
+<form #frmDatos='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar()" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activarCategoriaForm?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{accion}} {{constantes.RRHH_CATEGORIAS.toLowerCase()}} - {{empresaSeleccionada.empNombre}}
+    </b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Guardar-->
+        <div *ngIf="accion !== constantes.ACCION_CONSULTA" class="btn-group mr-1">
+          <button id="btnGuardar" type="button" class="btn btn-sm btn-primary" (click)="accion === constantes.ACCION_CREAR ? insertar(frmDatos) : modificar(frmDatos)"
+            placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> </span>
+          </button>
+        </div>
+        <!--Cancelar y/o regresar-->
+        <button type="button" id="btnCancelar" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}"
+          id="btnCancelar" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Guardar-->
+        <div *ngIf="accion !== constantes.ACCION_CONSULTAR" class="btn-group mr-1">
+          <button id="btnGuardar" type="button" class="btn btn-sm btn-primary" (click)="accion === constantes.ACCION_CREAR ? insertar(frmDatos) : modificar(frmDatos)"
+            placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"> </i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}} </span>
+          </button>
+        </div>
+        <!--Cancelar y/o regresar-->
+        <button type="button" id="btnCancelar" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}"
+          id="btnCancelar" (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0">
+          <div class="row">
+            <div class="form-group form-group-sm col-sm-6 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_NOMBRE}}</strong>
+              </label>
+              <input type="text" appUppercase class="form-control form-control-sm text-uppercase mousetrap" name="catNombre"
+                id="catNombre" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="categoria.catNombre" required
+                *ngIf="accion===constantes.ACCION_CREAR" [appFocus]="true">
+              <label class="form-control label-input form-control-sm text-uppercase mousetrap" *ngIf="accion!==constantes.ACCION_CREAR">{{categoria.catNombre}}</label>
+            </div>
+            <div class="form-group form-group-sm col-sm-6 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_TIPO_CONTABLE}}</strong>
+              </label>
+              <select class="form-control form-control-sm text-uppercase mousetrap" name="tipCodigo" required
+                [(ngModel)]="categoria.tipCodigo">
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="tipo.conTipoPK.tipCodigo" *ngFor="let tipo of tiposContables"> {{tipo.tipDetalle}}
+                  ({{tipo.conTipoPK.tipCodigo}})
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_CUENTAS_CONTABLES}}</b>
+        </div>
+        <div class="card-body collapse show m-0 p-0">
+          <div class="mb-0">
+            <ul class="nav nav-tabs nav-justified nav-empresa" role="tablist" style="box-shadow: inset 0 -1px 0 #ddd;">
+              <li role="presentation" class="nav-item">
+                <a class="nav-link active p-1" href data-target="#general" aria-controls="general" role="tab"
+                  data-toggle="tab">
+                  <b>{{constantes.TAG_CUENTAS_DE_SUELDO}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#administrativo" aria-controls="administrativo" role="tab"
+                  data-toggle="tab">
+                  <b>{{constantes.TAG_CUENTAS_PROVISIONES_POR_PAGAR}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#otros" aria-controls="otros" role="tab" data-toggle="tab">
+                  <b>{{constantes.TAG_CUENTAS_GASTOS_PROVISIONES}}</b>
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content panel" style="border-top-width: 0px;">
+              <div role="tabpanel" class="tab-pane fade show active" id="general">
+                <div class="panel-default">
+                  <div class="panel-body">
+                    <!--1-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_ANTICIPOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaAnticipos" id="ctaAnticipos" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaAnticipos" class="form-control form-control-sm text-uppercase mousetrap"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaAnticipos, 'ctaAnticipos', 'ctaPrestamos')"
+                          (blur)="validarCuentas( 'ctaAnticipos')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomAnticipos" [(ngModel)]="categoriaNombres.ctaAnticipos" class="form-control form-control-sm text-uppercase mousetrap"
+                          disabled appUppercase>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_PRESTAMOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaPrestamos" id="ctaPrestamos" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaPrestamos" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPrestamos, 'ctaPrestamos', 'ctaGastoHorasExtras')"
+                          (blur)="validarCuentas( 'ctaPrestamos')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomPrestamos" [(ngModel)]="categoriaNombres.ctaPrestamos" class="form-control form-control-sm mousetrap text-uppercase"
+                          disabled appUppercase>
+                      </div>
+                    </div>
+                    <!--2-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_HORAS_EXTRAS}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoHorasExtras" id="ctaGastoHorasExtras" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoHorasExtras" class="form-control form-control-sm text-uppercase mousetrap"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoHorasExtras, 'ctaGastoHorasExtras', 'ctaGastoHorasExtras100')"
+                          (blur)="validarCuentas( 'ctaGastoHorasExtras')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoHorasExtras" [(ngModel)]="categoriaNombres.ctaGastoHorasExtras"
+                          class="form-control form-control-sm text-uppercase mousetrap" disabled appUppercase>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_HORAS_EXTRAS_100}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoHorasExtras100" id="ctaGastoHorasExtras100" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoHorasExtras100" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoHorasExtras100, 'ctaGastoHorasExtras100', 'ctaGastoBonos')"
+                          (blur)="validarCuentas( 'ctaGastoHorasExtras100')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoHorasExtras100" [(ngModel)]="categoriaNombres.ctaGastoHorasExtras100"
+                          class="form-control form-control-sm mousetrap text-uppercase" disabled appUppercase>
+                      </div>
+                    </div>
+                    <!--3-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTOS_BONOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoBonos" id="ctaGastoBonos" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoBonos" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoBonos, 'ctaGastoBonos', 'ctaGastoBonosNd')"
+                          (blur)="validarCuentas( 'ctaGastoBonos')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoBonos" [(ngModel)]="categoriaNombres.ctaGastoBonos" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong ngbTooltip="{{constantes.TAG_GASTOS_BONOS_NO_DEDUCIBLES}}">{{constantes.TAG_GASTOS_BONOS_ND}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoBonosNd" id="ctaGastoBonosNd" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoBonosNd" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoBonosNd, 'ctaGastoBonosNd', 'ctaGastoBonoFijo')"
+                          (blur)="validarCuentas( 'ctaGastoBonosNd')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoBonosNd" [(ngModel)]="categoriaNombres.ctaGastoBonosNd" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--4-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTOS_BONOS_FIJOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoBonoFijo" id="ctaGastoBonoFijo" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoBonoFijo" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoBonoFijo, 'ctaGastoBonoFijo', 'ctaGastoBonoFijoNd')"
+                          (blur)="validarCuentas( 'ctaGastoBonoFijo')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoBonoFijo" [(ngModel)]="categoriaNombres.ctaGastoBonoFijo"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong ngbTooltip="{{constantes.TAG_GASTOS_BONOS_FIJOS_NO_DEDUCIBLES}}">{{constantes.TAG_GASTOS_BONOS_FIJOS_ND}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoBonoFijoNd" id="ctaGastoBonoFijoNd" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoBonoFijoNd" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoBonoFijoNd, 'ctaGastoBonoFijoNd', 'ctaGastoOtrosIngresos')"
+                          (blur)="validarCuentas( 'ctaGastoBonoFijoNd')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoBonoFijoNd" [(ngModel)]="categoriaNombres.ctaGastoBonoFijoNd"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--5-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTOS_OTROS_INGRESOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoOtrosIngresos" id="ctaGastoOtrosIngresos" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoOtrosIngresos" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoOtrosIngresos, 'ctaGastoOtrosIngresos', 'ctaGastoOtrosIngresosNd')"
+                          (blur)="validarCuentas( 'ctaGastoOtrosIngresos')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label>
+                        </label>
+                        <input type="text" name="nomGastoOtrosIngresos" [(ngModel)]="categoriaNombres.ctaGastoOtrosIngresos"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong ngbTooltip="{{constantes.TAG_GASTOS_OTROS_INGRESOS_NO_DEDUCIBLES}}">{{constantes.TAG_GASTOS_OTROS_INGRESOS_ND}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoOtrosIngresosNd" id="ctaGastoOtrosIngresosNd" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoOtrosIngresosNd" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoOtrosIngresosNd, 'ctaGastoOtrosIngresosNd', 'ctaGastoSueldos')"
+                          (blur)="validarCuentas( 'ctaGastoOtrosIngresosNd')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoOtrosIngresosNd" [(ngModel)]="categoriaNombres.ctaGastoOtrosIngresosNd"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--6-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTOS_SUELDOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoSueldos" id="ctaGastoSueldos" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoSueldos" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoSueldos, 'ctaGastoSueldos', 'ctaPorPagarBonos')"
+                          (blur)="validarCuentas( 'ctaGastoSueldos')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoSueldos" [(ngModel)]="categoriaNombres.ctaGastoSueldos" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_POR_PAGAR_BONOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaPorPagarBonos" id="ctaPorPagarBonos" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaPorPagarBonos" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPorPagarBonos, 'ctaPorPagarBonos', 'ctaPorPagarSueldo')"
+                          (blur)="validarCuentas( 'ctaPorPagarBonos')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomPorPagarBonos" [(ngModel)]="categoriaNombres.ctaPorPagarBonos"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--7-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_POR_PAGAR_SUELDOS}}</strong>
+                        </label>
+                        <input type="text" name="ctaPorPagarSueldo" id="ctaPorPagarSueldo" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaPorPagarSueldo" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPorPagarSueldo, 'ctaPorPagarSueldo', 'ctaPorPagarImpuestoRenta')"
+                          (blur)="validarCuentas( 'ctaPorPagarSueldo')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomPorPagarSueldo" [(ngModel)]="categoriaNombres.ctaPorPagarSueldo"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong ngbTooltip="{{constantes.TAG_POR_PAGAR_IMPUESTO_A_LA_RENTA}}">{{constantes.TAG_POR_PAGAR_IMPUESTO_RENTA}}</strong>
+                        </label>
+                        <input type="text" name="ctaPorPagarImpuestoRenta" id="ctaPorPagarImpuestoRenta" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaPorPagarImpuestoRenta" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPorPagarImpuestoRenta, 'ctaPorPagarImpuestoRenta', 'ctaPorPagarUtilidades')"
+                          (blur)="validarCuentas( 'ctaPorPagarImpuestoRenta')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomPorPagarImpuestoRenta" [(ngModel)]="categoriaNombres.ctaPorPagarImpuestoRenta"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--8-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_POR_PAGAR_UTILIDADES}}</strong>
+                        </label>
+                        <input type="text" name="ctaPorPagarUtilidades" id="ctaPorPagarUtilidades" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaPorPagarUtilidades" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPorPagarUtilidades, 'ctaPorPagarUtilidades', 'ctaPermisoMedico')"
+                          (blur)="validarCuentas( 'ctaPorPagarUtilidades')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomPorPagarUtilidades" [(ngModel)]="categoriaNombres.ctaPorPagarUtilidades"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_CUENTA_PERMISO_MEDICO}}</strong>
+                        </label>
+                        <input type="text" name="ctaPermisoMedico" id="ctaPermisoMedico" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaPermisoMedico" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPermisoMedico, 'ctaPermisoMedico', 'ctaPermisoMedico')"
+                          (blur)="validarCuentas( 'ctaPermisoMedico')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomPermisoMedico" [(ngModel)]="categoriaNombres.ctaPermisoMedico"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="administrativo">
+                <!--1-->
+                <div class="row form-group form-group-sm">
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_APORTE_PERSONAL}}</strong>
+                    </label>
+                    <input type="text" name="ctaAportepersonal" id="ctaAportepersonal" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaAportepersonal" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaAportepersonal, 'ctaAportepersonal', 'ctaAporteExtension')"
+                      (blur)="validarCuentas( 'ctaAportepersonal')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomAportepersonal" [(ngModel)]="categoriaNombres.ctaAportepersonal" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase disabled>
+                  </div>
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_APORTE_EXTENSION_CONYUGE}}</strong>
+                    </label>
+                    <input type="text" name="ctaAporteExtension" id="ctaAporteExtension" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaAporteExtension" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaAporteExtension, 'ctaAporteExtension', 'ctaAportepatronal')"
+                      (blur)="validarCuentas( 'ctaAporteExtension')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label>
+                    </label>
+                    <input type="text" name="nomAporteExtension" [(ngModel)]="categoriaNombres.ctaAporteExtension"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                  </div>
+                </div>
+                <!--2-->
+                <div class="row form-group form-group-sm">
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_APORTE_PATRONAL}}</strong>
+                    </label>
+                    <input type="text" name="ctaAportepatronal" id="ctaAportepatronal" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaAportepatronal" class="form-control form-control-sm text-uppercase mousetrap"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaAportepatronal, 'ctaAportepatronal', 'ctaPrestamoHipotecario')"
+                      (blur)="validarCuentas( 'ctaAportepatronal')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomAportepatronal" [(ngModel)]="categoriaNombres.ctaAportepatronal" class="form-control form-control-sm text-uppercase mousetrap"
+                      disabled appUppercase>
+                  </div>
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_PRESTAMO_HIPOTECARIO}}</strong>
+                    </label>
+                    <input type="text" name="ctaPrestamoHipotecario" id="ctaPrestamoHipotecario" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaPrestamoHipotecario" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPrestamoHipotecario, 'ctaPrestamoHipotecario', 'ctaPrestamoQuirografario')"
+                      (blur)="validarCuentas( 'ctaPrestamoHipotecario')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label>
+                    </label>
+                    <input type="text" name="nomPrestamoHipotecario" [(ngModel)]="categoriaNombres.ctaPrestamoHipotecario"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                  </div>
+                </div>
+                <!--3-->
+                <div class="row form-group form-group-sm">
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_PRESTAMO_QUIROGRAFARIO}}</strong>
+                    </label>
+                    <input type="text" name="ctaPrestamoQuirografario" id="ctaPrestamoQuirografario" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaPrestamoQuirografario" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaPrestamoQuirografario, 'ctaPrestamoQuirografario', 'ctaIece')"
+                      (blur)="validarCuentas( 'ctaPrestamoQuirografario')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomPrestamoQuirografario" [(ngModel)]="categoriaNombres.ctaPrestamoQuirografario"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                  </div>
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_IECE}}</strong>
+                    </label>
+                    <input type="text" name="ctaIece" id="ctaIece" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaIece" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaIece, 'ctaIece', 'ctaSecap')"
+                      (blur)="validarCuentas( 'ctaIece')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomIece" [(ngModel)]="categoriaNombres.ctaIece" class="form-control form-control-sm mousetrap text-uppercase"
+                      disabled appUppercase>
+                  </div>
+                </div>
+                <!--4-->
+                <div class="row form-group form-group-sm">
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_SECAP}}</strong>
+                    </label>
+                    <input type="text" name="ctaSecap" id="ctaSecap" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaSecap" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaSecap, 'ctaSecap', 'ctaXiii')"
+                      (blur)="validarCuentas( 'ctaSecap')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomSecap" [(ngModel)]="categoriaNombres.ctaSecap" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase disabled>
+                  </div>
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong ngbTooltip="{{constantes.TAG_DECIMO_TERCER_SUELDO}}">{{constantes.TAG_XIII_SUELDO}}</strong>
+                    </label>
+                    <input type="text" name="ctaXiii" id="ctaXiii" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaXiii" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaXiii, 'ctaXiii', 'ctaXiv')"
+                      (blur)="validarCuentas( 'ctaXiii')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomXiii" [(ngModel)]="categoriaNombres.ctaXiii" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase disabled>
+                  </div>
+                </div>
+                <!--5-->
+                <div class="row form-group form-group-sm">
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong ngbTooltip="{{constantes.TAG_DECIMO_CUARTO_SUELDO}}">{{constantes.TAG_XIV_SUELDO}}</strong>
+                    </label>
+                    <input type="text" name="ctaXiv" id="ctaXiv" placeholder="{{constantes.TAG_N_CUENTA}}" [(ngModel)]="categoria.ctaXiv"
+                      class="form-control form-control-sm mousetrap text-uppercase" appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaXiv, 'ctaXiv', 'ctaFondoreserva')"
+                      (blur)="validarCuentas( 'ctaXiv')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomXiv" [(ngModel)]="categoriaNombres.ctaXiv" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase disabled>
+                  </div>
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_FONDO_RESERVA}}</strong>
+                    </label>
+                    <input type="text" name="ctaFondoreserva" id="ctaFondoreserva" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaFondoreserva" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaFondoreserva, 'ctaFondoreserva', 'ctaVacaciones')"
+                      (blur)="validarCuentas( 'ctaFondoreserva')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomFondoreserva" [(ngModel)]="categoriaNombres.ctaFondoreserva" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase disabled>
+                  </div>
+                </div>
+                <!--6-->
+                <div class="row form-group form-group-sm">
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_VACACIONES}}</strong>
+                    </label>
+                    <input type="text" name="ctaVacaciones" id="ctaVacaciones" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaVacaciones" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaVacaciones, 'ctaVacaciones', 'ctaDesahucio')"
+                      (blur)="validarCuentas( 'ctaVacaciones')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label>
+                    </label>
+                    <input type="text" name="nomVacaciones" [(ngModel)]="categoriaNombres.ctaVacaciones" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase disabled>
+                  </div>
+                  <div class="col-lg-2 col-sm-6">
+                    <label>
+                      <strong>{{constantes.TAG_DESAHUCIO}}</strong>
+                    </label>
+                    <input type="text" name="ctaDesahucio" id="ctaDesahucio" placeholder="{{constantes.TAG_N_CUENTA}}"
+                      [(ngModel)]="categoria.ctaDesahucio" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaDesahucio, 'ctaDesahucio', 'ctaDesahucio')"
+                      (blur)="validarCuentas( 'ctaDesahucio')">
+                  </div>
+                  <div class="col-lg-4 col-sm-6">
+                    <label></label>
+                    <input type="text" name="nomDesahucio" [(ngModel)]="categoriaNombres.ctaDesahucio" class="form-control form-control-sm mousetrap text-uppercase"
+                      appUppercase disabled>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="otros">
+                <div class="panel-default">
+                  <div class="panel-body">
+                    <!--1-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_APORTE_INDIVIDUAL}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoAporteindividual" id="ctaGastoAporteindividual" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoAporteindividual" class="form-control form-control-sm text-uppercase mousetrap"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoAporteindividual, 'ctaGastoAporteindividual', 'ctaGastoAportepatronal')"
+                          (blur)="validarCuentas( 'ctaGastoAporteindividual')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoAporteindividual" [(ngModel)]="categoriaNombres.ctaGastoAporteindividual"
+                          class="form-control form-control-sm text-uppercase mousetrap" disabled appUppercase>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_APORTE_PATRONAL}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoAportepatronal" id="ctaGastoAportepatronal" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoAportepatronal" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoAportepatronal, 'ctaGastoAportepatronal', 'ctaGastoIece')"
+                          (blur)="validarCuentas( 'ctaGastoAportepatronal')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoAportepatronal" [(ngModel)]="categoriaNombres.ctaGastoAportepatronal"
+                          class="form-control form-control-sm mousetrap text-uppercase" disabled appUppercase>
+                      </div>
+                    </div>
+                    <!--2-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_IECE}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoIece" id="ctaGastoIece" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoIece" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoIece, 'ctaGastoIece', 'ctaGastoSecap')"
+                          (blur)="validarCuentas( 'ctaGastoIece')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoIece" [(ngModel)]="categoriaNombres.ctaGastoIece" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_SECAP}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoSecap" id="ctaGastoSecap" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoSecap" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoSecap, 'ctaGastoSecap', 'ctaGastoXiii')"
+                          (blur)="validarCuentas( 'ctaGastoSecap')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoSecap" [(ngModel)]="categoriaNombres.ctaGastoSecap" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--3-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_XIII}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoXiii" id="ctaGastoXiii" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoXiii" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoXiii, 'ctaGastoXiii', 'ctaGastoXiv')"
+                          (blur)="validarCuentas( 'ctaGastoXiii')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoXiii" [(ngModel)]="categoriaNombres.ctaGastoXiii" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_XIV}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoXiv" id="ctaGastoXiv" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoXiv" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoXiv, 'ctaGastoXiv', 'ctaGastoFondoreserva')"
+                          (blur)="validarCuentas( 'ctaGastoXiv')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoXiv" [(ngModel)]="categoriaNombres.ctaGastoXiv" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--4-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_FONDO_RESERVA}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoFondoreserva" id="ctaGastoFondoreserva" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoFondoreserva" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoFondoreserva, 'ctaGastoFondoreserva', 'ctaGastoVacaciones')"
+                          (blur)="validarCuentas( 'ctaGastoFondoreserva')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label>
+                        </label>
+                        <input type="text" name="nomGastoFondoreserva" [(ngModel)]="categoriaNombres.ctaGastoFondoreserva"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_VACACIONES}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoVacaciones" id="ctaGastoVacaciones" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoVacaciones" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoVacaciones, 'ctaGastoVacaciones', 'ctaGastoBonoLiquidacion')"
+                          (blur)="validarCuentas( 'ctaGastoVacaciones')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoVacaciones" [(ngModel)]="categoriaNombres.ctaGastoVacaciones"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--5-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_BONO_LIQUIDACION}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoBonoLiquidacion" id="ctaGastoBonoLiquidacion" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoBonoLiquidacion" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoBonoLiquidacion, 'ctaGastoBonoLiquidacion', 'ctaGastoDesahucio')"
+                          (blur)="validarCuentas( 'ctaGastoBonoLiquidacion')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoBonoLiquidacion" [(ngModel)]="categoriaNombres.ctaGastoBonoLiquidacion"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_DESAHUCIO}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoDesahucio" id="ctaGastoDesahucio" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoDesahucio" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoDesahucio, 'ctaGastoDesahucio', 'ctaGastoDesahucioIntempestivo')"
+                          (blur)="validarCuentas( 'ctaGastoDesahucio')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoDesahucio" [(ngModel)]="categoriaNombres.ctaGastoDesahucio"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                    <!--6-->
+                    <div class="row form-group form-group-sm">
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_DESAHUCIO_INTEMPESTIVO}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoDesahucioIntempestivo" id="ctaGastoDesahucioIntempestivo"
+                          placeholder="{{constantes.TAG_N_CUENTA}}" [(ngModel)]="categoria.ctaGastoDesahucioIntempestivo"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoDesahucioIntempestivo, 'ctaGastoDesahucioIntempestivo', 'ctaGastoSalarioDigno')"
+                          (blur)="validarCuentas( 'ctaGastoDesahucioIntempestivo')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomPorPagarBonos" [(ngModel)]="categoriaNombres.ctaGastoDesahucioIntempestivo"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                      <div class="col-lg-2 col-sm-6">
+                        <label>
+                          <strong>{{constantes.TAG_GASTO_SALARIO_DIGNO}}</strong>
+                        </label>
+                        <input type="text" name="ctaGastoSalarioDigno" id="ctaGastoSalarioDigno" placeholder="{{constantes.TAG_N_CUENTA}}"
+                          [(ngModel)]="categoria.ctaGastoSalarioDigno" class="form-control form-control-sm mousetrap text-uppercase"
+                          appUppercase (keydown)="abrirModalDeCuentas($event, categoria.ctaGastoSalarioDigno, 'ctaGastoSalarioDigno', 'ctaGastoSalarioDigno')"
+                          (blur)="validarCuentas( 'ctaGastoSalarioDigno')">
+                      </div>
+                      <div class="col-lg-4 col-sm-6">
+                        <label></label>
+                        <input type="text" name="nomGastoSalarioDigno" [(ngModel)]="categoriaNombres.ctaGastoSalarioDigno"
+                          class="form-control form-control-sm mousetrap text-uppercase" appUppercase disabled>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

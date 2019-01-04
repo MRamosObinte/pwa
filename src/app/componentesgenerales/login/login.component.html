@@ -1,0 +1,96 @@
+<div class="app flex-row align-items-center">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card-group">
+          <div class="card p-4">
+            <div class="card-body">
+              <div class="text-center">
+                <img src="assets/images/user.png" alt="Image" width="100" class="img-rounded">
+              </div>
+              <p class="text-muted"></p>
+              <form (ngSubmit)="ingresar()" #formLogin="ngForm">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="fa fa-user"></i>
+                    </span>
+                  </div>
+                  <input type="text" [(ngModel)]="usuario.usuario" name="username" #username="ngModel" placeholder="Usuario"
+                    class="form-control" required>
+                  <div class="invalid-feedback"> {{constantes.TAG_CAMPO_REQUERIDO}} </div>
+                </div>
+                <div class="input-group mb-4">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="fa fa-unlock-alt"></i>
+                    </span>
+                  </div>
+                  <input type="password" [(ngModel)]="usuario.contrasena" name="password" placeholder="Contraseña"
+                    class="form-control" required>
+                  <div class="invalid-feedback"> {{constantes.TAG_CAMPO_REQUERIDO}} </div>
+                </div>
+                <div class="row">
+                  <div class="col-12 text-center">
+                    <button type="submit" class="btn btn-primary px-4" [disabled]="cargando">
+                      {{constantes.TAG_INICIAR_SESION}}
+                      <i *ngIf="cargando" class="fa fa-spinner fa-spin"></i>
+                    </button>
+                  </div>
+                  <div class="col-12 text-center">
+                    <a href="https://obinte.zendesk.com/hc/es/requests/new" target="_blank">
+                      <button type="button" class="btn btn-link px-0">{{constantes.TAG_OLVIDASTE_CLAVE}}</button>
+                    </a>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="card text-white bg-primary py-5 d-md-down-none" style="width:44%">
+            <div class="card-body text-center">
+              <img src="assets/images/ACOSUX.png" alt="Image" width="200" class="block-center img-rounded">
+              <div>
+                <h2>{{constantes.TAG_BIENVENIDO}}</h2>
+                <p>{{constantes.TAG_GRACIAS_POR_SER_NUESTRO_CLIENTE}}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footerwrap">
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-sm-center text-center">
+          <span class="text-muted">&copy; 2018 Obinte, Todos los derechos reservados.</span>
+        </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-sm-center text-center">
+          <div class="to-right">
+            <span class="text-muted">| &nbsp;
+              <i class="fa fa-envelope"></i> hola@obinte.com</span>
+            <span class="text-muted">&nbsp; &nbsp;
+              <i class="fa fa-phone"></i> (07) 2966 371 </span>
+            <ul class="social-icons icon-circle icon-zoom list-unstyled list-inline">
+              <li>
+                <a href="https://facebook.com/obinte" target="_blank">
+                  <i class="fa fa-facebook"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://instagram.com/obinte_ec" target="_blank">
+                  <i class="fa fa-instagram"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/company/obinte/" target="_blank">
+                  <i class="fa fa-linkedin"></i>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

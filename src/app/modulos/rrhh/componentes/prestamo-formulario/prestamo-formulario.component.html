@@ -1,0 +1,146 @@
+<div class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="cambiarActivar(activar)"
+      type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <strong>{{titulo}} - {{empresaSeleccionada.empNombre}}</strong>
+    <div class="card-header-actions" *ngIf="!esContable">
+      <div class="btn-group">
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="guardarPrestamo(frmDatos)"
+          placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+          (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{accion ===
+            constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}</span>
+        </button>
+      </div>
+    </div>
+    <div class="card-header-actions" *ngIf="esContable">
+      <app-botones-accion [conContable]="conContable" [data]="data" (enviarAccion)="accionesBotones($event)"></app-botones-accion>
+    </div>
+  </div>
+  <div class="card-body p-1">
+    <fieldset [disabled]="!puedeEditarTabla">
+      <div class="p-0" *ngIf="esContable">
+        <app-contable-cabecera [data]="data" [conContable]="conContable" [tipoSeleccionado]="tipoSeleccionado"
+          [empresaSeleccionada]="empresaSeleccionada"></app-contable-cabecera>
+      </div>
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseClienteInfo"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+          <form #frmDatos='ngForm' name="frmDatos" autocomplete="off">
+            <div class="row">
+              <div class="form-group form-group-sm col-sm-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_MOTIVO}}</b>
+                </label>
+                <select class="form-control form-control-sm  mousetrap" name="prestamo" required [(ngModel)]="prestamoMotivoSeleccionado"
+                  [appFocus]="accion === constantes.ACCION_CREAR">
+                  <option selected disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="prestamo" *ngFor="let prestamo of listaPrestamoMotivo">
+                    {{prestamo.rhPrestamoMotivoPK.motDetalle}}
+                  </option>
+                </select>
+              </div>
+              <div class="form-group form-group-sm col-sm-4 has-feedback">
+                <label class="control-label">
+                  <b>{{constantes.TAG_TRABAJADOR}}</b>
+                </label>
+                <input type="text" name="trabajador" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="rhPrestamo.rhEmpleado.rhEmpleadoPK.empId"
+                  class="form-control form-control-sm text-uppercase mousetrap" (keydown)="abrirModalTrabajadores($event)"
+                  (blur)="validarEmpleado()" [ngbTooltip]="rhPrestamo.rhEmpleado.empNombres ? rhPrestamo.rhEmpleado.empNombres : null"
+                  required appUppercase>
+                <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_COINCIDENCIA_EMPLEADO}}"
+                  triggers="mouseenter:mouseleave" container="body" *ngIf="puedeEditarTabla"></span>
+              </div>
+              <div class="form-group form-group-sm col-sm-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_FECHA}}</b>
+                </label>
+                <p-calendar inputId="fechaHasta" class="mousetrap" name="fechaHasta" [(ngModel)]="fechaHasta"
+                  dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true" [maxDate]="fechaHasta"
+                  [appMaxDate]="fechaActual"></p-calendar>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group form-group-sm col-sm-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_VALOR}}</b>
+                </label>
+                <input type="text" name="valor" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="rhPrestamo.preValor"
+                  class="form-control form-control-sm text-right mousetrap" [appAutonumeric]="configAutonumericReales"
+                  [appAutonumericValue]="rhPrestamo.preValor" value="{{rhPrestamo.preValor}}" (updateValue)="rhPrestamo.preValor = $event"
+                  [appMinNumber]="0" required>
+              </div>
+              <div class="form-group form-group-sm col-sm-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_NUMERO_PAGOS}}</b>
+                </label>
+                <input type="text" name="numeroPagos" placeholder="{{constantes.TAG_OBLIGATORIO}}" [appAutonumeric]="configAutonumericEnteros"
+                  required [appAutonumericValue]="rhPrestamo.preNumeroPagos" value="{{rhPrestamo.preNumeroPagos}}"
+                  [(ngModel)]="rhPrestamo.preNumeroPagos" class="form-control form-control-sm text-right mousetrap">
+              </div>
+              <div class="form-group form-group-sm col-sm-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_FORMA_PAGO}}</b>
+                </label>
+                <select class="form-control form-control-sm  mousetrap" name="formapago" required [(ngModel)]="rhComboFormaPagoTO"
+                  (ngModelChange)="validarDocumento()">
+                  <option selected disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="formapago" *ngFor="let formapago of listaFormaPago">
+                    {{formapago.fpDetalle}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="form-group form-group-sm col-sm-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_NUMERO_DOCUMENTO}}</b>
+                </label>
+                <input type="text" name="numeroDocumento" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="rhPrestamo.preDocumento"
+                  [ngClass]="{ 'has-error':!documentoValido}" class="form-control form-control-sm text-uppercase mousetrap"
+                  maxlength="100" (blur)="validarDocumento()">
+              </div>
+              <div class="form-group form-group-sm col-sm-4">
+                <label class="control-label">
+                  <b>{{constantes.TAG_OBSERVACION}}</b>
+                </label>
+                <input type="text" name="observacion" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="rhPrestamo.preObservaciones"
+                  appUppercase class="form-control form-control-sm text-uppercase mousetrap">
+              </div>
+              <div class="form-group col-sm-4 has-feedback pr-2">
+                <label class="control-label">
+                  <b>{{constantes.TAG_REVERSAR}}</b>
+                </label>
+                <div class="switch">
+                  <label>
+                    <input id="reversar" name="reversar" type="checkbox" [(ngModel)]="reversar">
+                    <span class="lever"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

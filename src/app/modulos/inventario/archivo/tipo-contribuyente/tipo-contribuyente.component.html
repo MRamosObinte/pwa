@@ -1,0 +1,117 @@
+<div [ngClass]="{'modal-primary': esModal}">
+  <div *ngIf="esModal" class="modal-header p-2">
+    <span class="modal-title">
+      <strong>{{constantes.TAG_TIPO_CONTRIBUYENTE}} - {{empresaSeleccionada.empNombre}}
+        ({{empresaSeleccionada.empCodigo}}) {{razonSocial}}</strong>
+    </span>
+    <button type="button" class="close" aria-label="Cerrar" (click)="cerrarTipoContribuyente()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div [ngClass]="{'modal-body': esModal}">
+    <div class="row">
+      <div [ngClass]="{'sr-only':activar}" class="col-lg-12 col-md-12 col-sm-11">
+        <div class="card mb-0">
+          <div class="card-header p-1">
+            <i class="{{classTitulo}}"></i>
+            <b>{{frmTitulo}}</b>
+            <div class="card-header-actions" *ngIf="vistaFormulario">
+              <button *ngIf="accion === constantes.ACCION_CREAR" id="btnGuardarTipoContribuyente" type="button" (click)="guardarTipoContribuyente(frmtipocont)"
+                class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button *ngIf="accion === constantes.ACCION_EDITAR" id="btnGuardarTipoContribuyente" type="button" (click)="actualizarTipoContribuyente(frmtipocont)"
+                class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button (click)="resetearFormulario();" type="button" class="btn btn-sm btn-default mr-1" [disabled]="cargando"
+                title="{{constantes.ATAJO_CANCELAR}}" *ngIf="listaIncClienteCategoriaComboListado.length!=0">
+                <i class="{{constantes.ICON_CANCELAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body pb-0 pt-1">
+            <form #frmtipocont="ngForm" autocomplete="off">
+              <div *ngIf="vistaFormulario" class="row">
+                <div class="form-group form-group-sm col-sm-12 col-md-5 col-lg-4">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_CODIGO}}</strong>
+                  </label>
+                  <p *ngIf="!(accion===constantes.ACCION_CREAR)" class="form-control input-sm">{{invClienteCategoriaTO.ccCodigo}}</p>
+                  <input *ngIf="accion === constantes.ACCION_CREAR" type="text" [appFocus]="accion === constantes.ACCION_CREAR"
+                    name="vendCodigo" [(ngModel)]="invClienteCategoriaTO.ccCodigo" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                    pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm mousetrap text-uppercase"
+                    required maxlength="30" appUppercase>
+                  <span *ngIf="accion === constantes.ACCION_CREAR" class="fa fa-info-circle form-control-feedback"
+                    placement="right" ngbPopover="{{constantes.MSJ_INFOCODIGO}}" container="body" triggers="mouseenter:mouseleave"></span>
+                </div>
+                <div class="form-group form-group-sm col-sm-12 col-md-7 col-lg-8">
+                  <label class="control-label  ">
+                    <strong>{{constantes.TAG_NOMBRE}}</strong>
+                  </label>
+                  <input [appFocus]="accion===constantes.ACCION_EDITAR" name="vendNombre" [(ngModel)]="invClienteCategoriaTO.ccDetalle"
+                    class="form-control form-control-sm mousetrap text-uppercase" required minlength="3" maxlength="1000"
+                    placeholder="{{constantes.TAG_OBLIGATORIO}}" appUppercase>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div [ngClass]="{'col-lg-8 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+        <div class="card mb-0" *ngIf="listaIncClienteCategoriaComboListado?.length > 0 && !vistaFormulario">
+          <div class="card-header p-1">
+            <strong>{{constantes.INVENTARIO_TIPO_CONTRIBUYENTE}}</strong>
+            <div class="card-header-actions" *ngIf="!vistaFormulario">
+              <button id="btnNuevoTipoContribuyente" class="btn btn-sm btn-primary mr-1" type="button" (click)="nuevoTipoContribuyente()"
+                [disabled]="!frmtipocont.form.valid || !empresaSeleccionada.listaSisPermisoTO.gruCrear" title="{{constantes.ATAJO_NUEVO}}"
+                ngbTooltip="{{constantes.LABEL_NUEVO}}">
+                <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+              </button>
+            </div>
+          </div>
+          <!--Listado de tipo contribuyente-->
+          <div class="card-body p-0">
+            <div class="row">
+              <div class="col-sm-5 col-md-6">
+                <div class="input-group p-1">
+                  <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                    size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                    size="100">
+                  <div class="input-group-append">
+                    <span class="input-group-text">
+                      <i class="{{constantes.ICON_BUSCAR}}"></i>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-7 col-md-6">
+                <div class="float-right pr-1">
+                  <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                    maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+                </div>
+              </div>
+            </div>
+            <!--listado de cliente listado-->
+            <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 215px);" class="ag-theme-balham"
+              [rowData]="listaIncClienteCategoriaComboListado" [columnDefs]="columnDefsSelected" [enableSorting]="true"
+              [multiSortKey]="multiSortKey" [rowSelection]="rowSelection" [enableColResize]="true" [context]="context"
+              (gridSizeChanged)="redimensionarColumnas()" (gridReady)="onGridReady($event)" (rowSelected)="tipoContribuyenteSeleccionado = $event.node.data"
+              (cellContextMenu)="mostrarContextMenu($event.data, $event.event)" (contextmenu)="$event.preventDefault()"
+              (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimensionarColumnas()" (cellFocused)="filaFocused($event)">
+            </ag-grid-angular>
+          </div>
+          <p-contextMenu #menuOpciones [model]="opciones" appendTo="body" [baseZIndex]="1100"></p-contextMenu>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

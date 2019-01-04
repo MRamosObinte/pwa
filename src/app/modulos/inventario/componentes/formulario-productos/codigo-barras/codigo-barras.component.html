@@ -1,0 +1,74 @@
+<div class="modal-primary">
+  <div class="modal-header p-2">
+    <span class="modal-title">
+      <strong> {{constantes.TAG_CODIGO_BARRAS}}</strong>
+    </span>
+    <button type="button" class="close" aria-label="Cerrar" (click)="cerrar()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-11">
+        <div class="card mb-0">
+          <div class="card-header p-1">
+            <i class="{{constantes.ICON_CREAR}}"></i>
+            <b>{{constantes.TAG_AGREGAR_CODIGO_BARRAS}}</b>
+            <div class="card-header-actions">
+              <button id="btnGuardar" type="button" (click)="guardar()" class="btn btn-sm btn-primary mr-1" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+                (click)="cerrar()">
+                <i class="{{constantes.ICON_CANCELAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body pb-0 pt-1">
+            <form #frmCodigoBarras="ngForm" autocomplete="off">
+              <div class="row">
+                <div class="form-group col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}} 1</strong>
+                  </label>
+                  <input class="form-control form-control-sm text-uppercase mousetrap" name="proCodigoBarra" type="text"
+                    placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="codigoBarra.proCodigoBarra" appUppercase [appFocus]="true">
+                </div>
+                <div class="form-group col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}} 2</strong>
+                  </label>
+                  <input class="form-control form-control-sm text-uppercase mousetrap" name="proCodigoBarra2" type="text"
+                    placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="codigoBarra.proCodigoBarra2" appUppercase>
+                </div>
+                <div class="form-group col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}} 3</strong>
+                  </label>
+                  <input class="form-control form-control-sm text-uppercase mousetrap" name="proCodigoBarra3" type="text"
+                    placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="codigoBarra.proCodigoBarra3" appUppercase>
+                </div>
+                <div class="form-group col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}} 4</strong>
+                  </label>
+                  <input class="form-control form-control-sm text-uppercase mousetrap" name="proCodigoBarra4" type="text"
+                    placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="codigoBarra.proCodigoBarra4" appUppercase>
+                </div>
+                <div class="form-group col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}} 5</strong>
+                  </label>
+                  <input class="form-control form-control-sm text-uppercase mousetrap" name="proCodigoBarra5" type="text"
+                    placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="codigoBarra.proCodigoBarra5" appUppercase>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

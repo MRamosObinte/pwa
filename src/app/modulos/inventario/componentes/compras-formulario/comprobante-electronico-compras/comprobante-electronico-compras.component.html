@@ -1,0 +1,117 @@
+<form #frm='ngForm' autocomplete="off" class="card m-0" *ngIf="!mostrarAccionesProveedor && mostrarFormulario">
+  <div class="card-header" style="padding: 0.5rem 0.5rem;">
+    <button id="btnActivarCompra" class="btn btn-sm btn-primary" *ngIf="!screamXS" (click)="cambiarEstadoActivar()"
+      type="button">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{titulo}}</b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <button id="btnImportarOrdenCompra" *ngIf="esImportarOC" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.TAG_IMPORTAR_ORDEN_DE_COMPRA}}" (click)="obtenerOrdenCompra(frm)">
+          <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarCompra"
+          ngbTooltip="{{constantes.LABEL_CANCELAR}}" (click)="cancelar()">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <button id="btnImportarOrdenCompra" *ngIf="esImportarOC" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.TAG_IMPORTAR_ORDEN_DE_COMPRA}}" (click)="obtenerOrdenCompra(frm)">
+          <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.TAG_IMPORTAR}}
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarCompra"
+          (click)="cancelar()" ngbTooltip="{{constantes.LABEL_CANCELAR}}">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+          {{constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <form #frm='ngForm' name="frm" autocomplete="off">
+      <div class="row" *ngIf="esImportarOC">
+        <div class="form-group form-group-sm col-lg-4 col-sm-4 has-feedback">
+          <label class="control-label">
+            <strong>{{constantes.TAG_SECTOR}}</strong>
+            &nbsp;
+            <a (click)="listarSectores()">
+              <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                container="body"></span>
+            </a>
+          </label>
+          <select class="form-control form-control-sm mousetrap" name="sector" required [(ngModel)]="sectorSeleccionado"
+            (ngModelChange)="listarMotivos()">
+            <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+            <option [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secCodigo}}
+              ({{sector.secNombre}})</option>
+          </select>
+        </div>
+        <div class="form-group form-group-sm col-lg-4 col-sm-4 has-feedback">
+          <label class="control-label">
+            <strong>{{constantes.TAG_MOTIVO}}</strong>
+            &nbsp;
+            <a (click)="listarMotivos()">
+              <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                container="body"></span>
+            </a>
+          </label>
+          <select class="form-control form-control-sm mousetrap" name="motivo" required [(ngModel)]="motivoSeleccionado">
+            <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+            <option [ngValue]="motivo" *ngFor="let motivo of listaMotivos">{{motivo.ocmCodigo}}
+              ({{motivo.ocmDetalle}})</option>
+          </select>
+        </div>
+        <div class="form-group form-group-sm col-lg-4 col-sm-4 has-feedback">
+          <label class="control-label">
+            <b>{{constantes.TAG_NUMERO}}</b>
+          </label>
+          <input class="form-control form-control-sm text-uppercase mousetrap" name="numero" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+            id="numero" (keypress)="soloNumeros($event)" (blur)="completarCeros()" [(ngModel)]="ordenCompra.numero"
+            appUppercase required>
+        </div>
+      </div>
+    </form>
+
+    <form #frmClaveAcceso='ngForm' name="frmClaveAcceso" autocomplete="off">
+      <div class="row" *ngIf="!esImportarOC">
+        <div class="col-md-6 offset-md-3 text-center">
+          <h2>Comprobante electrónico</h2>
+          <div class="switch">
+            <label>
+              <input id="radioComprobante" name="radioComprobante" type="checkbox" [(ngModel)]="radioComprobante">
+              <span class="lever"></span>
+            </label>
+          </div>
+          <div class="form-group form-group-sm" *ngIf="radioComprobante">
+            <input class="form-control form-control-sm mousetrap text-uppercase" name="claveAcceso" [(ngModel)]="claveAcceso"
+              placeholder="Clave de acceso" onkeypress='return event.charCode >= 48 && event.charCode <= 57' maxlength="49"
+              required>
+          </div>
+          <br>
+          <button type="button" class="btn btn-primary btn-sm" (click)="buscarComprobanteElectronico(frmClaveAcceso)">{{constantes.LABEL_CONTINUAR}}</button>
+          <br>
+        </div>
+      </div>
+    </form>
+
+  </div>
+</form>
+
+
+<div *ngIf="mostrarAccionesProveedor">
+  <app-proveedor-formulario [parametros]="parametrosFormulario" (cerrarFormularioProveedor)="cerrarFormularioProveedor($event)"
+    (activarEstado)="cambiarEstadoActivar($event)"></app-proveedor-formulario>
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

@@ -1,0 +1,77 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i> <b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmConsultaComprobante='ngForm' name="frmConsultaComprobante" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm  mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()"
+              [disabled]="mostrarContabilidaAcciones">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}} ({{empresa.empCodigo}}
+                )
+              </option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_PERIODO}}</strong>
+              &nbsp;
+              <a (click)="listarPeriodos()" *ngIf="!mostrarContabilidaAcciones">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_PERIODOS}}" container="body"></span>
+              </a>
+            </label>
+            <select class="form-control input-sm mousetrap" name="periodo" [(ngModel)]="periodoSeleccionado" [disabled]="mostrarContabilidaAcciones"
+              required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="periodo" *ngFor="let periodo of listaPeriodos"> {{periodo.perDetalle}}</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_TIPO_COMPROBANTES}}</strong>
+              &nbsp;
+              <a (click)="listarTipos()" *ngIf="!mostrarContabilidaAcciones">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_TIPOS_COMPROBANTES}}" container="body"></span>
+              </a>
+            </label>
+            <select class="form-control input-sm mousetrap" name="tipo" [(ngModel)]="tipoSeleccionado" [disabled]="mostrarContabilidaAcciones"
+              required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="tipo" *ngFor="let tipo of listaTipos"> {{tipo?.tipDetalle}} ({{tipo?.tipCodigo}} )</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback pb-0">
+            <label class="control-label">
+              <b>{{constantes.TAG_NUMERO}}</b>
+            </label>
+            <input name="txtBusqueda" (blur)="completarCeros()" [disabled]="mostrarContabilidaAcciones" [(ngModel)]="conNumero" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+              class="form-control input-sm" maxlength="7" required pattern="{{constantes.PATTERN_NUMEROS}}" pKeyFilter="pint"
+              (keypress)="soloNumeros($event)">
+            <span *ngIf="!mostrarContabilidaAcciones" class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_INGRESE_SOLO_NUMEROS}}"
+              container="body"></span>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer text-muted" *ngIf="!mostrarContabilidaAcciones">
+        <div class="text-right">
+          <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="buscarContable(frmConsultaComprobante)">
+            <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="objetoContableEnviar && mostrarContabilidaAcciones">
+    <app-contable-formulario [data]="objetoContableEnviar" (cargandoEstado)="cambiarEstadoCargando($event)" (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)"
+      (activarEstado)="cambiarEstadoActivar($event)"></app-contable-formulario>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

@@ -1,0 +1,14 @@
+import { Injectable } from '@angular/core';
+
+/**
+ * This is a singleton class
+ */
+@Injectable()
+export class AppConfig {
+
+    public baseApiPath: string = "https://tws9.todocompu.com.ec/todocompu/";
+    
+    constructor() {
+
+    }
+}

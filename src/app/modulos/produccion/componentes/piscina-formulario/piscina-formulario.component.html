@@ -1,0 +1,147 @@
+<form #frmPiscinaDatos='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{tituloForm}} - {{empresaSeleccionada.empNombre}}</b>
+    <div class="card-header-actions">
+      <button type="button" class="btn btn-sm btn-primary mr-1" *ngIf="accion===constantes.ACCION_NUEVO" (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? insertarPiscina(frmPiscinaDatos) : null"
+        title="{{constantes.ATAJO_GUARDAR}}" id="btnGuardar">
+        <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-primary mr-1" *ngIf="accion===constantes.ACCION_EDITAR" id="btnGuardar"
+        (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarPiscina(frmPiscinaDatos) : null" title="{{constantes.ATAJO_GUARDAR}}">
+        <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion===constantes.ACCION_CONSULTAR"
+        (click)="cancelar()">
+        <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion !== constantes.ACCION_CONSULTAR"
+        (click)="cancelar()">
+        <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+      </button>
+    </div>
+  </div>
+  <!--Formulario de piscina-->
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseClienteInfo"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+          <div class="row">
+            <div class="form-group col-lg-4 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_NUMERO}}</strong>
+              </label>
+              <input type="text" name="numero" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="piscina.pisNumero"
+                [disabled]="accion===constantes.ACCION_EDITAR" class="form-control form-control-sm text-uppercase mousetrap"
+                required appUppercase [appFocus]="accion===constantes.ACCION_NUEVO" pattern="{{constantes.PATTERN_CODIGO}}">
+            </div>
+            <div class="form-group col-lg-4 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_NOMBRE}}</strong>
+              </label>
+              <input type="text" name="nombre" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="piscina.pisNombre"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase [appFocus]="accion===constantes.ACCION_EDITAR">
+            </div>
+            <div class="form-group col-lg-4 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_HECTARAJE}}</strong>
+              </label>
+              <input type="text" name="hectaraje" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="piscina.pisHectareaje"
+                class="form-control form-control-sm text-uppercase mousetrap" required [appAutonumeric2]="piscina.pisHectareaje"
+                value="{{piscina.pisHectareaje}}" (updateValue)="piscina.pisHectareaje=$event" [appAutoRead]="accion === constantes.ACCION_CONSULTAR">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-1">
+        <div class="card-header">
+          <b ngbTooltip="{{constantes.LABEL_INVENTARIO_PRODUCTOS_PROCESO}}" placement="top">
+            {{constantes.TAG_CUENTAS_CONTABLE_IPP}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapsePiscinaCuentas"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapsePiscinaCuentas">
+          <div class="row">
+            <div class="form-group col-lg-3 col-md-6">
+              <label>
+                <strong>{{constantes.TAG_DIRECTO_MAY}}</strong>
+              </label>
+              <input type="text" id="directo" pKeyFilter="pint" name="directo" placeholder="{{constantes.TAG_OPCIONAL}}"
+                [(ngModel)]="piscina.ctaCostoDirecto" class="form-control form-control-sm mousetrap text-uppercase"
+                (keypress)="soloNumeros($event)" *ngIf="accion!=constantes.ACCION_CONSULTAR" (keydown)="buscarConfiguracionDeCuentas($event, piscina.ctaCostoDirecto, 'D')"
+                [ngbTooltip]="cuentaDetalle.directo ? cuentaDetalle.directo.cuentaDetalle : null" (blur)="validarCuenta('D')">
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion===constantes.ACCION_CONSULTAR"
+                [ngbTooltip]="cuentaDetalle.directo ? cuentaDetalle.directo.cuentaDetalle : null">
+                {{piscina.ctaCostoDirecto}} &nbsp;
+              </label>
+            </div>
+            <div class="form-group col-lg-3 col-md-6">
+              <label>
+                <strong>{{constantes.TAG_INDIRECTO_MAY}}</strong>
+              </label>
+              <input type="text" id="indirecto" pKeyFilter="pint" name="indirecto" placeholder="{{constantes.TAG_OPCIONAL}}"
+                [ngbTooltip]="cuentaDetalle.indirecto ? cuentaDetalle.indirecto.cuentaDetalle : null" [(ngModel)]="piscina.ctaCostoIndirecto"
+                *ngIf="accion!=constantes.ACCION_CONSULTAR" class="form-control form-control-sm mousetrap text-uppercase"
+                (keypress)="soloNumeros($event)" (keydown)="buscarConfiguracionDeCuentas($event, piscina.ctaCostoIndirecto, 'I')"
+                (blur)="validarCuenta('I')">
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion===constantes.ACCION_CONSULTAR"
+                [ngbTooltip]="cuentaDetalle.indirecto ? cuentaDetalle.indirecto.cuentaDetalle : null">
+                {{piscina.ctaCostoIndirecto}} &nbsp;
+              </label>
+            </div>
+            <div class="form-group col-lg-3 col-md-6">
+              <label>
+                <strong>{{constantes.TAG_TRANSFERENCIA}}</strong>
+              </label>
+              <input type="text" id="transferencia" pKeyFilter="pint" name="transferencia" placeholder="{{constantes.TAG_OPCIONAL}}"
+                [(ngModel)]="piscina.ctaCostoTransferencia" class="form-control form-control-sm mousetrap text-uppercase"
+                (keypress)="soloNumeros($event)" *ngIf="accion!=constantes.ACCION_CONSULTAR" (keydown)="buscarConfiguracionDeCuentas($event, piscina.ctaCostoTransferencia, 'T')"
+                [ngbTooltip]="cuentaDetalle.transferencia ? cuentaDetalle.transferencia.cuentaDetalle : null" (blur)="validarCuenta('T')">
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion===constantes.ACCION_CONSULTAR"
+                [ngbTooltip]="cuentaDetalle.transferencia ? cuentaDetalle.transferencia.cuentaDetalle : null">
+                {{piscina.ctaCostoTransferencia}} &nbsp;
+              </label>
+            </div>
+            <div class="form-group col-lg-3 col-md-6">
+              <label>
+                <strong>{{constantes.TAG_PRODUCTO_TERMINADO}}</strong>
+              </label>
+              <input type="text" id="terminado" pKeyFilter="pint" name="terminado" placeholder="{{constantes.TAG_OPCIONAL}}"
+                [(ngModel)]="piscina.ctaCostoProductoTerminado" class="form-control form-control-sm mousetrap text-uppercase"
+                (keypress)="soloNumeros($event)" *ngIf="accion!=constantes.ACCION_CONSULTAR" [ngbTooltip]="cuentaDetalle.productoterminado ? cuentaDetalle.productoterminado.cuentaDetalle : null"
+                (keydown)="buscarConfiguracionDeCuentas($event, piscina.ctaCostoProductoTerminado, 'P')" (blur)="validarCuenta('P')">
+              <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion===constantes.ACCION_CONSULTAR"
+                [ngbTooltip]="cuentaDetalle.productoterminado ? cuentaDetalle.productoterminado.cuentaDetalle : null">
+                {{piscina.ctaCostoProductoTerminado}} &nbsp;
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

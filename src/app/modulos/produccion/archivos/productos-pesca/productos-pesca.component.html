@@ -1,0 +1,64 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmPiscina='ngForm' name="frmPiscina" class="card m-0 mb-2" autocomplete="off">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSelect()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary" (click)="!vistaFormulario ? listarProductoPesca(false) : null"
+                title="{{constantes.ATAJO_BUSCAR}}" id="btnBuscar">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+                id="btnInactivo">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="!vistaFormulario ? listarProductoPesca(true) : null">{{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+              </div>
+            </div>&nbsp;
+            <button class="btn btn-sm btn-primary" type="button" (click)="!vistaFormulario && verificarPermiso(constantes.ACCION_CREAR, true) ? nuevaProductoPesca() : null"
+              [disabled]="!frmPiscina.valid" title="{{constantes.ATAJO_NUEVO}}">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div [hidden]="!vistaListado">
+      <app-productos-pesca-listado [parametros]="parametro" [isModal]="false" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarActivar)="activar=!$event" (enviarAccion)="accionLista($event)"></app-productos-pesca-listado>
+    </div>
+    <div *ngIf="vistaFormulario && !vistaListado">
+      <app-productos-pesca-formulario [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarCancelar)="cancelar($event)" (enviarActivar)="activar=!$event">
+      </app-productos-pesca-formulario>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

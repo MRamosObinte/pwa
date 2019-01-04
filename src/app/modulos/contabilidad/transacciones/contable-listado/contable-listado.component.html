@@ -1,0 +1,191 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i> <b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmContableListado="ngForm">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control input-sm" name="cboEmpresa" [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()"
+              [disabled]="mostrarContabilidaAcciones" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option selected [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">
+                {{empresa.empNombre}} ({{empresa.empCodigo}})
+              </option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_PERIODO}}</strong>
+              &nbsp;
+              <a (click)="listarPeriodos()" *ngIf="!mostrarContabilidaAcciones">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_PERIODOS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaPeriodos" name="periodo" [showClear]="true" [(ngModel)]="periodoSeleccionado"
+              placeholder="{{constantes.TAG_TODOS}}" optionLabel="perDetalle" (ngModelChange)="limpiarResultado()"
+              [disabled]="mostrarContabilidaAcciones">
+              <ng-template let-item pTemplate="selectedItem">
+                {{periodoSeleccionado?.perDetalle}}
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class=""> {{fs.value.perDetalle}}</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_TIPO_COMPROBANTES}}</strong>
+              &nbsp;
+              <a (click)="listarTipos()" *ngIf="!mostrarContabilidaAcciones">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_TIPOS_COMPROBANTES}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaTipos" name="tipo" [showClear]="true" [(ngModel)]="tipoSeleccionado"
+              placeholder="{{constantes.TAG_TODOS}}" optionLabel="tipDetalle" (ngModelChange)="limpiarResultado()"
+              [disabled]="mostrarContabilidaAcciones">
+              <ng-template let-item pTemplate="selectedItem">
+                {{tipoSeleccionado?.tipDetalle}} ({{tipoSeleccionado?.tipCodigo}} )
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class=""> {{fs.value.tipDetalle}} ({{fs.value.tipCodigo}})
+                </div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_BUSQUEDA}}</b>
+            </label>
+            <input name="txtBusqueda" (ngModelChange)="limpiarResultado()" [disabled]="mostrarContabilidaAcciones"
+              [(ngModel)]="busqueda" placeholder="{{tipoSeleccionado &&  !periodoSeleccionado?'OBLIGATORIO':'OPCIONAL'}}"
+              class="form-control input-sm text-uppercase" maxlength="20" triggers="mouseenter:mouseleave" [appFocus]=true>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer" *ngIf="!mostrarContabilidaAcciones">
+        <div class="text-right">
+          <div class="btn-group">
+            <button type="button" id="btnBuscarContables" class="btn btn-sm btn-primary" title="{{constantes.ATAJO_BUSCAR}}"
+              [ngbTooltip]="tipContentGuardar" (click)="listarContables(20)">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split  mr-1"
+              data-toggle="dropdown" style="margin-right: 3px;">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="listarContables(50)"> {{constantes.TAG_ULTIMOS_50}}</a>
+              <a class="dropdown-item" (click)="listarContables(100)"> {{constantes.TAG_ULTIMOS_100}}</a>
+              <a class="dropdown-item" (click)="listarContables(null)"> {{constantes.TAG_TODOS}}</a>
+            </div>
+          </div>
+          <button type="button" id="btnNuevo" *ngIf="!referencia" class="btn btn-sm btn-primary" title="{{constantes.ATAJO_NUEVO}}"
+            (click)="nuevoContable()" [disabled]="!frmContableListado.valid || !empresaSeleccionada.listaSisPermisoTO.gruCrear || !tipoSeleccionado">
+            <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" [hidden]="mostrarContabilidaAcciones">
+    <div class="card m-0" *ngIf="listadoResultado?.length > 0">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.CONTABILIDAD_CONTABLE_LISTADO}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary mr-1" (click)="desmayorizarContableSeleccionado()"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruMayorizarContables" placement="top" ngbTooltip="{{constantes.LABEL_DESMAYORIZAR}}"
+              container="body" title="{{constantes.ATAJO_DESMAYORIZAR}}">
+              <i class="{{constantes.ICON_DESMAYORIZAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_DESMAYORIZAR}}</span>
+            </button>
+            <button id="btnImprimirContable" type="button" class="btn btn-sm btn-primary" (click)="imprimirListadoContable()"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruImprimir" placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}"
+              container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1 dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="imprimirListadoSoporte()" *ngIf="referencia">{{constantes.LABEL_CAMINO_SOPORTE}}</a>
+              <a class="dropdown-item" (click)="imprimirRRHHIndividual()" *ngIf="referencia">{{constantes.LABEL_IMPRIMIR_INDIVIDUAL}}</a>
+              <a class="dropdown-item" (click)="imprimirRRHHPorLote()" *ngIf="referencia">{{constantes.LABEL_IMPRIMIR_LOTE}}</a>
+              <a class="dropdown-item" (click)="imprimirListadoContable()" *ngIf="!referencia">{{constantes.LABEL_IMPRIMIR_LOTE}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listadoResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [suppressRowClickSelection]="true" [rowSelection]="rowSelection" [enableColResize]="true" [components]="components"
+          [context]="context" [frameworkComponents]="frameworkComponents" (gridReady)="onGridReady($event)"
+          (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimencionarColumnas()"
+          (gridSizeChanged)="redimencionarColumnas()" (cellDoubleClicked)="consultar($event.node.data)" [rowClassRules]="rowClassRules">
+        </ag-grid-angular>
+      </div>
+    </div>
+  </div>
+  <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="objetoContableEnviar">
+    <app-contable-formulario [data]="objetoContableEnviar" (cargandoEstado)="cambiarEstadoCargando($event)"
+      (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivar($event)"></app-contable-formulario>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="objetoContableEnviarRRHH && vaAlModuloRRHH">
+    <app-contable-rrhh-formulario [data]="objetoContableEnviarRRHH" (cargandoEstado)="cambiarEstadoCargando($event)"
+      (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivar($event)"
+      (mostrarFormulario)="mostrarContabilidaAcciones = $event"></app-contable-rrhh-formulario>
+  </div>
+</div>
+
+<!-- Modal que muestra los errores -->
+<p-dialog header="Aviso" [(visible)]="mostrarDialogo" [modal]="true" [responsive]="true" [contentStyle]="{'max-height':'500px', 'max-width':'550px'}"
+  [baseZIndex]="10000">
+  <div *ngFor="let mensaje of listaMensajes" class="alert alert-{{mensaje.tipo}} p-1 mb-1" role="alert">
+    <span>
+      <i class="{{mensaje.icono}}"></i>
+    </span>
+    {{mensaje.texto}}
+  </div>
+  <p-footer>
+    <div class="text-center">
+      <button type="button" (click)="mostrarDialogo=false" class="btn btn-sm btn-primary">{{constantes.LABEL_ACEPTAR}}</button>
+    </div>
+  </p-footer>
+</p-dialog>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

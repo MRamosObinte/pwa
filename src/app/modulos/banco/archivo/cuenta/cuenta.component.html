@@ -1,0 +1,249 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5" *ngIf="!isModal">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i><b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmCuenta='ngForm' name="frmCuenta">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="accion">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer">
+        <div class="text-right">
+          <div class="btn-group mr-1">
+            <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="listaCuentasTO()" title="{{constantes.ATAJO_BUSCAR}}" 
+            [disabled]="accion">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+            </button>
+          </div>
+          <button type="button" class="btn btn-sm btn-primary" id="btnNuevo" (click)="operacionesCuenta(constantes.ACCION_CREAR)"
+            title="{{constantes.ATAJO_NUEVO}}" [disabled]="accion">
+            <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Formulario de cuentas-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="mostrarNuevo && tituloForm!==constantes.TITULO_FILTROS">
+    <div class="card m-0">
+      <div class="card-header p-1" *ngIf="!isModal">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{tituloForm}}</strong>
+        <div class="card-header-actions">
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="insertarCuenta(frmCuentaDatos)"
+            *ngIf="accion === constantes.ACCION_CREAR" title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="actualizarCuenta(frmCuentaDatos)"
+            *ngIf="accion === constantes.ACCION_EDITAR" title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+          </button>
+          <button class="btn btn-sm btn-default mr-1" type="button" (click)="cancelar()" title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+          </button>
+        </div>
+      </div>
+      <!--cuerpo del formulario-->
+      <div class="card-body p-1">
+        <form #frmCuentaDatos='ngForm' autocomplete="off">
+          <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+            <!--card: informacion bancaria-->
+            <div class="card mb-1">
+              <div class="card-header">
+                <b> {{constantes.TAG_INFORMACION_BANCARIA}}</b>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+                <div class="row">
+                  <div class="form-group col-lg-4 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_BANCO}}</b>
+                    </label>
+                    <select [(ngModel)]="bancoSeleccionado" name="bancoSeleccionado" class="form-control input-sm height-26 mousetrap text-uppercase"
+                      id="comboBancos" required>
+                      <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                      <option selected [ngValue]="banco" *ngFor="let banco of listadoBancos">{{banco.banNombre}}
+                        ({{banco.banCodigo}})</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-lg-4 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_CUENTA_CONTABLE}}</b>
+                    </label>
+                    <ng-template #tipCuentaCompra>{{cuentaContable.cuentaDetalle}}</ng-template>
+                    <input type="text" name="proCuentaInventario" [ngbTooltip]="cuentaContable.cuentaDetalle ? tipCuentaCompra : null"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="banCuentaTO.ctaContable" class="form-control form-control-sm text-uppercase mousetrap"
+                      (keydown)="buscarConfiguracionDeCuentas($event, banCuentaTO.ctaContable)" (blur)="validarCuenta()"
+                      [disabled]="accion !== constantes.ACCION_CREAR" required="{{maxLengthCuenta}}" appUppercase
+                      [appFocus]="accion === constantes.ACCION_EDITAR || accion === constantes.ACCION_CREAR">
+                  </div>
+                  <div class="form-group col-lg-4 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_NUMERO}}</b>
+                    </label>
+                    <input [appFocus]="accion === constantes.ACCION_EDITAR" class="form-control form-control-sm mousetrap"
+                      name="ctaNumero" maxlength="150" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                      [(ngModel)]="banCuentaTO.ctaNumero" (ngModelChange)="banCuentaTO.ctaNumero = banCuentaTO.ctaNumero.toUpperCase()"
+                      required>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-lg-4 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_TITULAR}}</b>
+                    </label>
+                    <input class="form-control form-control-sm mousetrap" name="ctaTitular" maxlength="150" type="text"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="banCuentaTO.ctaTitular" (ngModelChange)="banCuentaTO.ctaTitular = banCuentaTO.ctaTitular.toUpperCase()"
+                      required>
+                  </div>
+                  <div class="form-group col-lg-4 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_OFICIAL_CREDITO}}</b>
+                    </label>
+                    <input class="form-control form-control-sm mousetrap" name="ctaOficial" maxlength="150" type="text"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="banCuentaTO.ctaOficial" (ngModelChange)="banCuentaTO.ctaOficial = banCuentaTO.ctaOficial.toUpperCase()"
+                      required>
+                  </div>
+                  <div class="form-group col-lg-4 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_FORMATO_CHEQUE}}</b>
+                    </label>
+                    <input class="form-control form-control-sm mousetrap" name="ctaFormatoCheque" maxlength="150" type="text"
+                      (blur)="espacios()" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="banCuentaTO.ctaFormatoCheque"
+                      (ngModelChange)="banCuentaTO.ctaFormatoCheque" required pattern="{{constantes.PATTERN_LETRAS_NUMEROS}}">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Card: informacion adicional-->
+            <div class="card mb-1">
+              <div class="card-header">
+                <b placement="right" ngbTooltip="{{constantes.LABEL_INFORMACION_ADICIONAL}}">
+                  {{constantes.TAG_INFORMACION_ADICIONAL_COMPLETO}}</b>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+                <div class="row">
+                  <div class="form-group col-lg-6 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_CODIGO_BANCARIO}}</b>
+                    </label>
+                    <input class="form-control form-control-sm mousetrap" name="ctaCodigoBancario" maxlength="150" type="text"
+                      placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="banCuentaTO.ctaCodigoBancario"
+                      (ngModelChange)="banCuentaTO.ctaCodigoBancario = banCuentaTO.ctaCodigoBancario.toUpperCase()">
+                  </div>
+                  <div class="form-group col-lg-6 col-sm-6">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_PREFIJO_BANCARIO}}</b>
+                    </label>
+                    <input class="form-control form-control-sm mousetrap" name="ctaPrefijoBancario" maxlength="150"
+                      type="text" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="banCuentaTO.ctaPrefijoBancario"
+                      (ngModelChange)="banCuentaTO.ctaPrefijoBancario = banCuentaTO.ctaPrefijoBancario.toUpperCase()">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+      </div>
+      <!---->
+    </div>
+  </div>
+  <!--Listado de cuentas-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar || isModal}" *ngIf="!mostrarNuevo">
+    <div class="card m-0" *ngIf="listaResultado?.length>0">
+      <div class="modal-header p-2" *ngIf="isModal">
+        <h4 class="modal-title">{{constantes.INVENTARIO_CUENTAS}}</h4>
+        <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card-header p-1" *ngIf="!isModal">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.INVENTARIO_CUENTA_LISTADO}}</strong>
+
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirBodega" (click)="imprimirCuenta()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarBodega" (click)="exportarCuenta()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirBodega" (click)="imprimirCuenta()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarBodega" (click)="exportarCuenta()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body" style="padding: 0 0 0 0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <!--listado de bodegas-->
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (gridSizeChanged)="redimencionarColumnas()" (gridReady)="onGridReady($event)"
+          (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="!this.isModal?mostrarContextMenu($event.data, $event.event):null"
+          (contextmenu)="!this.isModal?$event.preventDefault():null" (filterChanged)="actualizarFilas()"
+          (gridColumnsChanged)="redimencionarColumnas()" (cellFocused)="filaFocused($event)" (cellDoubleClicked)="operacionesCuenta(constantes.ACCION_CONSULTAR)">
+        </ag-grid-angular>
+        <!--end listado de bodegas-->
+      </div>
+    </div>
+    <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

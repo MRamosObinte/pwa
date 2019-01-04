@@ -1,0 +1,153 @@
+<div class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="cambiarActivar(activar)"
+      type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <strong>{{titulo}} - {{empresaSeleccionada.empNombre}}</strong>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Imprimir-->
+        <button id="btnImprimirContable" *ngIf="accion == constantes.ACCION_CONSULTAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}" (click)="imprimirContable()" title="{{constantes.ATAJO_IMPRIMIR}}">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Guardar-->
+        <button *ngIf="accion === constantes.ACCION_CREAR" type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar"
+          (click)="guardar(frmDatos)" placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> </span>
+        </button>
+        <!--Anular-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anular()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Reversar-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_REVERSAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_REVERSAR}}" (click)="reversar()">
+          <i class="{{constantes.ICON_REVERSAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+          ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Imprimir-->
+        <button id="btnImprimirContable" *ngIf="accion == constantes.ACCION_CONSULTAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}" (click)="imprimirContable()" title="{{constantes.ATAJO_IMPRIMIR}}">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_IMPRIMIR}}</span>
+        </button>
+        <!--Guardar-->
+        <button *ngIf="accion === constantes.ACCION_CREAR" type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar"
+          (click)="guardar(frmDatos)" placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <!--Anular-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anular()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_ANULAR}}</span>
+        </button>
+        <!--Reversar-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_REVERSAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_REVERSAR}}" (click)="reversar()">
+          <i class="{{constantes.ICON_REVERSAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_REVERSAR}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+          (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+  <form #frmDatos='ngForm' name="frmDatos" autocomplete="off" class="card-body p-1">
+    <fieldset [disabled]="accion !== constantes.ACCION_CREAR">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDG"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseDG">
+          <div class="row">
+            <div class="form-group form-group-sm col-sm-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_FECHA}}</b>
+              </label>
+              <p-calendar class="mousetrap calendar" inputId="fecha" name="fecha" [inputStyleClass]="isFechaValido == false ? 'has-error ' : '' "
+                [(ngModel)]="fechaActual" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                [required]="true" (ngModelChange)="validarFechaPorPeriodo()" placeholder="DD/MM/YYYY"></p-calendar>
+            </div>
+            <div class="form-group form-group-sm col-sm-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_BANCO}}</b>
+              </label>
+              <select class="form-control form-control-sm text-uppercase mousetrap" name="banco" required [(ngModel)]="bancoSeleccionado">
+                <option selected disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="banco" *ngFor="let banco of bancos">
+                  {{banco.banNombre}} ({{banco.ctaContable}})      
+                </option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-sm-12">
+              <label class="control-label">
+                <b>{{constantes.TAG_OBSERVACION}}</b>
+              </label>
+              <textarea type="text" id="observacion" name="observaciones" placeholder="{{constantes.TAG_OPCIONAL}}"
+                [(ngModel)]="observaciones" appUppercase class="form-control form-control-sm text-uppercase mousetrap"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <div class="card mb-1" *ngIf="seEncontraronResultados">
+      <div class="card-header">
+        <b> {{constantes.TAG_DETALLE_DOCUMENTOS_POR_COBRAR}}</b>
+        <div class="card-header-actions">
+          <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDG"
+            aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+            <i class="fa fa-minus"></i>
+          </a>
+        </div>
+      </div>
+      <div class="collapse show" id="collapseDG">
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 443px);" class="ag-theme-balham"
+          [rowData]="cheques" [columnDefs]="columnDefsSelected" [enableSorting]="true" [rowSelection]="rowSelection"
+          [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+          [animateRows]="true" [overlayNoRowsTemplate]="noData" [suppressClickEdit]=true (gridReady)="onGridReady($event)"
+          (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)" (filterChanged)="actualizarFilas()"
+          (cellEditingStopped)="alCambiarValorDeCelda($event)" [suppressRowClickSelection]="true" (selectionChanged)="onSelectionChanged($event)"
+          [stopEditingWhenGridLosesFocus]="true" [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()">
+        </ag-grid-angular>
+      </div>
+      <div class="card-footer">
+        <div class="card-header-actions mr-3">
+          <h2>{{constantes.TAG_TOTAL}} : {{total | number:'1.2-2'}}</h2>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

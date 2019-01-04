@@ -1,0 +1,71 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmCliente='ngForm' name="frmCliente" class="card">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i>
+        <strong>{{constantes.TITULO_FILTROS}}</strong>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <div class="form-group form-group-sm">
+          <label class="control-label">
+            <b>{{constantes.TAG_EMPRESA}}</b>
+          </label>
+          <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+            (ngModelChange)="cambiarEmpresaSeleccionada()">
+            <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+            <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+              ({{empresa.empCodigo}})</option>
+          </select>
+        </div>
+        <div class="form-group form-group-sm has-feedback">
+          <label class="control-label">
+            <b>{{constantes.TAG_CATEGORIA}}</b>
+            &nbsp;
+            <a (click)="listarCategorias()">
+              <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CATEGORIAS}}"
+                container="body"></span>
+            </a>
+          </label>
+          <p-dropdown [options]="listadoCategorias" name="categoria" [showClear]="true" [(ngModel)]="categoriaSeleccionada"
+            (ngModelChange)="limpiarResultado()" optionLabel="ccDetalle" placeholder="{{constantes.TAG_TODOS}}" class="mousetrap">
+            <ng-template let-item pTemplate="selectedItem">
+              {{categoriaSeleccionada?.ccDetalle}} ({{categoriaSeleccionada?.ccCodigo}})
+            </ng-template>
+            <ng-template let-fs pTemplate="item">
+              <div class="">{{fs.value.ccDetalle}} ({{fs.value.ccCodigo}})</div>
+            </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+      <div class="card-footer text-muted">
+        <div class="text-right">
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-primary" id="btnBuscarCliente" (click)="buscarClientes(false)"
+              title="{{constantes.ATAJO_BUSCAR}}">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="buscarClientes(true)">{{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaListado">
+      <app-cliente-listado [parametros]="parametro" [isModal]="false" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarActivar)="activar=!$event" (enviarAccion)="accionLista($event)"></app-cliente-listado>
+    </div>
+    <div *ngIf="vistaFormulario && !vistaListado">
+      <app-cliente-formulario [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        [listadoCategorias]="listadoCategorias" (enviarCancelar)="cancelar($event)" (enviarActivar)="activar=!$event"></app-cliente-formulario>
+    </div>
+  </div>
+
+  <div *ngIf="cargando">
+    <app-cargando></app-cargando>
+  </div>

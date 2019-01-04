@@ -1,0 +1,14 @@
+<div class="collection list-items">
+  <div class="collection-item detail col-hover" *ngFor="let data of rowData">
+    <div class="column-data" *ngFor="let colum of columnDefs">
+      <div class="row">
+        <div class="col-4">
+          <strong>{{colum.headerName}}</strong>
+        </div>
+        <div class="col-8">
+          <span>{{data[colum.field]}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,202 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmMotivoAnticipo='ngForm' name="frmMotivoAnticipo" class="card m-0 mb-2">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--Empresa-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [appFocus]="true" class="form-control form-control-sm mousetrap" name="empresa" required
+              [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group">
+              <button id="btnBuscarMotivo" type="button" class="btn btn-sm btn-primary" (click)="!vistaFormulario ? buscarMotivoAnticipo(false) : null"
+                title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="!vistaFormulario ? buscarMotivoAnticipo(true) : null">{{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+              </div>
+            </div>&nbsp;
+            <button id="btnNuevoMotivo" class="btn btn-sm btn-primary" type="button" (click)="!vistaFormulario && motivoAnticipoService.verificarPermiso(constantes.ACCION_NUEVO, empresaSeleccionada, true) ? nuevaMotivoAnticipo() : null"
+              [disabled]="!frmMotivoAnticipo.valid" title="{{constantes.ATAJO_NUEVO}}">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaFormulario">
+      <form #frmDatos='ngForm' autocomplete="off" class="card m-0">
+        <div class="card-header p-1">
+          <button id="btnActivarListado" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="activar=!activar"
+            type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+            <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+          </button>
+          <b> {{accion}} {{constantes.RRHH_MOTIVO_ANTICIPO.toLowerCase()}} - {{empresaSeleccionada.empNombre}}
+          </b>
+          <div class="card-header-actions">
+            <!--Sin etiquetas-->
+            <div class="btn-group d-lg-none">
+              <!--Guardar-->
+              <div *ngIf="accion !== constantes.ACCION_CONSULTA" class="btn-group mr-1">
+                <button id="btnGuardarMotivo" type="button" class="btn btn-sm btn-primary" (click)="accion === constantes.ACCION_CREAR ? insertarMotivo(frmDatos) : modificarMotivo(frmDatos)"
+                  placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" title="{{constantes.ATAJO_GUARDAR}}">
+                  <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                  <span class="d-none d-md-inline"> </span>
+                </button>
+              </div>
+              <!--Cancelar y/o regresar-->
+              <button id="btnCancelarMotivo" type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}"
+                ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+                (click)="cancelar()">
+                <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+                  aria-hidden="true"></i>
+              </button>
+            </div>
+            <!-- Con etiquetas-->
+            <div class="btn-group d-none d-lg-block">
+              <!--Guardar-->
+              <div *ngIf="accion !== constantes.ACCION_CONSULTAR" class="btn-group mr-1">
+                <button id="btnGuardarMotivo" type="button" class="btn btn-sm btn-primary" (click)="accion === constantes.ACCION_CREAR ? insertarMotivo(frmDatos) : modificarMotivo(frmDatos)"
+                  placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" title="{{constantes.ATAJO_GUARDAR}}">
+                  <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"> </i>
+                  <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}} </span>
+                </button>
+              </div>
+              <!--Cancelar y/o regresar-->
+              <button id="btnCancelarMotivo" type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}"
+                (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+                <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+                  aria-hidden="true"></i>
+                {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-1">
+          <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+            <div class="card mb-1">
+              <div class="card-header">
+                <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0">
+                <div class="row">
+                  <div class="form-group form-group-sm col-sm-6 has-feedback pr-2">
+                    <label>
+                      <strong>{{constantes.TAG_DETALLE}}</strong>
+                    </label>
+                    <label class="form-control form-control-sm input-label text-uppercase" *ngIf="accion !== constantes.ACCION_CREAR">{{motivoAnticipo.rhAnticipoMotivoPK.motDetalle}}</label>
+                    <input type="text" appUppercase class="form-control form-control-sm text-uppercase mousetrap" name="motDetalle"
+                      id="motDetalle" required placeholder="{{constantes.TAG_OBLIGATORIO}}" *ngIf="accion === constantes.ACCION_CREAR"
+                      [(ngModel)]="motivoAnticipo.rhAnticipoMotivoPK.motDetalle">
+                  </div>
+                  <div class="form-group form-group-sm col-sm-6 has-feedback pr-2">
+                    <label>
+                      <strong>{{constantes.TAG_TIPO_CONTABLE}}</strong>
+                    </label>
+                    <select class="form-control form-control-sm text-uppercase mousetrap" name="contipo" [(ngModel)]="tipoSeleccionado"
+                      required>
+                      <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                      <option [ngValue]="contipo" *ngFor="let contipo of tiposContables"> {{contipo.tipDetalle}}
+                        ({{contipo.conTipoPK.tipCodigo}})
+                      </option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+      </form>
+    </div>
+    <div class="card mb-0" [hidden]="vistaFormulario" *ngIf="listadoMotivoAnticipos?.length>0">
+      <div class="card-header p-1">
+        <button id="btnActivarListado" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="activar=!activar"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <b> {{constantes.RRHH_LISTADO_MOTIVO_ANTICIPO}}</b>
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnimprimirMotivoAnticipos" (click)="imprimirMotivoAnticipo()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}"
+              [disabled]="vistaFormulario">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnexportarMotivoAnticipos" (click)="exportarMotivoAnticipo()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}"
+              [disabled]="vistaFormulario">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnimprimirMotivoAnticipos" (click)="imprimirMotivoAnticipo()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}"
+              [disabled]="vistaFormulario">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnexportarMotivoAnticipos" (click)="exportarMotivoAnticipo()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}"
+              [disabled]="vistaFormulario">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listadoMotivoAnticipos" [columnDefs]="columnDefsSelected" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()"
+          [rowSelection]="rowSelection" [enableColResize]="true" [context]="context" (gridReady)="onGridReady($event)"
+          (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" (cellFocused)="filaFocused($event)"
+          (cellDoubleClicked)="objetoSeleccionado = $event.node.data;consultarMotivoAnticipo()">
+        </ag-grid-angular>
+      </div>
+      <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

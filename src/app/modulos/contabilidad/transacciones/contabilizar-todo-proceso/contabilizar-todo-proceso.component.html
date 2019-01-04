@@ -1,0 +1,156 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <!--FORMULARIO DE FILTRADO-->
+    <div class="card">
+      <div class="card-header">
+        <i class=" {{classTitulo}}"></i>
+        <b>{{frmTitulo}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmFiltro="ngForm" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [(ngModel)]="empresaSeleccionada" class="form-control form-control-sm  mousetrap" name="empresaSeleccionada"
+              (change)="cambiarEmpresaSelect();" required [appFocus]=true>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback" *ngIf="false">
+            <label class="control-label mb-0">
+              <b>{{constantes.TAG_SECTOR}}</b>
+            </label>
+            <select [(ngModel)]="sectorSeleccionado" name="sectorSeleccionado" class="form-control input-sm mousetrap"
+              [disabled]="cargando" (change)="limpiarLista()" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option selected [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}}
+                ({{sector.secCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_DESDE}}</b>
+            </label>
+            <p-calendar name="fechaDesde" [(ngModel)]="fechaDesde" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+              (ngModelChange)="limpiarLista()" [required]="true" [disabled]="cargando" [maxDate]="fechaHasta"
+              [appMaxDate]="fechaHasta"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar name="fechaHasta" [(ngModel)]="fechaHasta" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+              (ngModelChange)="limpiarLista()" [required]="true" [disabled]="cargando" [minDate]="fechaDesde" [maxDate]="fechaActual"
+              [appMinDate]="fechaDesde" [appMaxDate]="fechaActual"></p-calendar>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer">
+        <div class="text-right">
+          <button id="btnBuscar" type="button" class="btn btn-sm btn-primary" (click)="listaContabilizarTodoProceso()"
+            title="{{constantes.ATAJO_BUSCAR}}" [disabled]="!frmFiltro.valid">
+            <i class="{{constantes.ICON_REFRESCAR}}" aria-hidden="true"></i> {{constantes.LABEL_ACTUALIZAR}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <!--LISTADO -->
+    <div class="card m-0" *ngIf="vistaListado">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong placement="right" ngbTooltip="{{constantes.LABEL_CONTABILIZAR}} {{constantes.IPP_SUBTITULO}}">{{constantes.TITULO_IPP_CONTABILIZAR}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button id="btnContabilizar" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CONTABILIZAR}}"
+              container="body" (click)="empresaSeleccionada.listaSisPermisoTO.gruCrear ? contabilizar() : null"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruCrear" title="{{constantes.ATAJO_CONTABILIZAR}}">
+              <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"></i>
+            </button>
+            <button id="btnCancelar" type="button" class="btn btn-sm btn-outline mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}"
+              container="body" (click)="limpiarLista()" title="{{constantes.ATAJO_CANCELAR}}">
+              <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button id="btnContabilizar" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CONTABILIZAR}}"
+              container="body" (click)="empresaSeleccionada.listaSisPermisoTO.gruCrear ? contabilizar() : null"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruCrear" title="{{constantes.ATAJO_CONTABILIZAR}}">
+              <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"> </i> {{constantes.LABEL_CONTABILIZAR}}
+            </button>
+            <button id="btnCancelar" type="button" class="btn btn-sm btn-outline mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}"
+              container="body" (click)="limpiarLista()" title="{{constantes.ATAJO_CANCELAR}}">
+              <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0 pb-1" *ngIf="vistaListado">
+      <ul class="nav nav-tabs nav-justified" role="tablist" id="ulOpcionesEmpleado" style="box-shadow: inset 0 -1px 0 #ddd;">
+        <li role="presentation" class="nav-item" placement="top" ngbTooltip="{{constantes.IPP}} {{constantes.TAG_DIRECTO}}">
+          <a class="nav-link active p-1" href data-target="#directo" aria-controls="directo" role="tab" data-toggle="tab">
+            <b>{{constantes.TAG_IPP_DIRECTO}}</b>
+          </a>
+        </li>
+        <li role="presentation" class="nav-item" placement="top" ngbTooltip="{{constantes.IPP}} {{constantes.TAG_INDIRECTO}}">
+          <a class="nav-link p-1" href data-target="#indirecto" aria-controls="indirecto" role="tab" data-toggle="tab">
+            <b>{{constantes.TAG_IPP_INDIRECTO}}</b>
+          </a>
+        </li>
+        <li role="presentation" class="nav-item" placement="top" ngbTooltip="{{constantes.IPP}} {{constantes.TAG_CORRIDA}}">
+          <a class="nav-link p-1" href data-target="#corrida" aria-controls="corrida" role="tab" data-toggle="tab">
+            <b>{{constantes.TAG_IPP_CORRIDA}}</b>
+          </a>
+        </li>
+      </ul>
+      <div class="tab-content panel" style="border-top-width: 0px;">
+        <div role="tabpanel" class="tab-pane fade show active p-2" id="directo">
+          <div *ngIf="mensajeDirecto" class="alert alert-warning m-0">{{mensajeDirecto}}</div>
+          <app-tabla-ipp [columnas]="columnasDirectoIndirecto" [tamanio]="tamanio" [filasTiempo]="filasTiempo"
+            [listadoResultado]="listadoDirecto"></app-tabla-ipp>
+        </div>
+        <div role="tabpanel" class="tab-pane fade p-2" id="indirecto">
+          <div *ngIf="mensajeIndirecto" class="alert alert-warning m-0">{{mensajeIndirecto}}</div>
+          <app-tabla-ipp [columnas]="columnasDirectoIndirecto" [tamanio]="tamanio" [filasTiempo]="filasTiempo"
+            [listadoResultado]="listadoIndirecto"></app-tabla-ipp>
+        </div>
+        <div role="tabpanel" class="tab-pane fade p-2" id="corrida">
+          <div *ngIf="mensajeCorrida" class="alert alert-warning m-0">{{mensajeCorrida}}</div>
+          <app-tabla-ipp [columnas]="columnasCorrida" [tamanio]="tamanio" [filasTiempo]="filasTiempo"
+            [listadoResultado]="listadoCorrida"></app-tabla-ipp>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal que muestra los errores -->
+<p-dialog header="Aviso" [(visible)]="mostrarDialogo" [modal]="true" [responsive]="true" [contentStyle]="{'max-height':'500px', 'max-width':'550px'}"
+  [baseZIndex]="10000">
+  <div class="alert alert-danger mb-0 pb-0" role="alert">
+    <strong>{{tituloDialogo}}</strong>
+    <p>{{listaMensajes[0]}}</p>
+    <ul>
+      <li *ngFor="let mensaje of listaMensajes; let i=index;" class="mb-0" [ngClass]="{'style-none': mensaje === '', 'd-none': i=== 0}">
+        <span *ngIf="mensaje!=='' && i > 0">{{mensaje}}</span>
+        <hr *ngIf="mensaje==='' && i > 0">
+      </li>
+    </ul>
+  </div>
+  <p-footer>
+    <div class="text-center">
+      <button type="button" (click)="mostrarDialogo=false" class="btn btn-sm btn-primary">{{constantes.LABEL_ACEPTAR}}</button>
+    </div>
+  </p-footer>
+</p-dialog>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

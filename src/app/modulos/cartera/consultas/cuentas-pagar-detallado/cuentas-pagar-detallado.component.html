@@ -1,0 +1,150 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i>
+        <strong>{{constantes.TITULO_FILTROS}}</strong>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmPagos='ngForm' name="frmPagos">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <!--SECTOR-->
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_CENTRO_PRODUCCION}}</strong>
+              &nbsp;
+              <a (click)="listarSectores()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CENTRO_PRODUCCION}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaSectores" name="sector" [showClear]="true" [(ngModel)]="sectorSeleccionado"
+              (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="secNombre">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ( {{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div> {{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <!--PROVEEDOR-->
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label mb-2">
+              <strong>{{constantes.TAG_PROVEEDOR}}</strong>
+            </label>
+            <input [appFocus]="true" id="provCodigo" name="provCodigo" [(ngModel)]="proveedor.provCodigo" placeholder="{{constantes.TAG_OPCIONAL}}"
+              pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm mousetrap text-uppercase"
+              maxlength="500" (keydown)="limpiarResultado();buscarProveedor($event)" (blur)="validarProveedor()"
+              [ngbTooltip]="proveedor.provRazonSocial ? proveedor.provRazonSocial : null" appUppercase>
+            <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_ENTERTOMODAL}}"
+              container="body" triggers="mouseenter:mouseleave"></span>
+          </div>
+          <!--FECHA HASTA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_FECHA_HASTA}}</b>
+            </label>
+            <p-calendar inputId="finFecha" name="finFecha" [(ngModel)]="fechaFin" (ngModelChange)="limpiarResultado()"
+              dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [maxDate]="fechaActual" [appMaxDate]="fechaActual"
+              [required]="true"></p-calendar>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer text-muted">
+        <div class="text-right">
+          <!--BOTON REGRESAR-->
+          <button type="button" class="btn btn-sm btn-default mr-1" (click)="cerrarCuentaDetallado()" placement="top"
+            ngbTooltip="{{constantes.LABEL_REGRESAR}}" *ngIf="mostrarBtnCancelar" container="body" title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true" id="btnRegresar"></i>
+            {{constantes.LABEL_REGRESAR}}
+          </button>
+          <!--BOTON BUSCAR-->
+          <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="buscarCarListaCuentasPorPagarDetallado()">
+            <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+            {{constantes.LABEL_BUSCAR}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div class="card m-0" *ngIf="listaResultado?.length>0">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.CARTERA_CUENTAS_POR_PAGAR_DETALLADO_LISTADO}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimirCarListaCuentasPorPagarDetallado()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportarCarListaCuentasPorPagarDetallado()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimirCarListaCuentasPorPagarDetallado()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportarCarListaCuentasPorPagarDetallado()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" style="padding: 0 0 0 0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <!--195px-->
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (rowSelected)="objetoSeleccionado = $event.node.data"
+          (cellFocused)="filaFocused($event)" (gridReady)="onGridReady($event)" (filterChanged)="actualizarFilas()"
+          (gridColumnsChanged)="redimencionarColumnas()" (gridSizeChanged)="redimencionarColumnas()" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (contextmenu)="$event.preventDefault()" (cellDoubleClicked)="objetoSeleccionado = $event.node.data; ejecutarAccion()">
+        </ag-grid-angular>
+        <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

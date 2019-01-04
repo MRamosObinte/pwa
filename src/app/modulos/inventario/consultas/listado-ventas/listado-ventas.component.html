@@ -1,0 +1,214 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activarVentas}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i> <b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frm='ngForm' name="frm" autocomplete="off">
+
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="vistaFormulario || objetoContableEnviar">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_SECTOR}}</strong>
+              &nbsp;
+              <a (click)="listarSectores()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaSectores" name="sector" [showClear]="true" [(ngModel)]="sectorSeleccionado"
+              (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="secNombre"
+              [disabled]="vistaFormulario || objetoContableEnviar">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ( {{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div> {{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_MOTIVO}}</strong>
+              &nbsp;
+              <a (click)="listarMotivos()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaMotivos" name="motivo" [showClear]="true" [(ngModel)]="motivoSeleccionado"
+              (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="vmDetalle"
+              [disabled]="vistaFormulario || objetoContableEnviar">
+              <ng-template let-item pTemplate="selectedItem">
+                {{motivoSeleccionado?.vmDetalle}} ( {{motivoSeleccionado?.vmCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div> {{fs.value.vmDetalle}} ({{fs.value.vmCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_TIPO_COMPROBANTES}}</strong>
+              &nbsp;
+              <a (click)="listarTiposComprobante()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_TIPOS_COMPROBANTES}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaTipoComprobante" name="tipoComprobante" [showClear]="true" [(ngModel)]="tipoComprobanteSeleccionado"
+              (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="tcDescripcion"
+              [disabled]="vistaFormulario || objetoContableEnviar">
+              <ng-template let-item pTemplate="selectedItem">
+                {{tipoComprobanteSeleccionado?.tcDescripcion}} ( {{tipoComprobanteSeleccionado?.tcCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div> {{fs.value.tcDescripcion}} ({{fs.value.tcCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label mb-2">
+              <strong>{{constantes.TAG_CLIENTE}}</strong>
+            </label>
+            <input id="clienteCodigo" name="clienteCodigo" class="form-control form-control-sm text-uppercase mousetrap"
+              type="text" (blur)="validarCliente()" (keydown)="buscarCliente($event);" [(ngModel)]="cliente.cliCodigo"
+              maxlength="500" placeholder="{{constantes.TAG_OPCIONAL}}" (ngModelChange)="limpiarResultado()"
+              appUppercase [disabled]="vistaFormulario || objetoContableEnviar" [ngbTooltip]="cliente.cliRazonSocial ? cliente.cliRazonSocial : null">
+            <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_ENTERTOMODAL}}"
+              container="body" triggers="mouseenter:mouseleave"></span>
+          </div>
+
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_DESDE}}</b>
+            </label>
+            <p-calendar name="fechaDesde" [(ngModel)]="fechaDesde" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+              (ngModelChange)="limpiarResultado()" [required]="true" [maxDate]="fechaHasta" [appMaxDate]="fechaHasta"
+              [disabled]="vistaFormulario || objetoContableEnviar"></p-calendar>
+          </div>
+
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar name="fechaHasta" [(ngModel)]="fechaHasta" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+              (ngModelChange)="limpiarResultado()" [required]="true" [minDate]="fechaDesde" [appMinDate]="fechaDesde"
+              [maxDate]="fechaActual" [appMaxDate]="fechaActual" [disabled]="vistaFormulario || objetoContableEnviar"></p-calendar>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="card-footer text-muted" *ngIf="!vistaFormulario && !objetoContableEnviar">
+        <div class="text-right">
+          <div class="text-right">
+            <button type="button" id="btnBuscarListadoVentas" class="btn btn-sm btn-primary" (click)="buscarListadoVentas(frm)">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activarVentas,'col-lg-12 col-md-12 col-sm-12':activarVentas}">
+    <div class="card m-0" *ngIf="listaResultadoVentas?.length>0 && !vistaFormulario && !objetoContableEnviar">
+
+      <div class="card-header p-1">
+        <button id="btnActivarListadoVentas" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS" (click)="activarVentas=!activarVentas"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activarVentas?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.INVENTARIO_VENTAS_LISTADO}}</strong>
+
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirListadoVentas" (click)="imprimirListadoVentas()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarListadoVentas" (click)="exportarListadoVentas()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirListadoVentas" (click)="imprimirListadoVentas()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarListadoVentas" (click)="exportarListadoVentas()"
+              placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card-body" style="padding: 0 0 0 0">
+
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" class="form-control form-control-sm input-filter" size="100" style="font-family: Arial, FontAwesome;"
+                placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100" (input)="gridApi?gridApi.setQuickFilter($event.target.value):null">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="{{constantes.ICON_BUSCAR}}"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaResultadoVentas" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          (gridReady)="onGridReady($event)" (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimencionarColumnas()"
+          (gridSizeChanged)="redimencionarColumnas()" (cellFocused)="filaFocused($event)" (rowSelected)="ventaSeleccionada = $event.node.data"
+          (cellDoubleClicked)="consultarVenta()" [frameworkComponents]="frameworkComponents" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (contextmenu)="$event.preventDefault()">
+        </ag-grid-angular>
+        <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+      </div>
+    </div>
+    <!--Consulta ventas-->
+    <div *ngIf="vistaFormulario">
+      <app-venta-formulario [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        [tipoDocumento]="tipoDocumento" (enviarAccion)="ejecutarAccion($event)"></app-venta-formulario>
+    </div>
+    <!--Consulta contable-->
+    <div *ngIf="objetoContableEnviar">
+      <app-contable-formulario [data]="objetoContableEnviar" (cargandoEstado)="cambiarEstadoCargando($event)"
+        (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivar($event)"></app-contable-formulario>
+    </div>
+  </div>
+
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

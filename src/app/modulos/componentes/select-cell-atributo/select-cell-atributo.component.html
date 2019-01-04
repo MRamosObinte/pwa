@@ -1,0 +1,5 @@
+<select #select class="form-control form-control-sm {{class}}" style="margin: 0.001rem 0.001rem" name="{{name}}" id="{{name}}" [(ngModel)]="value"
+  required (ngModelChange)="ejecutarMetodoDespues()">
+  <option selected [disabled]="obligatorio" value="">SELECCIONE</option>
+  <option selected [ngValue]="item[atributo]" *ngFor="let item of listValues">{{valueFormatted(item)}}</option>
+</select>

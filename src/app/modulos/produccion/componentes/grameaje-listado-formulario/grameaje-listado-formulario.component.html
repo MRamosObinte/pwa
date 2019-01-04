@@ -1,0 +1,49 @@
+<div class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="cambiarActivar()" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activarGramaje?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <strong>{{constantes.PRODUCCION_GRAMAJE_LISTADO}} - {{empresaSeleccionada.empNombre}}</strong>
+    <div class="card-header-actions">
+      <!--BOTON GUARDAR NUEVO -->
+      <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="insertarGrameajeListado()">
+        <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+      <!--BOTON CANCELAR -->
+      <button class="btn btn-sm btn-default mr-1" type="button" (click)="cancelar()" id="btnCancelar">
+        <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}</button>
+    </div>
+  </div>
+  <div class="card-body" style="padding: 0 0 0 0">
+    <div class="row">
+      <div class="col-sm-5 col-md-6">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+            size="100">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-7 col-md-6">
+        <div class="float-right pr-1">
+          <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+            maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+        </div>
+      </div>
+    </div>
+    <!--195px-->
+    <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+      [rowData]="listaResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [rowSelection]="rowSelection"
+      [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+      (gridReady)="onGridReady($event)" (filterChanged)="actualizarFilas()" (rowSelected)="filaSeleccionada = $event.node.data"
+      (cellFocused)="filaFocused($event)" (gridColumnsChanged)="redimencionarColumnas()" (gridSizeChanged)="redimencionarColumnas()"
+      (cellEditingStopped)="terminadoEditar($event)" [rowClassRules]="rowClassRules" [suppressClickEdit]="true"
+      [stopEditingWhenGridLosesFocus]="true">
+    </ag-grid-angular>
+    <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+  </div>
+</div>

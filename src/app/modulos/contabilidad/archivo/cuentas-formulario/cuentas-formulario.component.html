@@ -1,0 +1,89 @@
+<div class="card m-0" *ngIf="vistaFormulario">
+  <div class="card-header">
+    <button class="btn btn-sm btn-primary rounded-0 mr-2" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b>{{constantes.CONTABILIDAD_CUENTAS_IMPORTAR}}</b>
+    <div class="card-header-actions">
+      <button *ngIf="!vistaImportar" id="btnGuardar" type="button" (click)="guardarPlanCuentas(frmPlanContable)" class="btn btn-sm btn-primary mr-2"
+        placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruCrear||cargando"
+        title="{{constantes.ATAJO_GUARDAR}}">
+        <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{isScreamMd?constantes.LABEL_GUARDAR:''}}
+      </button>
+      <button id="btnCancelar" type="button" (click)="cancelarAccion()" class="btn btn-sm btn-default mr-2" placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}"
+        container="body" title="{{constantes.ATAJO_CANCELAR}}" [disabled]="cargando">
+        <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{isScreamMd?constantes.LABEL_CANCELAR:''}}
+      </button>
+      <button id="btnCancelar" type="button" (click)="verEstructura($event)" class="btn btn-sm btn-default mr-2" placement="top"
+        ngbTooltip="{{constantes.TAG_ESTRUCTURA}}" container="body" [disabled]="cargando">
+        <i class="{{constantes.ICON_CONFIGURACION}}" aria-hidden="true"></i> {{isScreamMd?constantes.TAG_ESTRUCTURA:''}}
+      </button>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="form-group form-group-sm m-2" *ngIf="vistaImportar">
+      <label class="control-label">
+        <b>Importar archivo excel</b>
+      </label>
+      <!--Solo admite archivos excel-->
+      <p-fileUpload name="archivoExcel" customUpload="true" (uploadHandler)="cargarDatosDeArchivo($event)" accept=".csv" maxFileSize="1000000"
+        chooseLabel="Escoger" uploadLabel="Subir" cancelLabel="Cancelar">
+      </p-fileUpload>
+    </div>
+    <form [hidden]="vistaImportar" #frmPlanContable='ngForm' autocomplete="off">
+      <p-table #dt [appRowSelector]="indexTable" [appIndexLimit]="listadoFiltradoPlanContableImportado?.length" (updateIndex)="actualizarIndiceTabla($event)"
+        [columns]="columnas" [value]="listadoPlanContableImportado" [scrollable]="true" [style]="{width:'100%'}" scrollHeight="calc(100vh - 14.4vw)"
+        [resizableColumns]="true" [reorderableColumns]="true" [responsive]="true" [(contextMenuSelection)]="cuentaSeleccionada"
+        [contextMenu]="cm" selectionMode="single" [(selection)]="cuentaSeleccionada" (onContextMenuSelect)="generarOpciones()"
+        (onFilter)="onFilterTabla($event)">
+        <ng-template pTemplate="caption">
+          <div class="ui-helper-clearfix">
+            <div style="float:left">
+              <input type="text" class="form-control form-control-sm" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." style="font-family:Arial, FontAwesome; margin-top: 4px;"
+                size="50" (blur)="dt.filterGlobal($event.target.value.toUpperCase(), 'contains')">
+            </div>
+          </div>
+        </ng-template>
+        <ng-template *ngIf="isScreamMd" pTemplate="colgroup" let-columns>
+          <colgroup>
+            <col *ngFor="let col of columns" [style.width]="col.width">
+            <col style="width:90px">
+          </colgroup>
+        </ng-template>
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn pReorderableColumn>
+              {{col.header}}
+              <p-sortIcon [field]="col.field"></p-sortIcon>
+            </th>
+            <th>{{constantes.TAG_OPCIONES}}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-cuenta let-columns="columns" let-index="rowIndex">
+          <tr [pReorderableRow]="index" [pContextMenuRow]="cuenta" [pSelectableRow]="cuenta" class="table-condensed" (click)="indexTable=index"
+            [ngClass]="{'ui-state-highlight': indexTable === index, 'tr-negrita' :cuenta.cuentaCodigo?.length < tamanioEstructura}">
+            <td *ngFor="let col of columns" class="ui-resizable-column ocultar-en-tabla {{col.class}}">
+              <span class="ui-column-title">{{col.header}}</span>
+              <input *ngIf="col.field==='cuentaCodigo'" type="text" [(ngModel)]="cuenta[col.field]" name="{{col.field}}_{{index}}" class="form-control form-control-sm input-in-row"
+                required [appFocus]="indexTable===index && codigoEnfocado" (focus)="codigoEnfocado=true;detectarCambios();"
+                pattern="{{constantes.PATTERN_NUMEROS}}" maxlength="tamanioEstructura">
+              <input *ngIf="col.field==='cuentaDetalle'" type="text" [(ngModel)]="cuenta[col.field]" name="{{col.field}}_{{index}}" class="form-control form-control-sm input-in-row"
+                required (focus)="codigoEnfocado=false;">
+            </td>
+            <td class="text-md-center">
+              <span class="ui-column-title">{{constantes.TAG_OPCIONES}}</span>
+              <button type="button" class="btn btn-primary btn-sm pb-0 pt-0" (click)="cuentaSeleccionada=cuenta;generarOpciones();cm.show($event);$event.stopPropagation()">
+                <i class="{{constantes.ICON_OPCIONES}}"></i>
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </form>
+    <p-contextMenu #cm appendTo="body" [model]="opciones" [baseZIndex]="1100"></p-contextMenu>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

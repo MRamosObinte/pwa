@@ -1,0 +1,122 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <!--FORMULARIO DE FILTRADO-->
+    <div class="card">
+      <div class="card-header">
+        <i class="fa fa-filter"></i>
+        <strong>{{constantes.TITULO_FILTROS}}</strong>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmFiltroOrdenPedido="ngForm" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [(ngModel)]="empresaSeleccionada" class="form-control input-sm" name="empresaSeleccionada" (change)="cambiarempresaSeleccionada();limpiarResultado();"
+              required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <strong>{{constantes.TAG_BODEGA}}</strong>
+              &nbsp;
+              <a (click)="listarBodegas()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_BODEGAS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaBodegas" name="bodega" [showClear]="true" [(ngModel)]="bodegaSeleccionada"
+              (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="bodNombre">
+              <ng-template let-item pTemplate="selectedItem">
+                {{bodegaSeleccionada?.bodNombre}} ( {{bodegaSeleccionada?.bodCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div> {{fs.value.bodNombre}} ({{fs.value.bodCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_DESDE}}</b>
+            </label>
+            <p-calendar name="fechaDesde" [(ngModel)]="fechaDesde" (ngModelChange)="limpiarResultado();" [showIcon]="true"
+              [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" (ngChangeModel)="limpiarResultado()"
+              [required]="true" [disabled]="vistaFormulario" [maxDate]="fechaHasta" [appMaxDate]="fechaHasta"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar name="fechaHasta" [(ngModel)]="fechaHasta" (ngModelChange)="limpiarResultado();" [showIcon]="true"
+              [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" (ngChangeModel)="limpiarResultado()"
+              [required]="true" [disabled]="vistaFormulario" [minDate]="fechaDesde" [maxDate]="fechaActual"
+              [appMinDate]="fechaDesde" [appMaxDate]="fechaActual"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label  ">
+              <strong>{{constantes.TAG_PRODUCTO}}</strong>
+            </label>
+            <input name="proCodigoPrincipal" id="idProducto" [(ngModel)]="productoSeleccionado.proCodigoPrincipal"
+              (change)="limpiarResultado();" pattern="{{constantes.PATTERN_CODIGO}}" class="form-control input-sm mousetrap text-uppercase"
+              placeholder="{{constantes.TAG_OBLIGATORIO}}" maxlength="500" (keydown)="buscarProducto($event)" (blur)="validarProducto()"
+              appUppercase required>
+            <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_ENTERTOMODAL}}"
+              triggers="mouseenter:mouseleave" container="body"></span>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_CATEGORIA}}</strong>
+            </label>
+            <input name="catCodigo" [(ngModel)]="productoSeleccionado.proCategoria" class="form-control input-sm mousetrap text-uppercase"
+              readonly disabled>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_NOMBRE}}</strong>
+            </label>
+            <input name="proNombre" [(ngModel)]="productoSeleccionado.proNombre" class="form-control input-sm mousetrap text-uppercase"
+              readonly disabled>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_UNIDAD_MEDIDA}}</strong>
+            </label>
+            <input name="medDetalle" [(ngModel)]="productoSeleccionado.detalleMedida" class="form-control input-sm mousetrap text-uppercase"
+              readonly disabled>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer">
+        <div class="text-right">
+          <div class="btn-group mr-1">
+            <button id="btnBuscar" type="button" class="btn btn-sm btn-primary" (click)="buscarKardex(frmFiltroOrdenPedido,false)">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="buscarKardex(frmFiltroOrdenPedido,true)">{{constantes.TAG_INCLUIR_TODOS}}</a>
+            </div>
+          </div>
+          <button id="btnCancelarKardex" type="button" class="btn btn-sm btn-default mr-1" (click)="cancelar()"
+            placement="top" ngbTooltip="{{constantes.LABEL_REGRESAR}}" *ngIf="objetoDesdeFuera && mostrarBtnRegresarFomulario"
+            container="body" title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i> {{constantes.LABEL_REGRESAR}}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <!--LISTADO DE ORDEN DE PEDIDO -->
+    <app-kardex-listado [parametrosBusqueda]="busquedaListado" [empresaSeleccionada]="empresaSeleccionada" [datos]="dataListado"
+      (enviarCancelar)="cancelar()" (enviarActivar)="activar=$event" (enviarMostrarBtnRegresarFormulario)="mostrarBtnRegresarFomulario = $event"></app-kardex-listado>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

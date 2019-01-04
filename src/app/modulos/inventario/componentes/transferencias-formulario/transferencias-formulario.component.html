@@ -1,0 +1,198 @@
+<div>
+  <form #frmTransferencia='ngForm' autocomplete="off">
+    <div class="card mb-0">
+      <div class="card-header p-1">
+        <button id="btnActivarTransferencia" class="btn btn-sm btn-primary" (click)="cambiarEstadoActivar(activar)"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <b class="pl-2"> {{tituloForm}} {{constantes.TAG_TRANSFERENCIA}} - </b>
+        <strong class="text-primary">{{empresaSeleccionada.empNombre}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <div class="btn-group mr-1" *ngIf="data.accion === constantes.ACCION_NUEVO">
+              <button type="button" class="btn btn-sm btn-primary" id="btnMayorizarTransferencia" (click)="guardarTransferencia(frmTransferencia,false)"
+                title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="guardarTransferencia(frmTransferencia,true)">
+                  {{constantes.TAG_PENDIENTE}}</a>
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-danger mr-1" id="btnAnularTransferencia" (click)="anularTransferencia()"
+              title="{{constantes.ATAJO_ANULAR}}" *ngIf="data.accion === constantes.ACCION_ANULAR">
+              <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirTransferencia" (click)="imprimirTransferenciaFormulario()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}"
+              *ngIf="data.accion != constantes.ACCION_NUEVO">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelarTransferencia" (click)="confirmacionCerrar()"
+              title="{{constantes.ATAJO_CANCELAR}}">
+              <i class="{{data.accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+                aria-hidden="true"></i>
+            </button>
+          </div>
+          <!--BOTON ANULAR-->
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-danger mr-1" id="btnAnularTransferencia" (click)="anularTransferencia()"
+              title="{{constantes.ATAJO_ANULAR}}" *ngIf="data.accion === constantes.ACCION_ANULAR">
+              <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_ANULAR}}</span>
+            </button>
+            <!--BOTON MAYORIZAR CUANDO ES NUEVO-->
+            <div class="btn-group mr-1" *ngIf="data.accion === constantes.ACCION_NUEVO">
+              <button type="button" class="btn btn-sm btn-primary" id="btnMayorizarTransferencia" (click)="guardarTransferencia(frmTransferencia,false)"
+                title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="guardarTransferencia(frmTransferencia,true)">
+                  {{constantes.TAG_PENDIENTE}}</a>
+              </div>
+            </div>
+            <!--BOTON MAYORIZAR CUANDO SE MODIFICA-->
+            <div class="btn-group" *ngIf="data.accion === constantes.ACCION_MAYORIZAR">
+              <button type="button" class="btn btn-sm btn-primary" id="btnMayorizarTransferencia" (click)="modificarTransferencia(frmTransferencia, false)"
+                title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+                style="margin-right: 3px;">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="modificarTransferencia(frmTransferencia, true)">
+                  {{constantes.TAG_PENDIENTE}}</a>
+              </div>
+            </div>
+            <!--BOTON IMPRIMIR-->
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirTransferencia" (click)="imprimirTransferenciaFormulario()"
+              placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}"
+              *ngIf="data.accion != constantes.ACCION_NUEVO && data.accion != constantes.ACCION_MAYORIZAR">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <!--BOTON CANCELAR - REGRESAR-->
+            <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelarTransferencia" (click)="confirmacionCerrar()"
+              title="{{constantes.ATAJO_CANCELAR}}" ngbTooltip="{{data.accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+              <i class="{{data.accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+                aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{data.accion ===
+                constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-1">
+        <div class="card mb-1" [ngClass]="{'card-accent-danger': transferencia.transPendiente}">
+          <div class="card-header">
+            <strong>{{constantes.TAG_DATOS_GENERALES}}</strong>
+            <div class="card-header-actions">
+              <span class="mr-2 badge badge-pill" [ngClass]="{'bg-danger': transferencia.transPendiente}">
+                {{transferencia.transPendiente?constantes.ETIQUETA_PENDIENTE:''}}
+              </span>
+              <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionTransferencia"
+                aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar" (click)="collpase()">
+                <i class="fa fa-minus"></i>
+              </a>
+            </div>
+          </div>
+          <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0 " id="collapseInformacionTransferencia">
+            <div class="row">
+              <div class="form-group col-lg-6 col-sm-6">
+                <label class="control-label">
+                  <b>{{constantes.TAG_MOTIVO}}</b>
+                </label>
+                <p-dropdown [options]="listadoMotivos" id="inputMotivo" name="motivo" [(ngModel)]="motivoSeleccionado"
+                  required optionLabel="tmDetalle" class="mousetrap" [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR">
+                  <ng-template let-item pTemplate="selectedItem">
+                    {{motivoSeleccionado?.tmDetalle}} ({{motivoSeleccionado?.tmCodigo}})
+                  </ng-template>
+                  <ng-template let-fs pTemplate="item">
+                    <div class="">{{fs.value.tmDetalle}} ({{fs.value.tmCodigo}})</div>
+                  </ng-template>
+                </p-dropdown>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_FECHA}}</strong>
+                  </label>
+                  <p-calendar class="mousetrap calendar" name="fechaTransferencia" inputId="iniFecha" [inputStyleClass]="fechaValido ==false ?'has-error':'' "
+                    [(ngModel)]="transferencia.transFecha" [showIcon]="true" [maxDate]="fechaMax" [appMaxDate]="fechaMax"
+                    dateFormat="dd/mm/yy" [locale]="es" (ngModelChange)="cambiaFecha()" required [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR"></p-calendar>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group form-group-sm" [ngClass]="{'has-error':bodegaSeleccionadaDestino === bodegaSeleccionadaOrigen}">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_BODEGA_ORIGEN}}</strong>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap color-no-disabled" name="cboBodegaOrigen"
+                    [(ngModel)]="bodegaSeleccionadaOrigen" required (ngModelChange)="verificarBodegaValida()"
+                    [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR">
+                    <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="bodega" *ngFor="let bodega of listadoBodegas"> ({{bodega.bodCodigo}})
+                      {{bodega.bodNombre}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group form-group-sm" [ngClass]="{'has-error':bodegaSeleccionadaDestino === bodegaSeleccionadaOrigen}">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_BODEGA_DESTINO}}</strong>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap color-no-disabled" name="cboBodegaDestino"
+                    [(ngModel)]="bodegaSeleccionadaDestino" required (ngModelChange)="verificarBodegaValida()"
+                    [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR">
+                    <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="bodega" *ngFor="let bodega of listadoBodegas"> ({{bodega.bodCodigo}})
+                      {{bodega.bodNombre}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-12 col-md-6">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+                  </label>
+                  <input [appDescripcion]="transferencia.transObservaciones" id="observaciones" appUppercase class="form-control form-control-sm text-uppercase"
+                    type="text" [(ngModel)]="transferencia.transObservaciones" placeholder="{{constantes.TAG_SIN_OBSERVACIONES}}"
+                    (ngModelChange)="transferencia.transObservaciones=transferencia.transObservaciones.trim()" name="obs"
+                    [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--LISTADO-->
+      <div class="card m-1">
+        <div class="card-header">
+          <strong>{{constantes.TAG_DETALLE_TRANSFERENCIA}}</strong>
+        </div>
+        <div class="card-body p-0">
+          <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 595px);" class="ag-theme-balham"
+            [rowData]="listaInvDetalleTran" [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection"
+            [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+            [rowDragManaged]="true" [animateRows]="true" [suppressClickEdit]=true (gridReady)="onGridReady($event)"
+            (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)" (filterChanged)="actualizarFilas()"
+            (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+            [stopEditingWhenGridLosesFocus]="true" [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimencionarColumnas()">
+          </ag-grid-angular>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<p-contextMenu #menuOpciones [model]="opcionesDetalle" appendTo="body"></p-contextMenu>

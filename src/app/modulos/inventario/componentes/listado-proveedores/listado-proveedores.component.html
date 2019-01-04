@@ -1,0 +1,32 @@
+<div class="modal-primary">
+  <div class="modal-header p-2">
+    <h4 class="modal-title">{{constantes.INVENTARIO_PROVEEDORES_LISTADO}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body p-0" *ngIf="listaResultado?.length > 0">
+    <div class="row">
+      <div class="col-sm-5 col-md-6">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}...">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 250px);" class="ag-theme-balham"
+      [rowData]="listaResultado" [columnDefs]="columnDefs" [enableSorting]="true" [multiSortKey]="multiSortKey"
+      [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+      [frameworkComponents]="frameworkComponents" (gridSizeChanged)="redimencionarColumnas()" (gridReady)="onGridReady($event)"
+      (rowSelected)="objectSelect = $event.node.data" (cellFocused)="filaFocused($event)" (cellDoubleClicked)="enviarItem(objectSelect)">
+    </ag-grid-angular>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

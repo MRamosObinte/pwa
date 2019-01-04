@@ -1,0 +1,237 @@
+<div [ngClass]="{'modal-primary': esModal}">
+  <div *ngIf="esModal" class="modal-header p-2">
+    <span class="modal-title">
+      <strong>{{constantes.TAG_PRODUCTO_CATEGORIA}} - {{empresaSeleccionada.empNombre}}
+        ({{empresaSeleccionada.empCodigo}}) {{razonSocial}}
+      </strong>
+    </span>
+    <button type="button" class="close" aria-label="Cerrar" (click)="cerrarCategoria()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="row" [ngClass]="{'modal-body': esModal}">
+    <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5 col-lg-12 col-md-12 col-sm-11">
+      <div class="card m-0 mb-2" *ngIf="!mostrarSubCategoria">
+        <div class="card-header p-1">
+          <i class="{{classTitulo}}"></i>
+          <b>{{frmTitulo}}</b>
+          <div class="card-header-actions" *ngIf="vistaFormulario">
+            <button *ngIf="accion === constantes.ACCION_CREAR" id="btnGuardar" type="button" (click)="guardarProductoCategoria(frmProductoCategoria)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button *ngIf="accion === constantes.ACCION_EDITAR" id="btnGuardar" type="button" (click)="actualizarProductoCategoria(frmProductoCategoria)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button (click)="resetearFormulario()" type="button" class="btn btn-sm btn-default mr-1" [disabled]="cargando"
+              title="{{constantes.ATAJO_CANCELAR}}">
+              <i class="{{constantes.ICON_CANCELAR}}"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+            </button>
+          </div>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <form #frmProductoCategoria="ngForm" autocomplete="off">
+            <div *ngIf="vistaFormulario">
+              <div class="row">
+                <div class="form-group form-group-sm has-feedback col-md-4">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_CODIGO}}</strong>
+                  </label>
+                  <input type="text" class="form-control input-sm" disabled="true" *ngIf="!(accion===constantes.ACCION_CREAR)"
+                    [(ngModel)]="invProductoCategoriaTO.catCodigo" name="catCodigo">
+                  <!--<p *ngIf="!(accion===constantes.ACCION_CREAR)" class="form-control input-sm">{{invProductoCategoriaTO.catCodigo}}</p>-->
+                  <input *ngIf="accion === constantes.ACCION_CREAR" type="text" [appFocus]="accion === constantes.ACCION_CREAR"
+                    name="catCodigo" [(ngModel)]="invProductoCategoriaTO.catCodigo" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                    pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                    required minlength="1" maxlength="30" appUppercase>
+                  <span *ngIf="accion === constantes.ACCION_CREAR" class="fa fa-question-circle form-control-feedback"
+                    placement="right" ngbPopover="{{constantes.MSJ_INFOCODIGO}}" triggers="mouseenter:mouseleave"
+                    container="body"></span>
+                </div>
+                <div class="form-group form-group-sm col-md-8">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_DETALLE}}</strong>
+                  </label>
+                  <input type="text" [appFocus]="accion===constantes.ACCION_EDITAR" name="catDetalle" [(ngModel)]="invProductoCategoriaTO.catDetalle"
+                    (blur)="espacios()" placeholder="{{constantes.TAG_OBLIGATORIO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                    required minlength="1" maxlength="250" appUppercase>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col-md-12">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_SUB_CATEGORIA}}</strong>
+                    &nbsp;
+                    <a (click)="agregarSubCategoria()">
+                      <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                    </a>
+                  </label>
+                  <select class="form-control form-control-sm text-uppercase mousetrap" name="grupo"
+                    [(ngModel)]="subCategoriaSeleccionado.invProductoSubcategoriaPK.scatCodigo" required>
+                    <option value="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="subCategoria.invProductoSubcategoriaPK.scatCodigo" *ngFor="let subCategoria of listadoSubCategoria; let i = index">
+                      {{subCategoria.scatDetalle}} ({{listadoSubCategoria[i].invProductoSubcategoriaPK.scatCodigo}})</option>
+                  </select>
+                </div>
+              </div>
+              <!--mostrarCuenta-->
+              <div *ngIf="mostrarCuenta" class="form-group form-group-sm has-feedback row">
+                <div class="col-md-4">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_CODIGO_CUENTA}}</strong>
+                  </label>
+                  <input name="ctaCodigo" [(ngModel)]="invProductoCategoriaTO.ctaCodigo" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                    pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                    maxlength="500" (keydown)="buscarCuentaContable($event)" (blur)="validarCuentaCodigo()"
+                    appUppercase>
+                  <span *ngIf="!(accion === constantes.ACCION_CONSULTAR)" class="fa fa-question-circle form-control-feedback"
+                    placement="right" ngbPopover="{{constantes.MSJ_COD_CUENTA}}" triggers="mouseenter:mouseleave"
+                    container="body"></span>
+                </div>
+                <div class="col-md-8">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_DETALLE_CUENTA}}</strong>
+                  </label>
+                  <input name="cuentaDetalle" [(ngModel)]="cuentaDetalle" class="form-control form-control-sm mousetrap text-uppercase"
+                    readonly>
+                </div>
+              </div>
+              <div *ngIf="mostrarCuenta" class="text-md-center pb-2">
+                <label>
+                  <input name="catPrecioFijo" [(ngModel)]="invProductoCategoriaTO.catPrecioFijo" type="checkbox">
+                  <b>&nbsp;{{constantes.TAG_PRECIO_FIJO}}</b>
+                </label>
+              </div>
+              <!--Fin de mostrarCuenta-->
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!--Card SubCategoria-->
+      <div class="card m-0 mb-2" *ngIf="vistaFormularioSC">
+        <div class="card-header p-1">
+          <i class="{{classTitulo}}"></i>
+          <b>{{constantes.TITULO_FORM_NUEVO_PRODUCTO_SUBCATEGORIA}}</b>
+          <div class="card-header-actions">
+            <button *ngIf="accionSC === constantes.ACCION_CREAR" id="btnGuardar" type="button" (click)="guardarProductoSubCategoria(frmProductoSubCategoria)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button *ngIf="accionSC === constantes.ACCION_EDITAR" id="btnGuardar" type="button" (click)="actualizarProductoSubCategoria(frmProductoSubCategoria)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button (click)="cancelarSubCategoria()" type="button" class="btn btn-sm btn-default mr-1" [disabled]="cargando"
+              title="{{constantes.ATAJO_CANCELAR}}">
+              <i class="{{constantes.ICON_CANCELAR}}"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+            </button>
+          </div>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <form #frmProductoSubCategoria="ngForm" autocomplete="off">
+            <div class="form-group form-group-sm has-feedback row">
+              <div class="col-md-6">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_CODIGO}}
+                    <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                      autoClose="outside" ngbPopover="{{constantes.MSJ_CODIGO_SUBCATEGORIA}}" container="body"></span>
+                  </strong>
+                </label>
+                <select class="form-control input-sm height-26 mousetrap text-uppercase" name="codSubCategoria"
+                  [(ngModel)]="subCategoria.invProductoSubcategoriaPK.scatCodigo" [disabled]="accionSC===constantes.ACCION_EDITAR">
+                  <option selected *ngFor="let subcategoria of subCategorias">{{subcategoria}}</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_DETALLE}}</strong>
+                </label>
+                <input class="form-control form-control-sm text-uppercase mousetrap" name="detalleSubCategoria"
+                  maxlength="30" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="subCategoria.scatDetalle"
+                  required appUppercase [appFocus]="true">
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-lg-12 col-md-12 col-sm-12" *ngIf="activar">
+      <div class="card m-0" *ngIf="listadoResultado?.length > 0 && !vistaFormulario">
+        <div class="card-header p-1">
+          <b>{{mostrarSubCategoria ? constantes.INVENTARIO_SUBCATEGORIA_PRODUCTO_LISTADO :
+            constantes.INVENTARIO_CATEGORIA_PRODUCTO_LISTADO}}</b>
+          <div class="card-header-actions">
+            <div class="btn-group">
+              <button id="btnNuevo" class="btn btn-sm btn-primary mr-1" type="button" (click)="mostrarSubCategoria ? nuevoProductoSubCategoria() : nuevoProductoCategoria()"
+                container="body" title="{{constantes.ATAJO_NUEVO}}" ngbTooltip="{{constantes.LABEL_NUEVO}}" *ngIf="mostrarSubCategoria==true ? (listadoSubCategoria.length==11 ? false : true) : true">
+                <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+              </button>
+              <button (click)="atrasFormulario()" type="button" class="btn btn-sm btn-default mr-1" [disabled]="cargando"
+                title="{{constantes.ATAJO_CANCELAR}}" *ngIf="mostrarSubCategoria">
+                <i class="{{constantes.ICON_CANCELAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+              </button>
+              <button id="btnImprimir" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}"
+                container="body" (click)="imprimir()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruImprimir"
+                title="{{constantes.ATAJO_IMPRIMIR}}" *ngIf="!mostrarSubCategoria">
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+              </button>
+              <button id="btnExportar" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}"
+                container="body" (click)="exportar()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar"
+                title="{{constantes.ATAJO_EXPORTAR}}" *ngIf="!mostrarSubCategoria">
+                <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="row">
+            <div class="col-sm-5 col-md-6">
+              <div class="input-group p-1">
+                <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                  size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                  size="100">
+                <div class="input-group-append">
+                  <span class="input-group-text">
+                    <i class="{{constantes.ICON_BUSCAR}}"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-7 col-md-6">
+              <div class="float-right pr-1">
+                <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                  maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+              </div>
+            </div>
+          </div>
+          <!--Tabla-->
+          <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+            [rowData]="mostrarSubCategoria ? listadoSubCategoria : listadoResultado" [columnDefs]="columnDefsSelected"
+            [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection" [enableColResize]="true"
+            [components]="components" [context]="context" [frameworkComponents]="frameworkComponents" (gridSizeChanged)="redimencionarColumnas()"
+            (gridReady)="onGridReady($event)" (rowSelected)="mostrarSubCategoria ? subCategoria : objetoSeleccionado = $event.node.data"
+            (cellContextMenu)="mostrarContextMenu($event.data, $event.event)" (contextmenu)="$event.preventDefault()"
+            (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimencionarColumnas()">
+          </ag-grid-angular>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p-contextMenu #menuOpciones appendTo="body" [model]="opciones" [baseZIndex]="1100"></p-contextMenu>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

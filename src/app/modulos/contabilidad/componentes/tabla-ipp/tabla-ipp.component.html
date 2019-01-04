@@ -1,0 +1,27 @@
+<div *ngIf="listadoResultado?.length > 0">
+  <div class="row">
+    <div class="col-sm-5 col-md-6">
+      <div class="input-group p-1">
+        <input [(ngModel)]="filtroGlobal" type="text" class="form-control form-control-sm input-filter mousetrap" style="font-family: Arial, FontAwesome"
+          placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100" (input)="filtrarRapido()">
+        <div class="input-group-append">
+          <button class="btn btn-sm btn-primary" (click)="filtrarRapido()" type="button"> <i class="{{constantes.ICON_BUSCAR}}"></i></button>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-7 col-md-6">
+      <div class="float-right pr-1">
+        <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+          maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+      </div>
+    </div>
+  </div>
+  <!--195px-->
+  <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listadoResultado"
+    [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+    [enableColResize]="true" [context]="context" (gridSizeChanged)="redimencionarColumnas()" (gridReady)="onGridReady($event)"
+    (filterChanged)="onFilterChanged($event)" (gridColumnsChanged)="redimencionarColumnas()"  [frameworkComponents]="frameworkComponents">
+  </ag-grid-angular>
+
+  <app-list-detail *ngIf="act" [rowData]="listaResultado" [columnDefs]="columnDefs"></app-list-detail>
+</div>

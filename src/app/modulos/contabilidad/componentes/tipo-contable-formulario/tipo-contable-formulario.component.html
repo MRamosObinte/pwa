@@ -1,0 +1,84 @@
+<form #frmTipoContableDatos='ngForm' autocomplete="off" class="card m-0">
+  <fieldset>
+    <div class="card-header p-1">
+      <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+        title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <b class="pl-2"> {{tituloForm}} </b>
+      <div class="card-header-actions">
+        <!--BOTON GUARDAR NUEVO -->
+        <button *ngIf="accion === constantes.ACCION_CREAR" type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar"
+          (click)="insertarTipoContable(frmTipoContableDatos)">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+        <!--BOTON GUARDAR MODIFICADO -->
+        <button *ngIf="accion === constantes.ACCION_EDITAR" type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar"
+          (click)="actualizarTipoContable(frmTipoContableDatos)">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+        <!--BOTON CANCELAR -->
+        <button class="btn btn-sm btn-default mr-1" type="button" (click)="cancelar()" id="btnCancelar">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}</button>
+      </div>
+    </div>
+    <!--FORMULARIO TIPO CONTABLE -->
+    <div class="card-body p-1">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseTipoContable"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseTipoContable">
+          <div class="row">
+            <!--CODIGO -->
+            <div class="form-group col-lg-6 col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_CODIGO}}</b>
+              </label>
+              <input [appFocus]="accion === constantes.ACCION_CREAR" name="codigo" [(ngModel)]="conTipoTO.tipCodigo"
+                pattern="{{constantes.PATTERN_CODIGO}}" [disabled]="accion !== constantes.ACCION_CREAR" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                class="form-control text-uppercase form-control-sm mousetrap" required maxlength="20" (ngModelChange)="conTipoTO.tipCodigo = conTipoTO.tipCodigo.toUpperCase()">
+            </div>
+            <!-- DETALLE -->
+            <div class="form-group col-lg-6 col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_DETALLE}}</b>
+              </label>
+              <input [appFocus]="accion === constantes.ACCION_EDITAR" class="form-control text-uppercase form-control-sm mousetrap"
+                name="detalle" maxlength="150" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="conTipoTO.tipDetalle"
+                (ngModelChange)="conTipoTO.tipDetalle = conTipoTO.tipDetalle.toUpperCase()" id="detalle" required
+                [disabled]="accion == constantes.ACCION_CONSULTAR">
+            </div>
+            <!--TIPO -->
+            <div class="form-group col-lg-6 col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_TIPO}}</b>
+              </label>
+              <select class="form-control text-uppercase form-control-sm mousetrap" name="tipo" required [(ngModel)]="conTipoTO.tipTipoPrincipal"
+                [disabled]="accion == constantes.ACCION_CONSULTAR">
+                <option [ngValue]="tipo" *ngFor="let tipo of listaTipos">{{tipo}}</option>
+              </select>
+            </div>
+            <!--MODULO -->
+            <div class="form-group col-lg-6 col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_MODULO}}</b>
+              </label>
+              <select class="form-control text-uppercase form-control-sm mousetrap" name="modulo" required [(ngModel)]="conTipoTO.tipModulo"
+                [disabled]="accion == constantes.ACCION_CONSULTAR">
+                <option [ngValue]="modulo" *ngFor="let modulo of listaModulos">{{modulo}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

@@ -1,0 +1,121 @@
+<div class="modal-primary">
+  <div class="modal-header p-2">
+    <h4 class="modal-title">{{constantes.CONTABILIDAD_CUENTAS_ESTRUCTURA}}</h4>
+    <button type="button" class="close" aria-label="Cerrar" (click)="activeModal.dismiss('Cerrar Modal')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body p-2" [ngClass]="{'block-div':accion===constantes.ACCION_CONSULTAR}">
+    <div class="card mb-0">
+      <div class="card-header p-1">
+        <b>{{constantes.TITULO_CONFIGURACION_PLAN_CONTABLE}}: {{empresaSeleccionada.empNombre}}</b>
+        <div class="card-header-actions">
+          <div class="btn-group">
+            <button *ngIf="accion===constantes.ACCION_CREAR" type="button" class="btn btn-primary mr-1 btn-sm"
+              placement="top" container="body" (click)="insertarEstructura(frmConfiguracionPlan)">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline">{{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button *ngIf="accion===constantes.ACCION_EDITAR" placement="top" container="body" type="button" class="btn btn-primary mr-1 btn-sm"
+              (click)="actualizarEstructura(frmConfiguracionPlan)">
+              <i class="{{constantes.ICON_GUARDAR}}"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <button type="button" placement="top" container="body" class="btn btn-default mr-1 btn-sm" (click)="activeModal.dismiss('Cerrar Modal')">
+              <i class="{{constantes.ICON_CANCELAR}}"></i>
+              <span class="d-none d-md-inline">{{constantes.LABEL_CANCELAR}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 col-sm-12">
+            <!--Formulario de configuracion-->
+            <form #frmConfiguracionPlan='ngForm' autocomplete="off">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_EMPRESA}}</b>
+                </label>
+                <p class="form-control form-control-sm">{{empresaSeleccionada.empNombre}}
+                  ({{empresaSeleccionada.empCodigo}})</p>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_GRUPO}} 1</b>
+                </label>
+                <input type="text" [(ngModel)]="conEstructura.estGrupo1" name="estGrupo1" class="form-control form-control-sm"
+                  placeholder="{{constantes.TAG_OBLIGATORIO}}" (blur)="generarVistaPrevia()" appMinNumber="1" maxlength="1"
+                  appEnteroPositivo required>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_GRUPO}} 2</b>
+                </label>
+                <input type="text" [(ngModel)]="conEstructura.estGrupo2" name="estGrupo2" class="form-control form-control-sm"
+                  placeholder="{{constantes.TAG_OBLIGATORIO}}" (blur)="generarVistaPrevia()" appMinNumber="1" maxlength="1"
+                  appEnteroPositivo required>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_GRUPO}} 3</b>
+                </label>
+                <input type="text" [(ngModel)]="conEstructura.estGrupo3" name="estGrupo3" class="form-control form-control-sm"
+                  placeholder="{{constantes.TAG_OBLIGATORIO}}" (blur)="generarVistaPrevia()" appMinNumber="1" maxlength="1"
+                  appEnteroPositivo required>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_GRUPO}} 4</b>
+                </label>
+                <input type="text" [(ngModel)]="conEstructura.estGrupo4" name="estGrupo4" class="form-control form-control-sm"
+                  placeholder="{{constantes.TAG_OBLIGATORIO}}" (blur)="generarVistaPrevia()" appMinNumber="1" maxlength="1"
+                  appEnteroPositivo required>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_GRUPO}} 5</b>
+                </label>
+                <input type="text" [(ngModel)]="conEstructura.estGrupo5" name="estGrupo5" class="form-control form-control-sm"
+                  (blur)="generarVistaPrevia()" maxlength="1" appEnteroPositivo>
+              </div>
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_GRUPO}} 6</b>
+                </label>
+                <input type="text" [(ngModel)]="conEstructura.estGrupo6" name="estGrupo6" class="form-control form-control-sm"
+                  (blur)="generarVistaPrevia()" maxlength="1" appEnteroPositivo>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-8 col-sm-12">
+            <div class="card">
+              <div class="card-header">
+                <b>Vista previa</b>
+              </div>
+              <div class="card-body collapse show">
+                <table class="table table-responsive-sm table-sm" style="width: 100%">
+                  <thead>
+                    <tr>
+                      <th>Código</th>
+                      <th>Detalle</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let cuenta of listaEjemplo" [ngClass]="{'tr-negrita': cuenta.cuentaCodigo.length < tamanioEstructura}">
+                      <td>{{cuenta.cuentaCodigo}}</td>
+                      <td>{{cuenta.cuentaDetalle}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

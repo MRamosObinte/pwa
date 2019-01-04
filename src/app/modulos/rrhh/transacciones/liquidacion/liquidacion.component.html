@@ -1,0 +1,347 @@
+<form #frmLiquidacion='ngForm' autocomplete="off">
+  <div class="card m-0">
+    <div class="card-header">
+      <button id="btnActivarLiquidacion" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS && esContable" (click)="cambiarActivar()"
+        type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activarLiquidacion?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <strong> {{titulo}}</strong>
+      <strong class="text-primary">: {{rhRol.rhEmpleado.empNombres}}</strong>
+      <div class="card-header-actions" *ngIf="!esContable">
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarLiquidacion" (click)="guardarLiquidacion(frmLiquidacion)"
+          title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+        </button>
+      </div>
+      <div class="card-header-actions" *ngIf="esContable">
+        <app-botones-accion [conContable]="conContableCopia" [data]="data" (enviarAccion)="accionesBotones($event)"></app-botones-accion>
+      </div>
+    </div>
+    <fieldset [disabled]="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">
+      <div class="card-body p-1">
+        <div *ngIf="esContable">
+          <app-contable-cabecera [data]="data" [conContable]="conContableCopia" [tipoSeleccionado]="tipoSeleccionado"
+            [empresaSeleccionada]="empresaSeleccionada" (accionFechaValido)="fechaContableValido = $event"></app-contable-cabecera>
+        </div>
+        <!--Informacion trabajador-->
+        <div class="card">
+          <div class="card-header text-white bg-primary">
+            <b> {{constantes.TAG_INFORMACION_TRABAJADOR}}</b>
+          </div>
+          <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0">
+            <div class="row">
+              <!--Empresa-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_EMPRESA}}</b>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+                    (ngModelChange)="cambiarEmpresaSeleccionada()">
+                    <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                      ({{empresa.empCodigo}})
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <!--Identificacion-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_NUMERO_IDENTIFICACION}}</strong>
+                  </label>
+                  <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion !== constantes.ACCION_CREAR">{{rhRol.rhEmpleado.rhEmpleadoPK.empId}}</label>
+                  <input [appFocus]="true" id="empleado" class="form-control input-sm text-uppercase mousetrap" name="empleado"
+                    required maxlength="20" placeholder="{{constantes.TAG_OBLIGATORIO}}" (keydown)="buscarEmpleado($event)"
+                    (blur)="validarEmpleado()" [(ngModel)]="rhRol.rhEmpleado.rhEmpleadoPK.empId" [ngbTooltip]="rhRol.rhEmpleado.empNombres ? rhRol.rhEmpleado.empNombres : null"
+                    *ngIf="accion === constantes.ACCION_CREAR">
+                  <span class="fa fa-question-circle form-control-feedback" placement="left" ngbPopover="{{constantes.MSJ_COINCIDENCIA_EMPLEADO}}"
+                    triggers="mouseenter:mouseleave" container="body" *ngIf="accion === constantes.ACCION_CREAR"></span>
+                </div>
+              </div>
+              <!--Cargo-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_CARGO}}</strong>
+                  </label>
+                  <label class="form-control form-control-sm text-uppercase label-input" *ngIf="!rhRol.rhEmpleado.empCargo">{{constantes.TAG_OBLIGATORIO}}</label>
+                  <label class="form-control form-control-sm text-uppercase label-input" *ngIf="rhRol.rhEmpleado.empCargo">{{rhRol.rhEmpleado.empCargo}}</label>
+                </div>
+              </div>
+              <!--Fecha registro-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm" [ngClass]="{ 'has-error':!periodoAbierto}">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_FECHA_REGISTRO}}</b>
+                  </label>
+                  <p-calendar id="fechaRegistro" inputId="fechaRegistro" name="fechaRegistro" [(ngModel)]="fechaRegitro"
+                    [minDate]="fechaUltimoSueldo" [appMinDate]="fechaUltimoSueldo" [maxDate]="fechaActual" [appMaxDate]="fechaActual"
+                    dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true" (onBlur)="validarPeriodoAbierto();validarFechas()"></p-calendar>
+                </div>
+              </div>
+              <!--Fecha fin labores-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm" [ngClass]="{ 'has-error':!fechaValido}">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_FECHA_FIN_LABORES}}</b>
+                  </label>
+                  <p-calendar id="fechaFinLabores" inputId="fechaFinLabores" name="fechaFinLabores" [(ngModel)]="fechaFinLabores"
+                    dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true" (ngModelChange)="validarFechas()"
+                    (onBlur)="validarFechas()"></p-calendar>
+                </div>
+              </div>
+              <!--motivo salida-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_MOTIVO_SALIDA}}</b>
+                  </label>
+                  <select id="motivoSalida" class="form-control form-control-sm mousetrap" name="motivoSalida"
+                    [(ngModel)]="rhRol.rhEmpleado.empMotivoSalida" required>
+                    <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="motivoSalida" *ngFor="let motivoSalida of listaMotivos">{{motivoSalida}}
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <!--Forma pago-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm has-feedback">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_FORMA_PAGO}}</b>
+                    &nbsp;
+                    <a (click)="listarFormasDePago()" *ngIf="accion === constantes.ACCION_CREAR">
+                      <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                        container="body"></span>
+                    </a>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap" name="formaPago" [(ngModel)]="formaPagoSeleccionada"
+                    required (ngModelChange)="validarDocumento()">
+                    <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="formaPago" *ngFor="let formaPago of listaFormaPago">{{formaPago.fpDetalle}}
+                      ({{formaPago.ctaCodigo}})
+                    </option>
+                  </select>
+                </div>
+              </div>
+              <!--Documento-->
+              <div class="col-lg-3">
+                <div class="form-group form-group-sm" [ngClass]="{ 'has-error':!documentoValido}">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_NUMERO_DOCUMENTO}}</b>
+                  </label>
+                  <input id="nroDocumento" class="form-control form-control-sm text-uppercase mousetrap" type="text"
+                    [(ngModel)]="rhRol.rolDocumento" name="nroDocumento" placeholder="{{constantes.TAG_OPCIONAL}}"
+                    maxlength="100" appUppercase (blur)="validarDocumento()">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--Informacion liquidacion-->
+        <div class="card">
+          <div class="card-header text-white bg-primary">
+            <b> {{constantes.TAG_INFORMACION_LIQUIDACION}}</b>
+          </div>
+          <div class="card-body p-1">
+
+            <!--Ingresos-->
+            <div class="card">
+              <div class="card-header">
+                <b> {{constantes.TAG_INGRESOS}}</b>
+                <div class="card-header-actions">
+                  <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseIngresos"
+                    aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                    <i class="fa fa-minus"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseIngresos">
+                <div class="row">
+                  <!--Saldo anterior-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_SALDO_ANTERIOR}}</strong>
+                      </label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="!rhRol.rhEmpleado.empSaldoAnterior">0.00</label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="rhRol.rhEmpleado.empSaldoAnterior">{{rhRol.rhEmpleado.empSaldoAnterior}}</label>
+                    </div>
+                  </div>
+                  <!--xiii sueldo-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.RRHH_XIII_SUELDO}}</strong>
+                      </label>
+                      <input name="xiiiSueldo" type="text" class="form-control form-control-sm text-right" [(ngModel)]="rhRol.rolLiqXiii"
+                        [appAutonumeric2]="rhRol.rolLiqXiii" value="{{rhRol.rolLiqXiii}}" (updateValue)="rhRol.rolLiqXiii = $event"
+                        [appMinNumber]="0" required (blur)="calcularTotal()" maxlength="9">
+                    </div>
+                  </div>
+                  <!--xiv sueldo-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.RRHH_XIV_SUELDO}}</strong>
+                      </label>
+                      <input name="xivSueldo" type="text" class="form-control form-control-sm text-right" [(ngModel)]="rhRol.rolLiqXiv"
+                        [appAutonumeric2]="rhRol.rolLiqXiv" value="{{rhRol.rolLiqXiv}}" (updateValue)="rhRol.rolLiqXiv = $event"
+                        [appMinNumber]="0" required (blur)="calcularTotal()" maxlength="9">
+                    </div>
+                  </div>
+                  <!--vacaciones-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_VACACIONES}}</strong>
+                      </label>
+                      <input name="vacaciones" type="text" class="form-control form-control-sm text-right" [(ngModel)]="rhRol.rolLiqVacaciones"
+                        [appAutonumeric2]="rhRol.rolLiqVacaciones" value="{{rhRol.rolLiqVacaciones}}" (updateValue)="rhRol.rolLiqVacaciones = $event"
+                        [appMinNumber]="0" required (blur)="calcularTotal()" maxlength="9">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Descuentos-->
+            <div class="card">
+              <div class="card-header">
+                <b> {{constantes.TAG_DESCUENTOS}}</b>
+                <div class="card-header-actions">
+                  <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDescuentos"
+                    aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                    <i class="fa fa-minus"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseDescuentos">
+                <div class="row">
+                  <!--Saldo anterior-->
+                  <div class="col-lg-3" *ngIf="activarNegativo">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_SALDO_ANTERIOR}}</strong>
+                      </label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="!rhRol.rhEmpleado.empSaldoAnterior">0.00</label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="rhRol.rhEmpleado.empSaldoAnterior">{{rhRol.rhEmpleado.empSaldoAnterior}}</label>
+                    </div>
+                  </div>
+                  <!--Anticipos-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_ANTICIPOS}}</strong>
+                      </label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="!rhRol.rhEmpleado.empSaldoAnticipos">0.00</label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="rhRol.rhEmpleado.empSaldoAnticipos">{{rhRol.rhEmpleado.empSaldoAnticipos}}</label>
+                    </div>
+                  </div>
+                  <!--Prestamos-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_PRESTAMOS}}</strong>
+                      </label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="!rhRol.rhEmpleado.empSaldoPrestamos">0.00</label>
+                      <label class="form-control form-control-sm text-right label-input" *ngIf="rhRol.rhEmpleado.empSaldoPrestamos">{{rhRol.rhEmpleado.empSaldoPrestamos}}</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Indemnizaciones-->
+            <div class="card">
+              <div class="card-header">
+                <b> {{constantes.TAG_INDEMNIZACIONES}}</b>
+                <div class="card-header-actions">
+                  <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseIndemnizaciones"
+                    aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+                    <i class="fa fa-minus"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseIndemnizaciones">
+                <div class="row">
+                  <!--Salario digno-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_SALARIO_DIGNO}}</strong>
+                      </label>
+                      <input name="salarioDigno" type="text" class="form-control form-control-sm text-right"
+                        [(ngModel)]="rhRol.rolLiqSalarioDigno" [appAutonumeric2]="rhRol.rolLiqSalarioDigno" value="{{rhRol.rolLiqSalarioDigno}}"
+                        (updateValue)="rhRol.rolLiqSalarioDigno = $event" [appMinNumber]="0" required (blur)="calcularTotal()"
+                        maxlength="9">
+                    </div>
+                  </div>
+                  <!--Bonificación desahucio 25%-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_BONIFICACION_DESAHUCIO_25}}</strong>
+                      </label>
+                      <input name="bonDesahucio25" type="text" class="form-control form-control-sm text-right"
+                        [(ngModel)]="rhRol.rolLiqDesahucio" [appAutonumeric2]="rhRol.rolLiqDesahucio" value="{{rhRol.rolLiqDesahucio}}"
+                        (updateValue)="rhRol.rolLiqDesahucio = $event" [appMinNumber]="0" required (blur)="calcularTotal()"
+                        maxlength="9">
+                    </div>
+                  </div>
+                  <!--Despido intempestivo-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_DESPIDO_INTEMPESTIVO}}</strong>
+                      </label>
+                      <input name="despidoIntem" type="text" class="form-control form-control-sm text-right"
+                        [(ngModel)]="rhRol.rolLiqDesahucioIntempestivo" [appAutonumeric2]="rhRol.rolLiqDesahucioIntempestivo"
+                        value="{{rhRol.rolLiqDesahucioIntempestivo}}" (updateValue)="rhRol.rolLiqDesahucioIntempestivo = $event"
+                        [appMinNumber]="0" required (blur)="calcularTotal()" maxlength="9">
+                    </div>
+                  </div>
+                  <!--Bonificación voluntaria-->
+                  <div class="col-lg-3">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_BONIFICACION_VOLUNTARIA}}</strong>
+                      </label>
+                      <input name="BonVoluntaria" type="text" class="form-control form-control-sm text-right"
+                        [(ngModel)]="rhRol.rolLiqBonificacion" [appAutonumeric2]="rhRol.rolLiqBonificacion" value="{{rhRol.rolLiqBonificacion}}"
+                        (updateValue)="rhRol.rolLiqBonificacion = $event" [appMinNumber]="0" required (blur)="calcularTotal()"
+                        maxlength="9">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!--Observaciones-->
+            <div class="card">
+              <div class="card-body">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_OBSERVACIONES}} </strong>
+                  </label>
+                  <input id="observaciones" name="observaciones" [(ngModel)]="rhRol.rolObservaciones" placeholder="{{constantes.TAG_OPCIONAL}}"
+                    class="form-control form-control-sm text-uppercase mousetrap" maxlength="1000" appUppercase>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </fieldset>
+    <div class="card-footer">
+      <h5 class="text-right"><strong>{{constantes.TAG_TOTAL_PUNTOS}} {{totalLiquidacion | number:'1.2-2'}}</strong></h5>
+    </div>
+
+  </div>
+</form>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

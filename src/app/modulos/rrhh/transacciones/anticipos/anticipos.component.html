@@ -1,0 +1,134 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmAnticipos='ngForm' name="frmAnticipos" class="card m-0 mb-2">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--Empresa-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [appFocus]="true" class="form-control form-control-sm mousetrap" name="empresa" required
+              [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})
+              </option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_SECTOR}}</b>
+              &nbsp;
+              <a (click)="listarSectores()" *ngIf="!vistaFormulario">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="sectores" name="sector" [showClear]="true" [(ngModel)]="sectorSeleccionado"
+              optionLabel="secNombre" (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" class="mousetrap text-uppercase"
+              [disabled]="vistaFormulario">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.RRHH_CATEGORIAS}}</b>
+              &nbsp;
+              <a (click)="listarCategorias()" *ngIf="!vistaFormulario">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CATEGORIAS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="categorias" name="categoria" [showClear]="true" [(ngModel)]="categoriaSeleccionada"
+              optionLabel="catNombre" (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" class="mousetrap text-uppercase"
+              [disabled]="vistaFormulario">
+              <ng-template let-item pTemplate="selectedItem">
+                {{categoriaSeleccionada?.catNombre}}
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.catNombre}}</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_MOTIVO}}</b>
+              &nbsp;
+              <a (click)="listarMotivos()" *ngIf="!vistaFormulario">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="motivos" name="motivo" [required]="true" [(ngModel)]="motivoSeleccionado"
+              optionLabel="rhAnticipoMotivoPK.motDetalle" (ngModelChange)="limpiarResultado();" placeholder="{{constantes.TAG_TODOS}}"
+              class="mousetrap text-uppercase" [disabled]="vistaFormulario">
+              <ng-template let-item pTemplate="selectedItem">
+                {{motivoSeleccionado?.rhAnticipoMotivoPK.motDetalle}}
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.rhAnticipoMotivoPK.motDetalle}}</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_FECHA}}</b>
+            </label>
+            <p-calendar class="mousetrap calendar" name="fecha" [inputStyleClass]="isFechaValido == false ? 'has-error height-26' : 'height-26' "
+              [(ngModel)]="fechaActual" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+              [required]="true" (ngModelChange)="limpiarResultado();cambioLaFecha()" placeholder="DD/MM/YYYY"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.INVENTARIO_FORMA_PAGO}}</b>
+              &nbsp;
+              <a (click)="listarFormasDePago()" *ngIf="!vistaFormulario">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_FORMAS_PAGO}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="formasDePago" name="formaPago" [showClear]="true" [(ngModel)]="fpSeleccionada"
+              optionLabel="fpDetalle" (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" class="mousetrap text-uppercase"
+              [disabled]="vistaFormulario">
+              <ng-template let-item pTemplate="selectedItem">
+                {{fpSeleccionada?.fpDetalle}}
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.fpDetalle}}</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group">
+              <button type="button" id="buscar" class="btn btn-sm btn-primary" (click)="buscar(frmAnticipos) " title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_GENERAR}}" aria-hidden="true"></i> {{constantes.LABEL_GENERAR}}</button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaFormulario">
+      <app-anticipos-formulario [empresaSeleccionada]="empresaSeleccionada" [parametrosFormulario]="parametrosFormulario"
+        [formasDePago]="formasDePago" (enviarAccion)="ejecutarAccion($event)"></app-anticipos-formulario>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

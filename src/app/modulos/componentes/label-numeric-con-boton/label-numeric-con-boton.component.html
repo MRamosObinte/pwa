@@ -1,0 +1,9 @@
+<div class="input-group">
+  <label class="form-control form-control-sm text-right mousetrap input-label">{{value | number : '1.2-2'}}</label>
+  <span class="input-group-append">
+    <button #button class="btn btn-primary btn-sm pb-0 pt-0 pl-1 pr-1" tabindex='-1' id="{{id}}" name="{{name}}" type="button"
+      (click)="accionAdicional()" title="{{title}}" [disabled]="!habilitarBtn">
+      <i class="{{clase}}" aria-hidden="true"></i>
+    </button>
+  </span>
+</div>

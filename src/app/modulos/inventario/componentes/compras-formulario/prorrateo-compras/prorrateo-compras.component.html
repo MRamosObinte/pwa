@@ -1,0 +1,138 @@
+<form #frmDistribucion='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header" style="padding: 0.5rem 0.5rem;">
+    <button id="btnActivarProrrateo" class="btn btn-sm btn-primary" *ngIf="!screamXS" (click)="cambiarEstadoActivar()"
+      type="button">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{constantes.TAG_PRORRATEO_COMPRAS}} - {{empresaSeleccionada?.empNombre}}</b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Restaurar-->
+        <button id="btnGuardarProrrateo" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_GUARDAR}}"
+          (click)="guardar(frmDistribucion)">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarProrrateo"
+          ngbTooltip="{{constantes.LABEL_CANCELAR}}" (click)="cancelar()">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Imprimir-->
+        <button id="btnGuardarProrrateo" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_GUARDAR}}"
+          (click)="guardar(frmDistribucion)">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarProrrateo"
+          (click)="cancelar()" ngbTooltip="{{constantes.LABEL_CANCELAR}}">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+          {{constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-1">
+    <fieldset>
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_PRODUCTO_INFORMACION}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseProducto"
+              aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseProducto">
+          <div class="row">
+            <div class="form-group form-group-sm col-md-3 col-sm-6 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_PRODUCTO}}</strong>
+              </label>
+              <input type="text" [appFocus]="true" (keydown)="abrirModalProducto($event)" appUppercase class="form-control form-control-sm text-uppercase mousetrap"
+                id="producto" name="producto" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="codigoPrincipal"
+                (blur)="validarProducto()" required>
+            </div>
+            <div class="form-group form-group-sm col-md-3 col-sm-6 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_NOMBRE}}</strong>
+              </label>
+              <input type="text" appUppercase class="form-control form-control-sm text-uppercase mousetrap" id="proNombre"
+                name="proNombre" [(ngModel)]="invProducto.proNombre" disabled required>
+            </div>
+            <div class="form-group form-group-sm col-md-3 col-sm-6 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_MEDIDA}}</strong>
+              </label>
+              <input type="text" appUppercase class="form-control form-control-sm text-uppercase mousetrap" id="proMedida"
+                name="proMedida" [(ngModel)]="invProducto.detalleMedida" disabled required>
+            </div>
+            <div class="form-group form-group-sm col-md-3 col-sm-6 has-feedback pr-2">
+              <label>
+                <strong>{{constantes.TAG_CANTIDAD}}</strong>
+              </label>
+              <input type="text" name="cantidad" [appAutonumeric]="configAutonumeric" [appAutonumericValue]="cantidad"
+                value="{{cantidad}}" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="cantidad" class="form-control form-control-sm text-uppercase mousetrap text-right"
+                required>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="text-center">
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" id="op1" name="prorrateoTipo" class="custom-control-input" value="CP" [(ngModel)]="prorrateoTipo"
+              (ngModelChange)="onSelectionChanged()">
+            <label class="custom-control-label" for="op1"> <b>{{constantes.TAG_PRORRATEO_POR_CP}}</b></label>
+          </div>
+          <div class="custom-control custom-radio custom-control-inline">
+            <input type="radio" id="op2" name="prorrateoTipo" class="custom-control-input" value="CC" [(ngModel)]="prorrateoTipo"
+              (ngModelChange)="onSelectionChanged()">
+            <label class="custom-control-label" for="op2"><b>{{constantes.TAG_PRORRATEO_POR_CC}}</b></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="card mb-1" *ngIf="listaHectarajes?.length>0">
+      <div class="card-header">
+        <strong>{{constantes.TAG_DETALLE_CENTRO_PRODUCCION}}</strong>
+      </div>
+      <div class="card-body m-0 p-0">
+        <ag-grid-angular #agGridCP id="agGridCP" style="width: 100%; height: calc(100vh - 850px);" class="ag-theme-balham"
+          [rowData]="listaHectarajes" [columnDefs]="columnDefsCP" [enableSorting]="true" [rowSelection]="rowSelection"
+          [enableColResize]="true" [components]="components" [context]="context" (gridReady)="onGridReadyCP($event)"
+          [overlayNoRowsTemplate]="noData" [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()"
+          (selectionChanged)="onSelectionChanged()">
+        </ag-grid-angular>
+      </div>
+    </div>
+
+    <div class="card mb-1" *ngIf="listadoPiscinas?.length>0 && prorrateoTipo === 'CC'">
+      <div class="card-header">
+        <strong>{{constantes.TAG_DETALLE_CENTRO_COSTO}}</strong>
+      </div>
+      <div class="card-body m-0 p-0">
+        <ag-grid-angular #agGridCC id="agGridCC" style="width: 100%; height: calc(100vh - 570px);" class="ag-theme-balham"
+          [rowData]="listadoPiscinas" [columnDefs]="columnDefsCC" [enableSorting]="true" [rowSelection]="rowSelection"
+          [enableColResize]="true" [components]="components" [context]="context" (gridReady)="onGridReady($event)"
+          [overlayNoRowsTemplate]="noData" [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()">
+        </ag-grid-angular>
+      </div>
+    </div>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

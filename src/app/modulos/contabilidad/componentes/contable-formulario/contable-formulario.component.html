@@ -1,0 +1,190 @@
+<div *ngIf="mostrarContable">
+  <form #frmContableDetalle="ngForm" novalidate autocomplete="off">
+    <div class="card mb-0">
+      <div class="card-header p-1">
+        <button id="btnActivarContable" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS" (click)="cambiarEstadoActivar()"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{tituloForm}} {{objetoContable.tipoSeleccionado.tipDetalle}} No.
+          {{conContable.conContablePK.conNumero}}:
+        </strong>
+        <strong class="text-primary">{{data.empresaSeleccionada.empNombre}}</strong>
+        <div class="btn-group pull-right">
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirContable" (click)="imprimirContable()"
+            title="{{constantes.ATAJO_IMPRIMIR}}" *ngIf="!conContable.conPendiente && !conContable.conAnulado && !conContable.conReversado && data.accion !== constantes.ACCION_NUEVO && data.accion !== constantes.ACCION_ANULAR && data.accion !== constantes.ACCION_REVERSAR">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnVerImagenesContable" (click)="verImagenes()"
+            *ngIf="isCompra">
+            <i class="{{constantes.ICON_IMAGENES}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMAGENES}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-danger mr-1" id="btnAnularContable" (click)="guardarAnularReversar()"
+            title="{{constantes.ATAJO_ANULAR}}" *ngIf="data.accion === constantes.ACCION_ANULAR">
+            <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_ANULAR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-danger mr-1" id="btnReversarContable" (click)="guardarAnularReversar()"
+            title="{{constantes.ATAJO_REVERSAR}}" *ngIf="data.accion === constantes.ACCION_REVERSAR">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_REVERSAR}}</span>
+          </button>
+          <div class="btn-group" *ngIf="data.accion === constantes.ACCION_MAYORIZAR">
+            <button type="button" class="btn btn-sm btn-primary" id="btnMayorizarContable" (click)="verificarSiGuardarComoPendiente(frmContableDetalle)"
+              title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+              style="margin-right: 3px;">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="guardarMayorizarPendiente(frmContableDetalle)">
+                {{constantes.TAG_PENDIENTE}}</a>
+            </div>
+          </div>
+          <div class="btn-group" *ngIf="data.accion === constantes.ACCION_NUEVO">
+            <button type="button" class="btn btn-sm btn-primary" id="btnMayorizarContable" (click)="verificarSiGuardarComoPendiente(frmContableDetalle)"
+              title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+              style="margin-right: 3px;">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="guardarNuevoContablePendiente(frmContableDetalle)">
+                {{constantes.TAG_PENDIENTE}}</a>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelarContable" (click)="confirmacionCerrarContable()"
+            title="{{constantes.ATAJO_CANCELAR}}" *ngIf="!(data.accion === constantes.ACCION_CONSULTAR)">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelarContable" (click)="confirmacionCerrarContable()"
+            title="{{constantes.ATAJO_CANCELAR}}" *ngIf="data.accion === constantes.ACCION_CONSULTAR">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body p-1">
+        <!--CABECERA-->
+        <div class="card mb-1" [ngClass]="{'card-accent-danger': conContable.conReversado || conContable.conPendiente}">
+          <div class="card-header">
+            <strong>{{constantes.TAG_DATOS_GENERALES}}</strong>
+            <div class="card-header-actions">
+              <span class="mr-2 badge badge-pill" [ngClass]="{'bg-danger': conContable.conPendiente,'bg-reversado':conContable.conReversado}">{{conContable.conPendiente?constantes.ETIQUETA_PENDIENTE:
+                conContable.conAnulado?constantes.ETIQUETA_ANULADO:
+                conContable.conReversado?constantes.ETIQUETA_REVERSADO:
+                conContable.conBloqueado?constantes.ETIQUETA_BLOQUEADO:''}}
+              </span>
+              <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionContable"
+                aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar" (click)="collpase()">
+                <i class="fa fa-minus"></i>
+              </a>
+            </div>
+          </div>
+          <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0 " id="collapseInformacionContable">
+            <div class="row">
+              <!--Fecha-->
+              <div class="col-lg-3 col-md-3">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_FECHA}}</strong>
+                  </label>
+                  <p-calendar inputId="iniFecha" name="iniFecha" [(ngModel)]="conContable.conFecha" dateFormat="dd/mm/yy"
+                    [locale]="es" [showIcon]="true" [minDate]="fechaMin" [maxDate]="fechaMax" [appMinDate]="fechaMin"
+                    [appMaxDate]="fechaMax" [inputStyleClass]="fechaValido ==false ?'has-error':'' " (ngModelChange)="verificarFechaValida()"
+                    [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR"
+                    required></p-calendar>
+                </div>
+              </div>
+              <!--Tipo de Comoprobante-->
+              <div class="col-lg-3 col-md-3">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_TIPO_COMPROBANTES}}</b>
+                    &nbsp;
+                    <a (click)="listarTipos()" *ngIf="data.accion ===constantes.ACCION_NUEVO || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR || data.accion===constantes.ACCION_MAYORIZAR">
+                      <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_TIPOS_COMPROBANTES}}"
+                        container="body"></span>
+                    </a>
+                  </label>
+                  <p-dropdown [options]="listaTipos" name="tipo" [required]="true" [(ngModel)]="tipoSeleccionado"
+                    optionLabel="tipDetalle" [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR || data.accion===constantes.ACCION_MAYORIZAR">
+                    <ng-template let-item pTemplate="selectedItem">
+                      {{tipoSeleccionado?.tipDetalle}} ({{tipoSeleccionado?.tipCodigo}} )
+                    </ng-template>
+                    <ng-template let-fs pTemplate="item">
+                      <div class=""> {{fs.value.tipDetalle}} ({{fs.value.tipCodigo}})
+                      </div>
+                    </ng-template>
+                  </p-dropdown>
+                </div>
+              </div>
+              <!--Concepto-->
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{tipoConcepto}}</strong>
+                  </label>
+                  <input [appDescripcion]="conContable.conConcepto" appUppercase class="form-control form-control-sm text-uppercase"
+                    type="text" [(ngModel)]="conContable.conConcepto" placeholder="Sin Beneficiario" (ngModelChange)="conContable.conConcepto = conContable.conConcepto.trim()"
+                    [disabled]="(data.accion !== constantes.ACCION_NUEVO && data.accion !== constantes.ACCION_MAYORIZAR) || data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR"
+                    name="beneficiario">
+                </div>
+              </div>
+              <!--Detalle-->
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_DETALLE}}</strong>
+                  </label>
+                  <input [appDescripcion]="conContable.conDetalle" appUppercase class="form-control form-control-sm text-uppercase"
+                    type="text" [(ngModel)]="conContable.conDetalle" placeholder="{{constantes.TAG_SIN_DETALLE}}"
+                    (ngModelChange)="conContable.conDetalle = conContable.conDetalle.trim()" [disabled]="(data.accion !== constantes.ACCION_NUEVO && data.accion !== constantes.ACCION_MAYORIZAR) || data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR"
+                    name="detalle">
+                </div>
+              </div>
+              <!--Observaciones-->
+              <div class="col-lg-6 col-md-6">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+                  </label>
+                  <input [appDescripcion]="conContable.conObservaciones" appUppercase class="form-control form-control-sm text-uppercase"
+                    type="text" [(ngModel)]="conContable.conObservaciones" placeholder="{{constantes.TAG_SIN_OBSERVACIONES}}"
+                    [disabled]="data.accion===constantes.ACCION_CONSULTAR || data.accion===constantes.ACCION_ANULAR || data.accion===constantes.ACCION_REVERSAR"
+                    (ngModelChange)="conContable.conObservaciones=conContable.conObservaciones.trim()" name="obs">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--LISTADO-->
+        <div class="card mb-1">
+          <div class="card-header">
+            <strong>{{constantes.TAG_DETALLE_CONTABLE}}</strong>
+          </div>
+          <div class="card-body p-0">
+            <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listaFiltrado"
+              [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+              [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+              [rowDragManaged]="true" [animateRows]="true" [singleClickEdit]="true" [rowClassRules]="rowClassRules"
+              (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)"
+              (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+              (cellEditingStopped)="celdaEditingStopped($event)" [stopEditingWhenGridLosesFocus]="true"
+              [suppressDragLeaveHidesColumns]="true" [pinnedBottomRowData]="pinnedBottomRowData" (gridColumnsChanged)="redimencionarColumnas()"
+              (gridSizeChanged)="redimencionarColumnas()">
+            </ag-grid-angular>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<p-contextMenu #menuOpciones [model]="opcionesDetalle" appendTo="body"></p-contextMenu>

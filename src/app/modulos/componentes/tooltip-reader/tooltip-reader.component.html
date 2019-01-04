@@ -1,0 +1,21 @@
+<div class="ag-cell-label-container" role="presentation" (click)="ordenarColumna($event)">
+    <span ref="eMenu" class="ag-header-icon ag-header-cell-menu-button"></span>
+    <div ref="eLabel" class="ag-header-cell-label {{generalClass}}" role="presentation">
+        <span ref="eText" class="ag-header-cell-text" role="columnheader">
+            <span class="{{class}}" placement="top" ngbTooltip="{{tooltip}}" container="body">{{text}}</span>
+        </span>
+        <span ref="eFilter" class="ag-header-icon ag-filter-icon ag-hidden" aria-hidden="true">
+            <span class="ag-icon ag-icon-filter"></span>
+        </span>
+        <span ref="eSortOrder" class="ag-header-icon ag-sort-order ag-hidden" aria-hidden="true"></span>
+        <span *ngIf="ascSort" ref="eSortAsc" class="ag-header-icon ag-sort-ascending-icon" aria-hidden="true">
+            <span class="ag-icon ag-icon-asc"></span>
+        </span>
+        <span *ngIf="descSort" ref="eSortDesc" class="ag-header-icon ag-sort-descending-icon" aria-hidden="true">
+            <span class="ag-icon ag-icon-desc"></span>
+        </span>
+        <span ref="eSortNone" class="ag-header-icon ag-sort-none-icon ag-hidden" aria-hidden="true">
+            <span class="ag-icon ag-icon-none"></span>
+        </span>
+    </div>
+</div>

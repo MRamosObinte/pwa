@@ -1,0 +1,5 @@
+<ag-grid-angular #agGrid id="agGrid" style="width: 100%;" class="ag-theme-balham" [rowData]="listaCorridaDetalleOrigen"
+  [columnDefs]="columnDefs" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()" [rowSelection]="rowSelection"
+  [gridAutoHeight]="true" [suppressDragLeaveHidesColumns]="true" [enableColResize]="true" [context]="context"
+  (gridReady)="onGridReady($event)">
+</ag-grid-angular>

@@ -1,0 +1,113 @@
+<form #frmSectorDatos='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{tituloForm}} - {{empresaSeleccionada.empNombre}}</b>
+    <div class="card-header-actions">
+      <button type="button" class="btn btn-sm btn-primary mr-1" *ngIf="accion===constantes.ACCION_NUEVO" (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? insertarSector(frmSectorDatos) : null"
+        title="{{constantes.ATAJO_GUARDAR}}" id="btnGuardar">
+        <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-primary mr-1" *ngIf="accion===constantes.ACCION_EDITAR" id="btnGuardar"
+        (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarSector(frmSectorDatos) : null" title="{{constantes.ATAJO_GUARDAR}}">
+        <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion===constantes.ACCION_CONSULTAR"
+        (click)="cancelar()">
+        <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion !== constantes.ACCION_CONSULTAR"
+        (click)="cancelar()">
+        <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+      </button>
+    </div>
+  </div>
+  <!--Formulario de piscina-->
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseClienteInfo"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+          <div class="row">
+            <div class="form-group col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_CODIGO}}</strong>
+              </label>
+              <input type="text" name="codigo" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="sector.secCodigo"
+                [disabled]="accion===constantes.ACCION_EDITAR" pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                required appUppercase [appFocus]="accion===constantes.ACCION_NUEVO">
+            </div>
+            <div class="form-group col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_NOMBRE}}</strong>
+              </label>
+              <input type="text" name="nombre" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="sector.secNombre"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase [appFocus]="accion===constantes.ACCION_EDITAR">
+            </div>
+            <div class="form-group col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_LATITUD}}</strong>
+              </label>
+              <input type="text" name="latitud" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="sector.secLatitud"
+                [disabled]="true" class="form-control form-control-sm text-uppercase mousetrap" required appUppercase
+                pattern="{{constantes.PATTERN_NO_LETRAS}}">
+            </div>
+            <div class="form-group col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_LONGITUD}}</strong>
+              </label>
+              <input type="text" name="longitud" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="sector.secLongitud"
+                [disabled]="true" class="form-control form-control-sm text-uppercase mousetrap" required appUppercase
+                pattern="{{constantes.PATTERN_NO_LETRAS}}">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-1">
+        <div class="card-header">
+          <b ngbTooltip="{{constantes.LABEL_INVENTARIO_PRODUCTOS_PROCESO}}" placement="top">
+            {{constantes.TAG_MAPA}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapsePiscinaCuentas"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapsePiscinaCuentas">
+          <div class="row">
+            <div class="col-md-12">
+              <agm-map [latitude]="lat" [longitude]="lng" (mapClick)="onChoseLocation($event)" [zoom]="zoom"
+                [panControl]="true">
+                <agm-marker [latitude]="lat" [longitude]="lng">
+                  <agm-info-window>
+                    <h6><strong>Ubicación sector</strong></h6>
+                    <p>Punto de Ubicación</p>
+                  </agm-info-window>
+                </agm-marker>
+              </agm-map>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

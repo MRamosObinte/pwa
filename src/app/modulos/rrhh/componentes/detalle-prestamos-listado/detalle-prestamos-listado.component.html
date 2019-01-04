@@ -1,0 +1,75 @@
+<div class="modal-primary" *ngIf="parametrosBusqueda" [hidden]="mostrarAccionesContabilidad">
+  <div class="card m-0" *ngIf="listaDetallePrestamos.length>0">
+    <div class="modal-header p-2" *ngIf="isModal">
+      <h4 class="modal-title">{{constantes.RRHH_DETALLE_PRESTAMOS_LISTADO}}</h4>
+      <button type="button" class="close" style="color: white;" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="card-header p-1" *ngIf="!isModal">
+      <button id="btnActivarPrestamo" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="cambiarActivar()"
+        type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <b> {{constantes.RRHH_DETALLE_PRESTAMOS_LISTADO}}</b>
+      <div class="card-header-actions">
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirPrestamo" (click)="imprimir()"
+            placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarPrestamo" (click)="exportar()"
+            placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+            <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelar" (click)="regresar()" title="{{constantes.ATAJO_CANCELAR}}"
+            *ngIf="parametrosBusqueda.accion === constantes.ACCION_CONSULTAR">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="row">
+        <div class="col-sm-5 col-md-6">
+          <div class="input-group p-1">
+            <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+              size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+              size="100">
+            <div class="input-group-append">
+              <span class="input-group-text">
+                <i class="{{constantes.ICON_BUSCAR}}"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-7 col-md-6">
+          <div class="float-right pr-1">
+            <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+              maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+          </div>
+        </div>
+      </div>
+      <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+        [rowData]="listaDetallePrestamos" [columnDefs]="columnDefsSelected" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()"
+        [rowSelection]="rowSelection" [enableColResize]="true" [context]="context" (gridReady)="onGridReady($event)"
+        (rowSelected)="objetoSeleccionado = $event.node.data" [frameworkComponents]="frameworkComponents"
+        [pinnedBottomRowData]="pinnedBottomRowData" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+        (contextmenu)="$event.preventDefault()" [suppressRowClickSelection]="true" (filterChanged)="actualizarFilas()"
+        (cellFocused)="filaFocused($event)" (cellDoubleClicked)="isModal ? filaSeleccionar() : consultarAnticipo()">
+      </ag-grid-angular>
+    </div>
+    <p-contextMenu #menuOpciones appendTo="body" [model]="opciones" [baseZIndex]="1100"></p-contextMenu>
+  </div>
+</div>
+<div *ngIf="mostrarAccionesContabilidad">
+  <app-contable-formulario [data]="objetoContableEnviar" (cargandoEstado)="cambiarEstadoCargando($event)"
+    (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivar($event)"></app-contable-formulario>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

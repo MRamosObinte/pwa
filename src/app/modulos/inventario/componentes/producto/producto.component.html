@@ -1,0 +1,69 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmProducto='ngForm' name="frmProducto" class="card m-0 mb-2" autocomplete="off">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <i class="{{constantes.ICON_FILTRAR}}"></i>
+          <b>{{constantes.TITULO_FILTROS}}</b>
+        </div>
+        <div class="card-body  pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSelect()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_BUSQUEDA}}</b>
+            </label>
+            <input class="form-control form-control-sm mousetrap text-uppercase" placeholder="{{constantes.TAG_OBLIGATORIO}}" name="busqueda"
+              [(ngModel)]="busqueda" (ngModelChange)="limpiarResultado()" appUppercase [appFocus]="true">
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group mr-1">
+              <button type="button" class="btn btn-sm btn-primary" id="btnBuscarProductos" (click)="listarProductos(false)"
+                title="{{constantes.ATAJO_BUSCAR}}" disabled="true">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split"
+                data-toggle="dropdown" id="btnInactivo" disabled="true">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="listarProductos(true)">{{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+              </div>
+            </div>
+            <button class="btn btn-sm btn-primary" type="button" id="btnNuevoProductos" [disabled]="!frmProducto.valid"
+              title="{{constantes.ATAJO_NUEVO}}" (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? nuevoProducto() : null">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div [hidden]="!vistaListado || !parametro">
+      <app-listado-productos [parametrosBusqueda]="parametro" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarActivar)="activar=$event" [listar]="listarProductosEstado" (enviarAccion)="accionLista($event)"
+        [objetoNuevoEditado]="objetoNuevoEditado" [activarAtajos]="vistaListado"></app-listado-productos>
+    </div>
+    <div *ngIf="vistaFormulario && !vistaListado && parametrosFormulario">
+      <app-formulario-productos [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        [listadoCategorias]="listadoCategorias" (enviarAccion)="accionLista($event)" (enviarActivar)="activar=$event"></app-formulario-productos>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

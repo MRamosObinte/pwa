@@ -1,0 +1,164 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i> <b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <fieldset [disabled]="parametrosFormulario && parametrosBusqueda">
+          <form #frm='ngForm' name="frm" autocomplete="off">
+
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <b>{{constantes.TAG_EMPRESA}}</b>
+              </label>
+              <select [appFocus]="true" class="form-control form-control-sm" name="empresa" required [(ngModel)]="empresaSeleccionada"
+                (ngModelChange)="cambiarEmpresaSeleccionada()">
+                <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                  ({{empresa.empCodigo}})
+                </option>
+              </select>
+            </div>
+            <!--Centro produccion-->
+            <div class="form-group form-group-sm has-feedback">
+              <label class="control-label">
+                <strong>{{constantes.TAG_CENTRO_PRODUCCION}}</strong>
+                &nbsp;
+                <a (click)="listarSectores()" *ngIf="!parametrosFormulario && !parametrosBusqueda">
+                  <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CENTRO_PRODUCCION}}"
+                    container="body"></span>
+                </a>
+              </label>
+              <p-dropdown [options]="listaSectores" name="cboSector" [showClear]="true" [(ngModel)]="sectorSeleccionado"
+                (ngModelChange)="limpiarResultado();listarPiscinas()" placeholder="{{constantes.TAG_TODOS}}"
+                optionLabel="secNombre" [disabled]="parametrosFormulario && parametrosBusqueda">
+                <ng-template let-item pTemplate="selectedItem">
+                  {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})
+                </ng-template>
+                <ng-template let-fs pTemplate="item">
+                  <div class="">{{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+                </ng-template>
+              </p-dropdown>
+
+            </div>
+            <!--Centro costo-->
+            <div class="form-group form-group-sm has-feedback">
+              <label class="control-label">
+                <strong>{{constantes.TAG_CENTRO_COSTO}}</strong>
+                &nbsp;
+                <a (click)="listarPiscinas()" *ngIf="!parametrosFormulario && !parametrosBusqueda">
+                  <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CENTRO_COSTO}}"
+                    container="body"></span>
+                </a>
+              </label>
+              <p-dropdown [options]="listaPiscinas" name="piscina" [showClear]="true" [(ngModel)]="piscinaSeleccionada"
+                (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="pisNombre"
+                [disabled]="parametrosFormulario && parametrosBusqueda">
+                <ng-template let-item pTemplate="selectedItem">
+                  {{piscinaSeleccionada?.pisNombre}} ({{piscinaSeleccionada?.pisNumero}})
+                </ng-template>
+                <ng-template let-fs pTemplate="item">
+                  <div class="">{{fs.value.pisNombre}} ({{fs.value.pisNumero}})</div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+            <!--Categoria-->
+            <div class="form-group form-group-sm has-feedback">
+              <label class="control-label">
+                <strong>{{constantes.TAG_CATEGORIA}}</strong>
+                &nbsp;
+                <a (click)="listarCategoria()" *ngIf="!parametrosFormulario && !parametrosBusqueda">
+                  <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CATEGORIAS}}"
+                    container="body"></span>
+                </a>
+              </label>
+              <p-dropdown [options]="listaCategorias" name="categoria" [showClear]="true" [(ngModel)]="categoriaSeleccionada"
+                (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="catNombre"
+                [disabled]="parametrosFormulario && parametrosBusqueda">
+                <ng-template let-item pTemplate="selectedItem">
+                  {{categoriaSeleccionada?.catNombre}}
+                </ng-template>
+                <ng-template let-fs pTemplate="item">
+                  <div class="">{{fs.value.catNombre}} </div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+            <!--Motivos-->
+            <div class="form-group form-group-sm has-feedback">
+              <label class="control-label">
+                <strong>{{constantes.TAG_MOTIVO}}</strong>
+                &nbsp;
+                <a (click)="listarMotivosBono()" *ngIf="!parametrosFormulario && !parametrosBusqueda">
+                  <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                    container="body"></span>
+                </a>
+              </label>
+              <p-dropdown [options]="listaMotivos" name="motivo" [showClear]="true" [(ngModel)]="motivoSeleccionado"
+                (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="rhBonoMotivoPK.motDetalle"
+                [disabled]="parametrosFormulario && parametrosBusqueda">
+                <ng-template let-item pTemplate="selectedItem">
+                  {{motivoSeleccionado?.rhBonoMotivoPK.motDetalle}}
+                </ng-template>
+                <ng-template let-fs pTemplate="item">
+                  <div class="">{{fs.value.rhBonoMotivoPK.motDetalle}} </div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+            <!--Concepto-->
+            <div class="form-group form-group-sm has-feedback">
+              <label class="control-label">
+                <strong>{{constantes.TAG_CONCEPTO}}</strong>
+                &nbsp;
+                <a (click)="listarConceptoBonos()" *ngIf="!parametrosFormulario && !parametrosBusqueda">
+                  <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CONCEPTOS}}"
+                    container="body"></span>
+                </a>
+              </label>
+              <p-dropdown [options]="listaConceptos" name="concepto" [showClear]="true" [(ngModel)]="conceptoSeleccionado"
+                (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}" optionLabel="bcDetalle"
+                [disabled]="parametrosFormulario && parametrosBusqueda">
+                <ng-template let-item pTemplate="selectedItem">
+                  {{conceptoSeleccionado?.bcDetalle}}
+                </ng-template>
+                <ng-template let-fs pTemplate="item">
+                  <div class="">{{fs.value.bcDetalle}} </div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+            <!--Fecha-->
+            <div class="form-group form-group-sm" [ngClass]="{'has-error':!periodoAbierto}">
+              <label class="control-label">
+                <b>{{constantes.TAG_FECHA}}</b>
+              </label>
+              <p-calendar inputId="finFecha" name="finFecha" [(ngModel)]="fechaFin" (ngModelChange)="limpiarResultado();"
+                (onBlur)="validarPeriodoAbierto()" dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true"
+                [disabled]="parametrosFormulario && parametrosBusqueda"></p-calendar>
+            </div>
+          </form>
+        </fieldset>
+      </div>
+
+      <div class="card-footer text-muted">
+        <div class="text-right">
+          <button id="btnBuscarBonos" type="button" class="btn btn-sm btn-primary" (click)="buscarBonos(frm)" title="{{constantes.ATAJO_BUSCAR}}"
+            [disabled]="parametrosFormulario && parametrosBusqueda">
+            <i class="{{constantes.ICON_GENERAR}}" aria-hidden="true"></i>
+            {{constantes.LABEL_GENERAR}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <app-bonos-formulario [parametrosFormulario]="parametrosFormulario" [parametrosBusqueda]="parametrosBusqueda"
+      (enviarAccion)="accionesBonos($event)" *ngIf="parametrosFormulario && parametrosBusqueda"></app-bonos-formulario>
+  </div>
+
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

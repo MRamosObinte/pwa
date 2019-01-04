@@ -1,0 +1,121 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmUtilidadDiaria='ngForm' name="frmUtilidadDiaria" class="card m-0 mb-2" autocomplete="off">
+      <fieldset>
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [appFocus]="true">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_SECTOR}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="sector" required [(ngModel)]="sectorSeleccionado"
+              (ngModelChange)="listarPiscinas(); limpiarResultado();">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}}
+                ({{sector.secCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_PISCINA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="piscina" required [(ngModel)]="piscinaSeleccionado"
+              (ngModelChange)="listarCorridas(); limpiarResultado();">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="piscina" *ngFor="let piscina of listaPiscina">{{piscina.pisNombre}}
+                ({{piscina.pisNumero}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_CORRIDA_MAY}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="corrida" required [(ngModel)]="corridaSeleccionada"
+              (ngModelChange)="limpiarResultado();">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="corrida" *ngFor="let corrida of listaCorridas">{{corrida.corFechaDesde}} |
+                {{corrida.corFechaHasta}}
+                ({{corrida.corNumero}})</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group mr-1">
+              <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="listarUtilidadDiaria(frmUtilidadDiaria)"
+                title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div class="card m-0" *ngIf="listaResultado?.length>0">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.PRODUCCION_LISTADO_UTILIDAD_DIARIA}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimir()" placement="top"
+              ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportar()" placement="top"
+              ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimir()" placement="top"
+              ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportar()" placement="top"
+              ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <app-utilidad-diaria-resumen-biologico [listaResumenBiologico]="listaResumenBiologico"></app-utilidad-diaria-resumen-biologico>
+          </div>
+          <div class="col-md-4">
+            <app-utilidad-diaria-resumen-financiero [listaResumenFinanciero]="listaResumenFinanciero"></app-utilidad-diaria-resumen-financiero>
+          </div>
+          <div class="col-md-4">
+            <app-utilidad-diaria-consumo-balanceado [listaConsumoBalanceado]="listaConsumoBalanceado"></app-utilidad-diaria-consumo-balanceado>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="cargando">
+    <app-cargando></app-cargando>
+  </div>

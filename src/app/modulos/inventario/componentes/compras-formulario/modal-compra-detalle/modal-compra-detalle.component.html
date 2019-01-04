@@ -1,0 +1,121 @@
+<div class="modal-primary" *ngIf="mostrarModal">
+  <div class="card m-0">
+    <div class="modal-header p-2">
+      <h4 class="modal-title">{{constantes.TAG_DETALLE_COMPRA}}</h4>
+      <button type="button" class="close" style="color: white;" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+        <span>&times;</span>
+      </button>
+    </div>
+    <fieldset class="modal-body" [disabled]="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">
+      <!-- Es el detalle-->
+      <form *ngIf="tipo === 'detalle'">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <!--ICE-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_ICE}}</td>
+              <td class="p-0">
+                <input class="form-control form-control-sm text-right" required [(ngModel)]="itemCopia.detIce" name="detIce"
+                  [value]="itemCopia.detIce" [appAutonumeric]="autonumericCambios" [appAutonumericValue]="itemCopia.detIce"
+                  value="{{itemCopia.detIce}}">
+              </td>
+            </tr>
+            <!--IRBPNR-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_IRBPNR}}</td>
+              <td class="p-0">
+                <input class="form-control form-control-sm text-right" required [(ngModel)]="itemCopia.detOtrosImpuestos"
+                  name="detOtrosImpuestos" [value]="itemCopia.detOtrosImpuestos" [appAutonumeric]="autonumericCambios"
+                  [appAutonumericValue]="itemCopia.detOtrosImpuestos" value="{{itemCopia.detOtrosImpuestos}}">
+              </td>
+            </tr>
+            <!--CP-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_CP}}</td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label text-right">{{itemCopia.secCodigo}}</label>
+              </td>
+            </tr>
+            <!--CC-->
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_CC}}</td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label text-right" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">{{itemCopia.pisNumero?itemCopia.pisNumero:'SIN
+                  CC'}}</label>
+                <select class="form-control form-control-sm mousetrap" name="codigoCC" [(ngModel)]="itemCopia.pisNumero"
+                  *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR">
+                  <option selected>{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="pis.pisNumero" *ngFor="let pis of listadoPiscinaTO"> {{pis.pisNombre}}
+                    ({{pis.pisNumero}})</option>
+                </select>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+
+      <!--Cantidad-->
+      <form *ngIf="tipo === 'detCantidad'">
+        <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+          <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+            <colgroup>
+              <col [style.width]="'80px'">
+              <col [style.width]="'80px'">
+            </colgroup>
+          </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PRODUCTO}} </td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label">{{item.nombreProducto}}</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_PRODUCTO_MEDIDA}} </td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label">{{item.medidaDetalle}}</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_CONVERSION}} </td>
+              <td class="p-0">
+                <label class="form-control form-control-sm input-label text-right">{{conversion | number :
+                  '1.2-2'}}</label>
+              </td>
+            </tr>
+            <tr>
+              <td class="totales-tabla">{{constantes.TAG_BULTOS}} </td>
+              <td class="p-0">
+                <input name="bultos" type="text" [(ngModel)]="bultos" class="form-control form-control-sm text-right"
+                  [appAutonumeric]="configAutonumeric" [value]="bultos" required>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </form>
+    </fieldset>
+    <div class="col-md-12 modal-footer">
+      <div class="text-center">
+        <!--Aceptar de detalle-->
+        <button class="btn btn-sm btn-primary" type="button" title="{{constantes.ATAJO_ACEPTAR}}" (click)="aceptarDetalle()"
+          *ngIf="tipo === 'detalle' && (accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR)">
+          <i class="{{constantes.ICON_OK_SWAL}}"></i> {{constantes.LABEL_ACEPTAR}}</button>
+        <!--Aceptar de cantidad-->
+        <button class="btn btn-sm btn-primary" type="button" title="{{constantes.ATAJO_ACEPTAR}}" (click)="aceptarCantidadBultos()"
+          *ngIf="tipo === 'detCantidad' && (accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR)">
+          <i class="{{constantes.ICON_OK_SWAL}}"></i> {{constantes.LABEL_ACEPTAR}}</button>
+        <button class="btn btn-sm btn-default ml-2" type="button" title="{{constantes.ATAJO_CANCELAR}}" (click)="activeModal.dismiss('Cross click')">
+          <i class="{{constantes.ICON_CANCELAR}}"></i> {{constantes.LABEL_CANCELAR}}</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

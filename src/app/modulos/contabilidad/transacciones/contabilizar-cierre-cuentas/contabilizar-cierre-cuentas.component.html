@@ -1,0 +1,135 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class=" {{classTitulo}}"></i>
+        <b>{{frmTitulo}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmFiltro="ngForm" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [(ngModel)]="empresaSeleccionada" class="form-control input-sm" name="empresaSeleccionada"
+              [disabled]="vistaFormulario" (change)="cambiarEmpresaSelect();" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label mb-0">
+              <b>{{constantes.TAG_SECTOR}}</b>
+            </label>
+            <select [(ngModel)]="sectorSeleccionado" name="sectorSeleccionado" class="form-control input-sm" [disabled]="vistaFormulario"
+              (change)="limpiarLista()" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option selected [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}}
+                ({{sector.secCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_FECHA}}</b>
+            </label>
+            <p-calendar name="fechaSeleccionada" [(ngModel)]="fechaSeleccionada" [showIcon]="true" [locale]="es"
+              dateFormat="{{constantes.CALENDAR_FORMATO}}" (ngChangeModel)="limpiarLista()" [required]="true"
+              [disabled]="vistaFormulario" [maxDate]="fechaActual" [appMaxDate]="fechaActual"></p-calendar>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer" *ngIf="!vistaFormulario">
+        <div class="text-right">
+          <button id="btnBuscar" type="button" class="btn btn-sm btn-primary" (click)="buscarContabilizarCierreCuentas()"
+            title="{{constantes.ATAJO_BUSCAR}}" [disabled]="!frmFiltro.valid">
+            <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <form #frmContable="ngForm" autocomplete="off">
+      <div class="card mb-1" *ngIf="vistaListado && vistaFormulario">
+        <div class="card-header p-1">
+          <button id="btnActivar" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="activar=!activar"
+            type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+            <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+          </button>
+          <strong>{{constantes.TAG_CONTABLE}}</strong>
+          <div class="card-header-actions">
+            <div class="btn-group">
+              <button *ngIf="accion === constantes.ACCION_CREAR" type="button" id="btnGuardar" (click)="insertarContableCierreCuentas(frmContable)"
+                class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button type="button" id="btnCancelar" (click)="cancelarAccion()" class="btn btn-sm btn-default mr-1"
+                [disabled]="cargando" title="{{constantes.ATAJO_CANCELAR}}">
+                <i class="{{constantes.ICON_CANCELAR}}"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}} </span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pb-0 pt-2">
+          <div class="row">
+            <div class="col-md-6 col-sm-6">
+              <div class="form-group form-group-sm has-feedback">
+                <label class="control-label  ">
+                  <strong>{{constantes.TAG_CODIGO_CUENTA}}</strong>
+                </label>
+                <input name="conNumero" [(ngModel)]="conContableTO.conNumero" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                  pattern="{{constantes.PATTERN_CODIGO}}" class="form-control input-sm mousetrap text-uppercase"
+                  maxlength="500" (keydown)="buscarCuentaContable($event)" (blur)="validarCuentaCodigo()" appUppercase
+                  autofocus required>
+                <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_ENTERTOMODAL}}"
+                  container="body"></span>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_DETALLE_CUENTA}}</strong>
+                </label>
+                <input name="cuentaDetalle" [(ngModel)]="cuentaDetalle" class="form-control input-sm mousetrap text-uppercase"
+                  readonly>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+                </label>
+                <input type="text" [(ngModel)]="conContableTO.conObservaciones" name="conObservaciones" class="form-control input-sm text-uppercase  mousetrap"
+                  placeholder="{{constantes.TAG_OBLIGATORIO}}" maxlength="3000" appUppercase required>
+              </div>
+            </div>
+            <div class="col-md-6 col-sm-6">
+              <div class="form-group form-group-sm">
+                <label class="control-label">
+                  <b>{{constantes.TAG_TIPO_CONTABLE}}</b>
+                </label>
+                <select [(ngModel)]="tipoContableSeleccionado" name="tipoContableSeleccionado" class="form-control input-sm"
+                  required>
+                  <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                  <option [ngValue]="tipoContable" *ngFor="let tipoContable of listaTipoContable">{{tipoContable.tipDetalle}}
+                    ({{tipoContable.tipCodigo}})</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <div *ngIf="vistaListado">
+        <app-cuentas-resultados-listado [parametrosBusqueda]="parametroBusquedaListado" [data]="dataListado"
+          (enviarActivar)="modificarActivar($event)"></app-cuentas-resultados-listado>
+      </div>
+    </form>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

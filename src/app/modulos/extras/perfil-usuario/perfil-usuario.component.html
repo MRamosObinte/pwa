@@ -1,0 +1,162 @@
+<form #frm='ngForm' name="frm" autocomplete="off">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-12 col-md-12 col-sm-12">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <b><i class="{{constantes.ICON_USUARIO}}"></i> {{constantes.TITULO_INFORMACION_CUENTA}}</b>
+        <div class="card-header-actions">
+          <button id="btnGuardar" type="button" class="btn btn-sm btn-primary mr-1" (click)="insertar(frm)">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>&nbsp;
+          <button id="btnCancelar" type="button" class="btn btn-sm btn-default mr-1" (click)="cancelar()">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}</button>
+        </div>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <div class="row">
+          <div class="col-lg-6 col-md-12 col-sm-12">
+            <div class="card">
+              <div class="card-header">
+                <b>{{constantes.TITULO_IMAGEN_DE_PERFIL}}</b>
+              </div>
+              <div class="card-body usuario" style="text-align: center;">
+                <p-fileUpload name="listadoImagenes" [showCancelButton]="false" [showUploadButton]="false"
+                  invalidFileTypeMessageSummary="{0}:  {{constantes.MSJ_ARCHIVO_NO_VALIDO}}, "
+                  invalidFileSizeMessageSummary="{0}:  {{constantes.MSJ_TAMANIO_ARCHIVO_NO_VALIDO}}"
+                  invalidFileTypeMessageDetail="{{constantes.MSJ_ARCHIVO_PERMITIDO}}: {0}." chooseLabel="{{constantes.TAG_SELECCIONE}}"
+                  cancelLabel="{{constantes.LABEL_CANCELAR}}" accept="image/*" maxFileSize="1000000" (onSelect)="seleccionarImagenes($event)"
+                  invalidFileSizeMessageDetail="El tamaño máximo de carga es 1 MB.">
+                  <ng-template pTemplate="toolbar"></ng-template>
+                  <ng-template let-file pTemplate="file"></ng-template>
+                  <ng-template pTemplate="content"></ng-template>
+                </p-fileUpload>
+                <div class="card">
+                  <div *ngIf="archivoPerfilByte">
+                    <img #img class="foto-perfil card-img-top img-responsive" src="{{archivoPerfilByte}}" alt="Card image cap"
+                      width="50">
+                    <div class="card-footer text-muted text-center">
+                      <button class="btn btn-sm btn-danger mr-1" (click)="eliminarItem()"> <i class="{{constantes.ICON_ELIMINAR}}"
+                          aria-hidden="true"></i></button>
+                      <button class="btn btn-sm btn-primary" (click)="visualizar(archivoPerfilByte)"> <i class="{{constantes.ICON_CONSULTAR}}"
+                          aria-hidden="true"></i></button>
+                    </div>
+                  </div>
+                </div>
+                <p-dialog header="Visualización de imagen" styleClass="visualizadorImagenes" [(visible)]="visualizarImagen"
+                  modal="true" minWidth="200" minHeight="200" showHeader="false">
+                  <img #img class="card-img-top img-responsive" src="{{archivoPerfilByte}}" alt="Card image cap">
+                </p-dialog>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-12 col-sm-12">
+            <div class="card">
+              <div class="card-header">
+                <b>{{constantes.TITULO_CONFIGURACION_GENERAL_DE_LA_CUENTA}}</b>
+              </div>
+              <div class="card-body">
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_CODIGO}}</b>
+                  </label>
+                  <input class="form-control input-sm" name="usrCodigo" [(ngModel)]="usuario.usrCodigo" disabled>
+                </div>
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_NICK_NAME}}</b>
+                  </label>
+                  <input class="form-control input-sm" name="usrNick" [(ngModel)]="usuario.usrNick" disabled>
+                </div>
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_NOMBRES}}</b>
+                  </label>
+                  <input class="form-control input-sm" name="usrNombre" [(ngModel)]="usuario.usrNombre" required>
+                </div>
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_APELLIDOS}}</b>
+                  </label>
+                  <input class="form-control input-sm" name="usrApellido" [(ngModel)]="usuario.usrApellido">
+                </div>
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_EMAIL}}</b>
+                  </label>
+                  <input class="form-control input-sm" type="email" name="usrEmail" [(ngModel)]="usuario.usrEmail"
+                    (blur)="!usuario.usrEmail || usuario.usrEmail == '' ? usuario.usrEmail=null : null" ngModel email="true"
+                    [required]="usuario.usrPasswordEmail">
+                </div>
+                <div class="form-group form-group-sm">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_CONTRASENA_EMAIL}}</b>
+                  </label>
+                  <input autocomplete="new-password" type="password" class="form-control input-sm" name="usrPasswordEmail"
+                    (blur)="!usuario.usrPasswordEmail || usuario.usrPasswordEmail == '' ? usuario.usrPasswordEmail=null : null"
+                    [(ngModel)]="usuario.usrPasswordEmail" [required]="usuario.usrEmail">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-12 col-sm-12">
+            <div class="card">
+              <div class="card-header">
+                <b>{{constantes.TITULO_SEGURIDAD_INICIO_SESION}}</b>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_CONTRASENA_ACTUAL}}</b>
+                  </label>
+                  <div class="input-group">
+                    <input class="form-control" [ngClass]="{ 'has-error':!esValidaContraseniaActual }" id="contrasenaActual"
+                      (blur)="validarContraseniaActual();" name="usrContrasenaActual" [(ngModel)]="usrContrasenaActual"
+                      type="password" [required]="usrConfirmarContrasena || usrNuevaContrasena" autocomplete="new-password">
+                    <span class="input-group-append">
+                      <button class="btn btn-block btn-light" (click)="verContrasena('contrasenaActual', 'spanClaveActual')">
+                        <i class="{{constantes.ICON_EYE}}" id="spanClaveActual" placement="top"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_NUEVA_CONTRASENA}}</b>
+                  </label>
+                  <div class="input-group">
+                    <input class="form-control" [ngClass]="{ 'has-error':usrNuevaContrasena!=usrConfirmarContrasena}"
+                      id="nuevaContrasena" (blur)="!usrNuevaContrasena || usrNuevaContrasena == '' ? usrNuevaContrasena=null : null"
+                      name="usrNuevaContrasena" [(ngModel)]="usrNuevaContrasena" type="password" [required]="usrContrasenaActual || usrConfirmarContrasena"
+                      autocomplete="new-password">
+                    <span class="input-group-append">
+                      <button class="btn btn-block btn-light" (click)="verContrasena('nuevaContrasena', 'spanClaveNueva')">
+                        <i class="{{constantes.ICON_EYE}}" id="spanClaveNueva" placement="top"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_CONFIRMAR_NUEVA_CONTRASENA}}</b>
+                  </label>
+                  <div class="input-group">
+                    <input class="form-control" [ngClass]="{ 'has-error':usrNuevaContrasena!=usrConfirmarContrasena}"
+                      id="confirmarContrasena" (blur)="!usrConfirmarContrasena || usrConfirmarContrasena == '' ? usrConfirmarContrasena=null : null"
+                      name="usrConfirmarContrasena" [(ngModel)]="usrConfirmarContrasena" type="password" [required]="usrContrasenaActual || usrNuevaContrasena"
+                      autocomplete="new-password">
+                    <span class="input-group-append">
+                      <button class="btn btn-block btn-light" (click)="verContrasena('confirmarContrasena', 'spanClaveConfirmar')">
+                        <i class="{{constantes.ICON_EYE}}" id="spanClaveConfirmar" placement="top"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

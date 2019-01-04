@@ -1,0 +1,205 @@
+<div class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="cambiarActivar(activar)"
+      type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <strong>{{titulo}} - {{empresaSeleccionada.empNombre}}</strong>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Imprimir-->
+        <button id="btnImprimirContable" *ngIf="accion == constantes.ACCION_CONSULTAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}" (click)="imprimirContable()" title="{{constantes.ATAJO_IMPRIMIR}}">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Guardar-->
+        <button *ngIf="accion === constantes.ACCION_CREAR" type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar"
+          (click)="guardar(frmDatos)" placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> </span>
+        </button>
+        <!--Anular-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anular()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Reversar-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_REVERSAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_REVERSAR}}" (click)="reversar()">
+          <i class="{{constantes.ICON_REVERSAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+          ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Imprimir-->
+        <button id="btnImprimirContable" *ngIf="accion == constantes.ACCION_CONSULTAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}" (click)="imprimirContable()" title="{{constantes.ATAJO_IMPRIMIR}}">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_IMPRIMIR}}</span>
+        </button>
+        <!--Guardar-->
+        <button *ngIf="accion === constantes.ACCION_CREAR" type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar"
+          (click)="guardar(frmDatos)" placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <!--Anular-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anular()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_ANULAR}}</span>
+        </button>
+        <!--Reversar-->
+        <button id="btnGuardar" *ngIf="accion === constantes.ACCION_REVERSAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_REVERSAR}}" (click)="reversar()">
+          <i class="{{constantes.ICON_REVERSAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_REVERSAR}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelar"
+          (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+  <form #frmDatos='ngForm' name="frmDatos" autocomplete="off" class="card-body p-1">
+    <fieldset [disabled]="accion !== constantes.ACCION_CREAR">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_CLIENTE}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseClienteInfo"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+          <div class="row">
+            <div class="form-group form-group-sm col-sm-4 has-feedback">
+              <label class="control-label">
+                <b>{{constantes.TAG_CLIENTE}}</b>
+              </label>
+              <input type="text" id="cliente" name="cliente" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="cobroAnticipo.cliCodigo"
+                class="form-control form-control-sm text-uppercase mousetrap" (keydown)="buscarCliente($event)" (blur)="validarCliente()"
+                [appFocus]="accion === constantes.ACCION_CREAR" required appUppercase>
+              <span *ngIf="accion === constantes.ACCION_CREAR" class="fa fa-question-circle form-control-feedback mr-3"
+                placement="right" ngbPopover="{{constantes.MSJ_COINCIDENCIA_EMPLEADO}}" triggers="mouseenter:mouseleave"
+                container="body"></span>
+            </div>
+            <div class="form-group form-group-sm col-sm-8">
+              <label class="control-label">
+                <b>{{constantes.TAG_NOMBRE}}</b>
+              </label>
+              <input type="text" name="nombreCliente" [(ngModel)]="nombreCliente" class="form-control form-control-sm text-uppercase mousetrap"
+                disabled appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-sm-12">
+              <label class="control-label">
+                <b>{{constantes.TAG_DIRECCION}}</b>
+              </label>
+              <input type="text" name="direccion" [(ngModel)]="direccion" class="form-control form-control-sm text-uppercase mousetrap"
+                disabled appUppercase>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDG"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseDG">
+          <div class="row">
+            <div class="form-group form-group-sm col-sm-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_FECHA}}</b>
+              </label>
+              <p-calendar class="mousetrap calendar" inputId="fecha" name="fecha" [inputStyleClass]="isFechaValido == false ? 'has-error ' : '' "
+                [(ngModel)]="fechaActual" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                [required]="true" (ngModelChange)="validarFechaPorPeriodo()" placeholder="DD/MM/YYYY"></p-calendar>
+            </div>
+            <div class="form-group form-group-sm col-sm-4" *ngIf="accion === constantes.ACCION_CREAR">
+              <label class="control-label">
+                <b>{{constantes.TAG_CENTRO_PRODUCCION}}</b>
+              </label>
+              <select class="form-control form-control-sm text-uppercase  mousetrap" name="sector" required [(ngModel)]="sectorSeleccionado">
+                <option selected disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="sector" *ngFor="let sector of sectores">
+                  {{sector.secNombre}} ({{sector.secCodigo}})
+                </option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-sm-4" *ngIf="accion !== constantes.ACCION_CREAR">
+              <label class="control-label">
+                <b>{{constantes.TAG_CENTRO_PRODUCCION}}</b>
+              </label>
+              <label class="form-control form-control-sm input-label">{{sectorSeleccionado?.secNombre}}
+                ({{sectorSeleccionado?.secCodigo}})</label>
+            </div>
+            <div class="form-group form-group-sm col-sm-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_FORMA_PAGO}}</b>
+              </label>
+              <select class="form-control form-control-sm text-uppercase mousetrap" name="formapago" required
+                [(ngModel)]="fpSeleccionada" (ngModelChange)="validarDocumento()">
+                <option selected disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="formapago" *ngFor="let formapago of listaFormaPago">
+                  {{formapago.fpDetalle}}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group form-group-sm col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_VALOR}}</b>
+              </label>
+              <input type="text" name="valor" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="cobroAnticipo.antValor"
+                class="form-control form-control-sm text-uppercase text-right mousetrap" [appAutonumeric]="configAutonumericReales"
+                [appAutonumericValue]="cobroAnticipo.antValor" value="{{cobroAnticipo.antValor}}" [appMinNumber]="0.01"
+                required>
+            </div>
+            <div class="form-group form-group-sm col-sm-6">
+              <label class="control-label">
+                <b>{{constantes.TAG_DOCUMENTO}}</b>
+              </label>
+              <input type="text" name="documento" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="documento"
+                [ngClass]="{ 'has-error':!documentoValido}" class="form-control form-control-sm text-uppercase mousetrap"
+                maxlength="100" (blur)="validarDocumento()">
+            </div>
+            <div class="form-group form-group-sm col-sm-12">
+              <label class="control-label">
+                <b>{{constantes.TAG_OBSERVACION}}</b>
+              </label>
+              <textarea type="text" name="observaciones" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="observaciones"
+                appUppercase class="form-control form-control-sm text-uppercase mousetrap"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

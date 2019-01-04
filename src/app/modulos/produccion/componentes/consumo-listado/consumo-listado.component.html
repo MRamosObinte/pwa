@@ -1,0 +1,85 @@
+<div class="card m-0" *ngIf="listadoConsumos?.length>0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="cambiarActivar(activar)"
+      type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{constantes.INVENTARIO_CONSUMOS_LISTADO}}</b>
+    <div class="card-header-actions">
+      <div class="btn-group d-lg-none">
+        <!--Desmayorizar-->
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btndesmayorizarConsumos" (click)="demayorizarLote()"
+          placement="top" ngbTooltip="{{constantes.LABEL_DESMAYORIZAR}}" container="body" title="{{constantes.ATAJO_DESMAYORIZAR}}"
+          *ngIf="empresaSeleccionada.listaSisPermisoTO.gruDesmayorizarConsumos">
+          <i class="{{constantes.ICON_DESMAYORIZAR}}" aria-hidden="true"></i>
+        </button>
+        <!--Imprimir-->
+        <div class="btn-group mr-1">
+          <button type="button" class="btn btn-sm btn-primary" id="btnImprimirConsumo" (click)="imprimirConsumosLote(false)"
+            placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"></span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="imprimirConsumosLote(true)">{{constantes.LABEL_IMPRIMIR_ORDENADO}}</a>
+          </div>
+        </div>
+      </div>
+      <div class="btn-group d-none d-lg-block">
+        <!--Desmayorizar-->
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btndesmayorizarConsumos" (click)="demayorizarLote()"
+          placement="top" ngbTooltip="{{constantes.LABEL_DESMAYORIZAR}}" container="body" title="{{constantes.ATAJO_DESMAYORIZAR}}">
+          <i class="{{constantes.ICON_DESMAYORIZAR}}" aria-hidden="true"></i> {{constantes.LABEL_DESMAYORIZAR}}
+        </button>
+        <!--Imprimir-->
+        <div class="btn-group mr-1">
+          <button type="button" class="btn btn-sm btn-primary" id="btnImprimirConsumo" (click)="imprimirConsumosLote(false)"
+            placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="imprimirConsumosLote(true)">{{constantes.LABEL_IMPRIMIR_ORDENADO}}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="row">
+      <div class="col-sm-5 col-md-6">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+            size="100">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-7 col-md-6">
+        <div class="float-right pr-1">
+          <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+            maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+        </div>
+      </div>
+    </div>
+    <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+      [rowData]="listadoConsumos" [columnDefs]="columnDefsSelected" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()"
+      [rowSelection]="rowSelection" [enableColResize]="true" [context]="context" (gridReady)="onGridReady($event)"
+      (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+      (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" (cellFocused)="filaFocused($event)"
+      (cellDoubleClicked)="objetoSeleccionado = $event.node.data;consultar()" [suppressRowClickSelection]="true"
+      [rowClassRules]="rowClassRules">
+    </ag-grid-angular>
+  </div>
+  <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

@@ -1,0 +1,458 @@
+<form #frmVentasDato='ngForm' autocomplete="off" class="card m-0" [hidden]="mostrarAccionesCliente || mostrarAccionesContabilidad">
+  <div class="card-header p-1">
+    <button id="btnActivarVenta" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)"
+      type="button">
+      <i class="{{!activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{accion}} {{titulo}} {{invVentasTO.vtaNumero}} - {{empresaSeleccionada?.empNombre}}</b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Imprimir-->
+        <button id="btnImprimirVenta" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR  && accion !== constantes.ACCION_ANULAR && accion !== constantes.ACCION_RESTAURAR"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}"
+          (click)="imprimirVenta()">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Guardar y mayorizar-->
+        <div *ngIf="(accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR)" class="btn-group mr-1">
+          <button id="btnGuardarVenta" type="button" class="btn btn-sm btn-primary" (click)="ventaService.verificarPermiso(accion, empresaSeleccionada, true) ? guardarVenta(frmVentasDato, false) : null"
+            placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> </span>
+          </button>
+        </div>
+        <!--Anular-->
+        <button id="btnAnularVenta" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularVenta()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Restaurar-->
+        <button id="btnRestaurarVenta" *ngIf="accion === constantes.ACCION_RESTAURAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_RESTAURAR}}" (click)="restaurarVenta()">
+          <i class="{{constantes.ICON_OK}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Contabilizar-->
+        <button id="btnContabilizarVenta" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR && contabilizar"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_CONTABILIZAR}}"
+          (click)="contabilizarVenta()">
+          <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <button id="btnVerContableVenta" *ngIf="accion !== constantes.ACCION_CREAR  && accion !== constantes.ACCION_MAYORIZAR && verContable"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_VER_CONTABLE}}"
+          (click)="verContableVenta()">
+          <i class="{{constantes.ICON_DOCUMENTO}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarVenta"
+          ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Imprimir-->
+        <button id="btnImprimirVenta" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR && accion !== constantes.ACCION_ANULAR && accion !== constantes.ACCION_RESTAURAR"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}"
+          (click)="imprimirVenta()">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_IMPRIMIR}}</span>
+        </button>
+        <!--Guardar y mayorizar-->
+        <div *ngIf="(accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR)" class="btn-group mr-1">
+          <button id="btnGuardarVenta" type="button" class="btn btn-sm btn-primary" (click)="ventaService.verificarPermiso(accion, empresaSeleccionada, true) ? guardarVenta(frmVentasDato, false) : null"
+            placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+          </button>
+        </div>
+        <!--Anular-->
+        <button id="btnAnularVenta" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularVenta()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_ANULAR}}</span>
+        </button>
+        <!--Restaurar-->
+        <button id="btnRestaurarVenta" *ngIf="accion === constantes.ACCION_RESTAURAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_RESTAURAR}}" (click)="restaurarVenta()">
+          <i class="{{constantes.ICON_OK}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_RESTAURAR}}</span>
+        </button>
+        <!--Contabilizar-->
+        <button id="btnContabilizarVenta" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR && contabilizar"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_CONTABILIZAR}}"
+          (click)="contabilizarVenta()">
+          <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline">{{constantes.ACCION_CONTABILIZAR}}</span>
+        </button>
+        <button id="btnVerContableVenta" *ngIf="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR && verContable" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_VER_CONTABLE}}" (click)="verContableVenta()">
+          <i class="{{constantes.ICON_DOCUMENTO}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_VER_CONTABLE}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarVenta"
+          (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-1">
+    <!--Datos de la cabecera de la venta-->
+    <fieldset [disabled]="!puedeEditar">
+      <div class="card mb-0" [ngClass]="{'card-accent-danger': invVentasTO.vtaPendiente, 'card-accent-success': invVentasTO.vtaRevisado, 'card-accent-warning': invVentasTO.vtaPendiente && accion !== constantes.ACCION_CREAR}">
+        <div class="row pl-3 pr-3">
+          <!--SI ES NOTA DE CREDITO O DEBITO DEBE COMPLETAR ESTO.-->
+          <div class="col-md-12 pl-0 pr-0" style="border-block-end: 1px solid #c8ced3;" *ngIf="esNota">
+            <div class="card-header">
+              <b>{{constantes.TAG_COMPLEMENTO}}</b>
+              <div class="card-header-actions">
+                <span class="mr-2 badge badge-pill" [ngClass]="{'bg-danger': invVentasTO.vtaPendiente,'bg-reversado':invVentasTO.vtaAnulado}">{{
+                  invVentasTO.vtaPendiente?constantes.ETIQUETA_PENDIENTE:
+                  invVentasTO.vtaAnulado?constantes.ETIQUETA_ANULADO:''}}
+                </span>
+              </div>
+            </div>
+            <div class="card-body p-2">
+              <div class="row">
+                <div class="form-group-sm col-lg-4 pt-1">
+                  <label style="margin-bottom: 3px;">
+                    <strong>{{constantes.TAG_TIPO_COMPLEMENTO}}</strong>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap color-no-disabled" name="tipocomplemento"
+                    [(ngModel)]="tipoDocumentoComplemento" required>
+                    <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="complemento.tcCodigo" *ngFor="let complemento of listadoTipoComprobante">
+                      {{complemento.tcDescripcion}}</option>
+                  </select>
+                </div>
+                <div class="form-group-sm col-lg-4 pt-1">
+                  <label style="margin-bottom: 3px;">
+                    <strong>{{constantes.TAG_MOTIVO_COMPLEMENTO}}</strong>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap color-no-disabled" name="motivocomplemento"
+                    [(ngModel)]="motivoComplemento" required>
+                    <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="motivo.clave" *ngFor="let motivo of listadoMotivoComplemento">
+                      {{motivo.clave}}</option>
+                  </select>
+                </div>
+                <div class="form-group-sm col-lg-4" *ngIf="tipoDocumento!='00'">
+                  <label>
+                    <strong>{{constantes.TAG_NUMERO_COMPLEMENTO}}</strong>
+                  </label>
+                  <p-inputMask class="mousetrap mascara" name="numeroComplemento" [(ngModel)]="numeroDocumentoComplemento"
+                    mask="999-999-999999999" required (onBlur)="numeroDocumentoComplemento ? consultarVenta(numeroDocumentoComplemento, null, null) : null"></p-inputMask>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--DATOS DE LA VENTA-->
+          <div class="col-md-4 col-sm-12 p-0" style="border-right: 1px solid #c8ced3;">
+            <div class="card-header p-1">
+              <b>{{constantes.TAG_DATOS_CLIENTE}}</b>
+            </div>
+            <div class="card-body p-2">
+              <div class="row">
+                <div class="form-group-sm col-lg-6">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}} </strong>
+                  </label>
+                  <input [ngClass]="{'ng-invalid':!isClienteValido}" id="codCliente" name="txtCodigoVenta" class="form-control form-control-sm text-uppercase mousetrap text-uppercase"
+                    type="text" required (blur)="validarCliente();" (keydown)="buscarCliente($event);" [(ngModel)]="invVentasTO.cliCodigo"
+                    placeholder="{{constantes.TAG_OBLIGATORIO}}" appUppercase>
+                </div>
+                <div class="form-group-sm col-lg-6" *ngIf="isClienteValido || accion !== constantes.ACCION_CREAR">
+                  <label>
+                    <strong>{{constantes.TAG_RUC_ID}}: </strong>
+                  </label>
+                  <label class="form-control form-control-sm input-label"> {{cliente?.cliId}}</label>
+                </div>
+              </div>
+              <div class="row" *ngIf="isClienteValido || accion !== constantes.ACCION_CREAR">
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_NOMBRE}}: </strong> {{cliente?.cliRazonSocial}}
+                  </label>
+                </div>
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_DIRECCION}}: </strong> {{cliente?.cliDireccion}}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-8 col-sm-12 p-0">
+            <div class="card-header p-1">
+              <b>{{constantes.TAG_DATOS_GENERALES}}</b>
+              <div class="card-header-actions" *ngIf="!esNota">
+                <span class="mr-2 badge badge-pill" [ngClass]="{'bg-danger': invVentasTO.vtaPendiente,'bg-reversado':invVentasTO.vtaAnulado}">{{
+                  invVentasTO.vtaPendiente?constantes.ETIQUETA_PENDIENTE:
+                  invVentasTO.vtaAnulado?constantes.ETIQUETA_ANULADO:''}}
+                </span>
+              </div>
+            </div>
+            <div class="card-body p-2">
+              <div class="row">
+                <!--Motivo-->
+                <div class="form-group-sm col-lg-3 col-sm-6 pt-1">
+                  <label style="margin-bottom: 3px;">
+                    <strong>{{constantes.TAG_MOTIVO}}</strong>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap color-no-disabled" [disabled]="caja.permisoMotivoPermitido"
+                    name="cboMotivo" id="cboMotivo" [(ngModel)]="invVentasTO.vtaMotivo" (ngModelChange)="motivoSeleccionado = ventaFormularioService.seleccionarMotivo(listadoMotivos, invVentasTO)"
+                    required>
+                    <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="motivo.vmCodigo" *ngFor="let motivo of listadoMotivos"> {{motivo.vmDetalle}}
+                      ({{motivo.vmCodigo}})</option>
+                  </select>
+                </div>
+                <!--Periodo-->
+                <div class="form-group-sm col-lg-3 col-sm-6 pt-1" *ngIf="accion === constantes.ACCION_CONSULTAR">
+                  <label style="margin-bottom: 3px;">
+                    <strong>{{constantes.TAG_PERIODO}}</strong>
+                  </label>
+                  <select class="form-control form-control-sm mousetrap color-no-disabled" name="periodo" [(ngModel)]="invVentasTO.vtaPeriodo"
+                    required>
+                    <option [ngValue]="periodo.sisPeriodoPK.perCodigo" *ngFor="let periodo of listadoPeriodos">
+                      {{periodo.perDetalle}}
+                      ({{periodo?.sisPeriodoPK?.perCodigo}})</option>
+                  </select>
+                </div>
+                <!--Fecha emision-->
+                <div class="form-group-sm col-lg-3 col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_EMISION}} </strong>
+                  </label>
+                  <p-calendar [disabled]="!caja.permisoCambiarFechaVenta" class="mousetrap calendar" name="fechaEmision"
+                    [(ngModel)]="fechaEmision" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                    [required]="true" (ngModelChange)="getIVA();validarFechaCaducaNumeroDoc()" placeholder="DD/MM/YYYY"></p-calendar>
+                </div>
+                <!--bodega-->
+                <div class="form-group-sm col-lg-3 pt-1 col-sm-6" [ngClass]="{'has-error':!bodegaSeleccionada}">
+                  <label style="margin-bottom: 3px;">
+                    <strong>{{constantes.TAG_BODEGA}}</strong>
+                  </label>
+                  <select class="form-control form-control-sm" [disabled]="caja.permisoBodegaPermitida"
+                    name="cboBodega" [(ngModel)]="bodegaSeleccionada" (ngModelChange)="listarPiscinas()" required>
+                    <option ngValue="" [selected]="true">{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="bodega" *ngFor="let bodega of listadoBodegas"> {{bodega.bodNombre}}
+                      ({{bodega.bodCodigo}})</option>
+                  </select>
+                </div>
+                <!--Numero-->
+                <div class="form-group-sm col-lg-3 col-sm-6" *ngIf="tipoDocumento!='00'">
+                  <!--Cuando no sea nota de entrega-->
+                  <label>
+                    <strong>{{constantes.TAG_NUMERO}}</strong>
+                  </label>
+                  <p-inputMask class="mousetrap mascara" name="numeroDoc" [(ngModel)]="invVentasTO.vtaDocumentoNumero"
+                    [styleClass]="!documentoValido || documentoCaducado?'has-error':'' " mask="999-999-999999999"
+                    required (onBlur)="invVentasTO.vtaDocumentoNumero ? validarNumeroDoc() : null"></p-inputMask>
+                </div>
+                <!--Precio venta-->
+                <div class="form-group-sm col-lg-3 pt-1 col-sm-6">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_PRECIO_DE_VENTA}}</b>
+                  </label>
+                  <select name="etiqueta" [(ngModel)]="etiquetaSeleccionada" class="form-control form-control-sm"
+                    [disabled]="caja.permisoClientePrecioPermitido!=null" (change)="listaInvVentasDetalleTO.length> 0 ? calcularPrecioLista(listaInvVentasDetalleTO) : null;"
+                    required>
+                    <option ngValue="proPorCantidad" [selected]="true">{{constantes.LABEL_POR_CANTIDAD}}</option>
+                    <option [ngValue]="etiqueta.field" *ngFor="let etiqueta of etiquetas">{{etiqueta.value}}</option>
+                  </select>
+                </div>
+                <!--observaciones-->
+                <div class="form-group-sm col-sm-6 pt-1" [ngClass]="{'col-lg-6': accion === constantes.ACCION_CONSULTAR,'col-lg-9': accion !== constantes.ACCION_CONSULTAR}">
+                  <label>
+                    <strong>{{constantes.TAG_OBSERVACIONES}} </strong>
+                  </label>
+                  <textarea class="form-control form-control-sm text-uppercase mousetrap" appUppercase type="text" cols="3"
+                    [(ngModel)]="invVentasTO.vtaObservaciones" placeholder="{{constantes.TAG_OBSERVACIONES}}" name="observacion"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <!--Datos del detalle de la cabecera-->
+    <div class="card mb-1">
+      <div class="card-header p-1">
+        <strong>{{constantes.TAG_DETALLE_VENTA}}</strong>
+      </div>
+      <div class="card-body m-0 p-0" *ngIf="listaInvVentasDetalleTO?.length>0">
+        <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listaInvVentasDetalleTO"
+          [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection" [enableColResize]="true"
+          [components]="components" [context]="context" [frameworkComponents]="frameworkComponents" [rowDragManaged]="true"
+          (rowDragEnd)="refrescarOrdenDetalle()" [animateRows]="true" [suppressClickEdit]=true (gridReady)="onGridReady($event)"
+          (rowSelected)="detalleSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)" (filterChanged)="actualizarFilas()"
+          (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (cellEditingStopped)="alCambiarValorDeCelda($event)" [stopEditingWhenGridLosesFocus]="true"
+          [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()">
+        </ag-grid-angular>
+      </div>
+    </div>
+    <!--TAB PANEL PARA OPCIONES DE PECIOS, INFORMAC. ADICIONAL Y FORMA DE PAGO-->
+    <fieldset [disabled]="!puedeEditar">
+      <div class="card mb-1">
+        <div class="row">
+          <div class="col-lg-7 col-md-7">
+            <ul class="nav nav-tabs nav-justified" role="tablist" id="ulOpcionesEmpleado" style="box-shadow: inset 0 -1px 0 #ddd;">
+              <li role="presentation" class="nav-item">
+                <a class="nav-link active p-1" href data-target="#formaPago" aria-controls="formaPago" role="tab"
+                  data-toggle="tab">
+                  <b>{{constantes.INVENTARIO_FORMA_COBRO}}</b>
+                </a>
+              </li>
+              <li role="presentation" class="nav-item">
+                <a class="nav-link p-1" href data-target="#infAdicional" aria-controls="infAdicional" role="tab"
+                  data-toggle="tab">
+                  <b ngbTooltip="{{constantes.TAG_INFORMACION_ADICIONAL_COMPLETO}}">{{constantes.TAG_INFORMACION_ADICIONAL}}</b>
+                </a>
+              </li>
+            </ul>
+            <div class="tab-content panel" style="border-top-width: 0px;">
+              <div role="tabpanel" class="tab-pane fade show active" id="formaPago">
+                <div class="panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                      <div class="form-group-sm col-md-6">
+                        <label>
+                          <strong>{{constantes.TAG_FECHA_VENCIMIENTO}}</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm text-uppercase mousetrap" [(ngModel)]="diasCredito"
+                          required (ngModelChange)="validarFechaVenc()" name="diasCredito" />
+                      </div>
+                      <div class="form-group-sm col-md-6">
+                        <label>
+                          <strong>{{constantes.INVENTARIO_FORMA_COBRO}}</strong>
+                        </label>
+                        <select class="form-control form-control-sm mousetrap height-30" [disabled]="caja.permisoFormaPagoPermitida && formaCobroSeleccionada && formaCobroSeleccionada.fcSecuencial"
+                          name="formaCobro" [(ngModel)]="formaCobroSeleccionada" required>
+                          <option disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="fc" *ngFor="let fc of listadoFormaCobro"> {{fc.fcDetalle}}</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="row m-2 border-card pt-1 pb-1" *ngIf="formaCobroSeleccionada && formaCobroSeleccionada.fcSecuencial">
+                      <div class="form-group-sm col-md-6" *ngIf="formaCobroSeleccionada.fcTipoPrincipal == 'TARJETA DE CREDITO'">
+                        <label>
+                          <strong>{{constantes.TAG_BANCO}}</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm text-uppercase mousetrap" [(ngModel)]="invVentasTO.fcBanco"
+                          required name="fcBanco" />
+                      </div>
+                      <div class="form-group-sm col-md-6" *ngIf="formaCobroSeleccionada.fcTipoPrincipal == 'TARJETA DE CREDITO || CUENTAS POR COBRAR'">
+                        <label>
+                          <strong>{{constantes.TAG_CUENTA}}</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm text-uppercase mousetrap" [(ngModel)]="invVentasTO.fcCuenta"
+                          required name="fcCuenta" />
+                      </div>
+                      <div class="form-group-sm col-md-6" *ngIf="formaCobroSeleccionada.fcTipoPrincipal == 'CHEQUE'">
+                        <label>
+                          <strong>{{constantes.TAG_CHEQUE}}</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm text-uppercase mousetrap" [(ngModel)]="invVentasTO.fcCheque"
+                          required name="fcCheque" />
+                      </div>
+                      <div class="form-group-sm col-md-6" *ngIf="formaCobroSeleccionada.fcTipoPrincipal == 'CHEQUE'">
+                        <label>
+                          <strong>{{constantes.TAG_LOTE}}</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm text-uppercase mousetrap" [(ngModel)]="invVentasTO.fcLote"
+                          required name="fcLote" />
+                      </div>
+                      <div class="form-group-sm col-md-12">
+                        <label>
+                          <strong>{{constantes.TAG_TITULAR}}</strong>
+                        </label>
+                        <input type="text" class="form-control form-control-sm text-uppercase mousetrap" [(ngModel)]="invVentasTO.fcTitular"
+                          required name="fcTitular" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div role="tabpanel" class="tab-pane fade" id="infAdicional">
+                <div *ngIf="accion === constantes.ACCION_CREAR || invVentasTO?.vtaNumero">
+                  <app-venta-informacion-adicional [empresaSeleccionada]="empresaSeleccionada" [invVentasTO]="invVentasTO"
+                    [puedeEditar]="puedeEditar" [listaIA]="informacionAdicional">
+                  </app-venta-informacion-adicional>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--TOTALES-->
+          <div class="col-md-5 col-lg-5">
+            <br>
+            <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+              <ng-template pTemplate="colgroup" *ngIf="isScreamMd">
+                <colgroup>
+                  <col [style.width]="'100px'">
+                  <col [style.width]="'80px'">
+                  <col [style.width]="'80px'">
+                </colgroup>
+              </ng-template>
+              <ng-template pTemplate="header">
+                <tr class="text-center">
+                  <th style="width:100px" pResizableColumn></th>
+                  <th style="width:80px" pResizableColumn>0%</th>
+                  <th style="width:80px" pResizableColumn>{{invVentasTO.vtaIvaVigente}}%</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <tr>
+                  <td class="totales-tabla">{{constantes.TAG_SUBTOTAL}}</td>
+                  <td>
+                    <span class="f-r">{{invVentasTO.vtaSubtotalBase0 | number : '1.2-2'}}</span>
+                  </td>
+                  <td>
+                    <span class="f-r">{{invVentasTO.vtaSubtotalBaseImponible | number : '1.2-2'}}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="totales-tabla">{{constantes.TAG_IVA}}</td>
+                  <td></td>
+                  <td>
+                    <span class="f-r">{{invVentasTO.vtaMontoIva}}</span>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="summary">
+                <div class="ui-table-summary ui-widget-header ng-star-inserted" style="height: 30px;">
+                  <h2 style="cursor: pointer;" (click)="accionAdicional(null, 'valores')" title="Dar click para ver detalles">{{invVentasTO.vtaTotal}}</h2>
+                </div>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="mostrarAccionesContabilidad">
+  <app-contable-formulario [data]="objetoContableEnviar" (cargandoEstado)="cambiarEstadoCargando($event)"
+    (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivar($event)"></app-contable-formulario>
+</div>
+<div *ngIf="mostrarAccionesCliente">
+  <app-cliente-formulario [parametros]="parametros" [empresaSeleccionada]="empresaSeleccionada" [listadoCategorias]="listadoCategorias"
+    (enviarCancelar)="ejecutarAccionCliente($event)" (enviarActivar)="activar=$event"></app-cliente-formulario>
+</div>
+<p-contextMenu #menuOpciones [model]="opcionesDetalle" appendTo="body"></p-contextMenu>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

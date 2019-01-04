@@ -1,0 +1,70 @@
+<div class="modal-primary" *ngIf="parametrosBusqueda" [hidden]="mostrarAccionesContabilidad">
+  <div class="card m-0" *ngIf="listaProvisiones.length>0">
+    <div class="modal-header p-2" *ngIf="isModal">
+      <h4 class="modal-title">{{constantes.RRHH_DETALLE_ANTICIPO_LISTADO}}</h4>
+      <button type="button" class="close" style="color: white;" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="card-header p-1" *ngIf="!isModal">
+      <button id="btnActivarAnticipos" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="cambiarActivar()"
+        type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <strong> {{constantes.TALENTO_HUMANO_PROVISIONES_LISTADO}}</strong>
+      <div class="card-header-actions">
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarProvision" (click)="guardarProvision()"
+            placement="top" ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" title="{{constantes.ATAJO_GUARDAR}}"
+            [disabled]="disableGuardar">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelar" (click)="regresar()" title="{{constantes.ATAJO_CANCELAR}}"
+            *ngIf="parametrosBusqueda.accion === constantes.ACCION_CONSULTAR">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-0">
+      <div class="row">
+        <div class="col-sm-5 col-md-6">
+          <div class="input-group p-1">
+            <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+              size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+              size="100">
+            <div class="input-group-append">
+              <span class="input-group-text">
+                <i class="{{constantes.ICON_BUSCAR}}"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm-7 col-md-6">
+          <div class="float-right pr-1">
+            <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+              maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+          </div>
+        </div>
+      </div>
+      <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+        [rowData]="listaProvisiones" [columnDefs]="columnDefsSelected" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()"
+        [rowSelection]="rowSelection" [enableColResize]="true" [context]="context" (gridReady)="onGridReady($event)"
+        [frameworkComponents]="frameworkComponents" (rowSelected)="objetoSeleccionado = $event.node.data"
+        (filterChanged)="actualizarFilas()" (cellFocused)="filaFocused($event)" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+        (contextmenu)="$event.preventDefault()">
+      </ag-grid-angular>
+    </div>
+    <p-contextMenu #menuOpciones appendTo="body" [model]="opciones" [baseZIndex]="1100"></p-contextMenu>
+  </div>
+</div>
+<div *ngIf="mostrarAccionesContabilidad">
+  <app-contable-formulario [data]="objetoContableEnviar" (cargandoEstado)="cambiarEstadoCargando($event)"
+    (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivarContable($event)"></app-contable-formulario>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

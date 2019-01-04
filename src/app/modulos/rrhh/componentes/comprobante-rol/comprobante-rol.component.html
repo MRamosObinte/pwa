@@ -1,0 +1,430 @@
+<div class="modal-primary" *ngIf="mostrarModal">
+  <div class="modal-header p-2">
+    <h4 class="modal-title">{{titulo}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <!--FEchas-->
+    <div class="card m-0">
+      <div class="card-header" style="border-top: 1px solid #c8ced3">
+        <b>{{constantes.TAG_DATOS_GENERALES}}</b>
+        <div class="card-header-actions" *ngIf="!vistaPreliminar">
+          <button type="button" id="bntImprimirComprobanteRol" class="btn btn-sm btn-primary mr-1"
+            (click)="imprimirComprobante()" placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+          </button>
+          <button type="button" id="bntCancelarComprobanteRol" class="btn btn-sm btn-default mr-1" (click)="cerrarModal()"
+            placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}
+          </button>
+        </div>
+        <div class="card-header-actions" *ngIf="vistaPreliminar">
+          <button type="button" id="bntAceptarComprobanteRol" class="btn btn-sm btn-primary mr-1"
+            (click)="cerrarModal()" placement="top" ngbTooltip="{{constantes.LABEL_ACEPTAR}}">
+            <i class="{{constantes.ICON_OK_SWAL}}" aria-hidden="true"></i> {{constantes.LABEL_ACEPTAR}}
+          </button>
+        </div>
+      </div>
+      <div class="card-body row">
+        <!--cedula-->
+        <div class="form-group form-group-sm col-lg-6">
+          <label class="control-label">
+            <strong>{{constantes.TAG_CEDULA}}</strong>
+          </label>
+          <label class="form-control form-control-sm text-uppercase label-input">
+            {{itemListaRolTO.rhRol.rhEmpleado.rhEmpleadoPK.empId}}</label>
+        </div>
+        <!--Apellidos y nombres-->
+        <div class="form-group form-group-sm col-lg-6">
+          <label class="control-label">
+            <strong>{{constantes.TAG_APELLIDOS_Y_NOMBRES}}</strong>
+          </label>
+          <label class="form-control form-control-sm text-uppercase label-input ocultar-en-tabla">
+            {{itemListaRolTO.rhRol.rhEmpleado.empApellidos}}, {{itemListaRolTO.rhRol.rhEmpleado.empNombres}}</label>
+        </div>
+        <!--Desde-->
+        <div class="form-group form-group-sm col-lg-6">
+          <label class="control-label">
+            <strong>{{constantes.TAG_FECHA_DESDE}}</strong>
+          </label>
+          <label class="form-control form-control-sm text-uppercase label-input">
+            {{itemListaRolTO.rolDesdeTexto}}</label>
+        </div>
+        <!--Hasta-->
+        <div class="form-group form-group-sm col-lg-6">
+          <label class="control-label">
+            <strong>{{constantes.TAG_FECHA_HASTA}}</strong>
+          </label>
+          <label *ngIf="!vistaPreliminar" class="form-control form-control-sm text-uppercase label-input">
+            {{itemListaRolTO.rolHastaTexto}}</label>
+          <p-calendar *ngIf="vistaPreliminar" class="mousetrap calendar" [disabled]="!puedeEditar" name="rolHastaTexto"
+            [inputStyleClass]="isFechaValido == false ? 'has-error height-26' : 'height-26' " [(ngModel)]="itemListaRolTO.rolHastaTexto"
+            [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true"
+            (ngModelChange)="cambioLaFecha()" placeholder="DD/MM/YYYY"></p-calendar>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <div class="row">
+      <!--Informacion-->
+      <div class="{{columnas}}">
+        <div class="card m-0">
+          <div class="card-header">
+            <strong>{{constantes.TOAST_INFORMACION}}</strong>
+          </div>
+          <div class="card-body p-1">
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolDiasLaboradosReales > 0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_LABORADOS}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right"> {{itemListaRolTO.rhRol.rolDiasLaboradosReales| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolDiasFaltasReales > 0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_FALTAS}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right"> {{itemListaRolTO.rhRol.rolDiasFaltasReales| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolDiasDescansoReales > 0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_DESCANSO}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right"> {{itemListaRolTO.rhRol.rolDiasDescansoReales| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolDiasPagadosReales > 0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_PAGADOS}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolDiasPagadosReales| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.empSueldo >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_SUELDO}}:</strong>
+              </label>
+              <div class="col-lg-7">
+                <div class="pull-right"> {{itemListaRolTO.rhRol.empSueldo| number:'1.2-2'}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <strong> {{constantes.TAG_TOTAL_A_PAGAR}}:</strong>
+            <div class="pull-right">
+              <strong>{{itemListaRolTO.totalPagar| number:'1.2-2'}}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Ingresos-->
+      <div class="{{columnas}}">
+        <div class="card m-0">
+          <div class="card-header">
+            <strong>{{constantes.TAG_INGRESOS}}</strong>
+          </div>
+          <div class="card-body p-1">
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolSaldoAnterior >0">
+              <label class=" col-lg-6 control-label">
+                <strong>{{constantes.TAG_SALDO_ANTERIOR}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolSaldoAnterior| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolIngresos >0">
+              <label class="col-lg-6 control-label">
+                <strong> {{constantes.TAG_INGRESOS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolIngresos| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolBonos >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_BONOS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolBonos| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolBonosnd >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_BONOS_ND}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolBonosnd| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolBonoFijo >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_BONOS_FIJO}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolBonoFijo| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolBonoFijoNd >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_BONOS_FIJO_ND}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolBonoFijoNd| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolOtrosIngresos >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_OTROS_INGRESOS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolOtrosIngresos| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolOtrosIngresosNd >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_OTROS_INGRESOS_ND}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolOtrosIngresosNd| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolHorasExtras >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_HORAS_EXTRAS_50_PORCENTAJE}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolHorasExtras| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolHorasExtras100 >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_HORAS_EXTRAS_100_PORCENTAJE}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolHorasExtras100| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolFondoReserva >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_FONDO_RESERVA}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolFondoReserva| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolXiii >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.RRHH_XIII_SUELDO}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolXiii| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolXiv >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.RRHH_XIV_SUELDO}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolXiv| number:'1.2-2'}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <strong>{{constantes.TAG_TOTAL_INGRESOS}}:</strong>
+            <div class="pull-right">
+              <strong>{{itemListaRolTO.totalIngresos| number:'1.2-2'}}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Descuentos-->
+      <div class="{{columnas}}" *ngIf="mostrarDescuentos">
+        <div class="card m-0">
+          <div class="card-header">
+            <strong> {{constantes.TAG_DESCUENTOS}}</strong>
+          </div>
+          <div class="card-body p-1">
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolAnticipos >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_ANTICIPOS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolAnticipos| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolIess >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_IESS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolIess| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolIessExtension >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_EXTENSION_COBERTURA_IESS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolIessExtension| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolPrestamoQuirografario >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_PRESTAMOS_QUIROGRAFARIOS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolPrestamoQuirografario| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolPrestamoHipotecario >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_PRESTAMOS_HIPOTECARIOS}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolPrestamoHipotecario| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rolValorPrestamos >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_PRESTAMOS}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rolValorPrestamos| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rolImpuestoRenta >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_IMPUESTO_RENTA}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rolImpuestoRenta| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolDescuentoPermisoMedico >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_PERMISO_MEDICO}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolDescuentoPermisoMedico| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rolDescFondoReserva >0">
+              <label class="col-lg-6 control-label">
+                <strong>{{constantes.TAG_FONDO_RESERVA}}:</strong>
+              </label>
+              <div class="col-lg-6">
+                <div class="pull-right">{{itemListaRolTO.rolDescFondoReserva| number:'1.2-2'}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <strong> {{constantes.TAG_TOTAL_DESCUENTOS}}:</strong>
+            <div class="pull-right">
+              <strong>{{itemListaRolTO.totalDescuentos| number:'1.2-2'}}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Liquidacion-->
+      <div class="{{columnas}}" *ngIf="mostrarBeneficios">
+        <div class="card m-0">
+          <div class="card-header">
+            <strong> {{constantes.TAG_LIQUIDACION}}</strong>
+          </div>
+          <div class="card-body p-1">
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolLiqXiii >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.RRHH_XIII_SUELDO}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolLiqXiii| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolLiqXiv >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.RRHH_XIV_SUELDO}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolLiqXiv| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolLiqVacaciones >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_VACACIONES}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolLiqVacaciones| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolLiqSalarioDigno >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_SALARIO_DIGNO}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolLiqSalarioDigno| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolLiqDesahucio >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_DESAHUCIO}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolLiqDesahucio| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolLiqDesahucioIntempestivo >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_DESAHUCIO_INTEM}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolLiqDesahucioIntempestivo| number:'1.2-2'}}</div>
+              </div>
+            </div>
+            <div class="form-group-sm row" *ngIf="itemListaRolTO.rhRol.rolLiqBonificacion >0">
+              <label class="col-lg-5 control-label">
+                <strong>{{constantes.TAG_BONIFICACION}}:</strong>
+              </label>
+              <div class=" col-lg-7">
+                <div class="pull-right">{{itemListaRolTO.rhRol.rolLiqBonificacion| number:'1.2-2'}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <strong>{{constantes.TAG_TOTAL_BENEFICIOS}}:</strong>
+            <div class="pull-right">
+              <strong>{{itemListaRolTO.totalLiquidacion| number:'1.2-2'}}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br>
+
+    <!--Tabla-->
+    <div class="card mb-1" *ngIf="itemListaRolTO.detalle.length > 0">
+      <div class="card-header">
+        <strong>{{constantes.TAG_DETALLE}}</strong>
+      </div>
+      <div class="card-body m-0 p-0">
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 903px);min-height: 135px" class="ag-theme-balham"
+          [rowData]="itemListaRolTO.detalle" [columnDefs]="columnDefs" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          (gridReady)="onGridReady($event)" (gridColumnsChanged)="redimensionarColumnas()" (gridSizeChanged)="redimensionarColumnas()">
+        </ag-grid-angular>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

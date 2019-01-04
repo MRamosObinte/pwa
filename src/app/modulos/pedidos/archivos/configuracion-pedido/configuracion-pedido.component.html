@@ -1,0 +1,448 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i>
+        <strong>{{constantes.TITULO_FILTROS}}</strong>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmConfiguracionPedido="ngForm">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control input-sm" name="empresaSeleccionada" [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSelect()" required [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option selected [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_SECTOR}}</strong>
+              &nbsp;
+              <a *ngIf="!vistaFormulario" (click)="listarSectores()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                  container="body" *ngIf="!vistaFormulario"></span>
+              </a>
+            </label>
+            <select class="form-control input-sm" name="sectorSeleccionado" [(ngModel)]="sectorSeleccionado" (change)="limpiarResultado()"
+              required [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option selected [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}}
+                ({{sector.secCodigo}})</option>
+            </select>
+          </div>
+          <!--Agregar usuarios-->
+          <div *ngIf="vistaFormulario && accionAgregarUsuario">
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <b>{{constantes.TAG_USUARIOS}}</b>
+              </label>
+              <span class="ui-fluid">
+                <p-autoComplete [appFocus]="true" isAutocomple="true" inputId="inputAutocomplete" forceSelection="true"
+                  autofocus [(ngModel)]="listUsuarioSeleccionado" name="listUsuarioSeleccionado" [suggestions]="listaUsuariosFiltrada"
+                  (completeMethod)="filtrarUsuarioEmpresa($event)" styleClass="wid100" [minLength]="1" placeholder="usuarios"
+                  field="usrNombre" [multiple]="true">
+                  <ng-template let-usuariosRegistradores pTemplate="item">
+                    <div class="ui-helper-clearfix">
+                      <div>{{usuariosRegistradores.usrNombre}} {{usuariosRegistradores.usrApellido}}</div>
+                    </div>
+                  </ng-template>
+                </p-autoComplete>
+              </span>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer" *ngIf="vistaFormulario && accionAgregarUsuario">
+        <div class="text-right">
+          <!--Agregar-->
+          <button type="button" class="btn btn-sm btn-primary mr-1" (click)="agregarUsuario()" [disabled]="cargando">
+            <i class="{{constantes.ICON_AGREGAR}}" aria-hidden="true"></i> {{constantes.LABEL_AGREGAR}}
+          </button>
+          <!--Cancelar-->
+          <button (click)="cancelarAgregarUsuario()" type="button" class="btn btn-sm btn-default" [disabled]="cargando">
+            <i class="{{constantes.ICON_CANCELAR}}"></i> {{constantes.LABEL_CANCELAR}}
+          </button>
+        </div>
+      </div>
+      <div class="card-footer" *ngIf="!vistaFormulario">
+        <div class="text-right">
+          <!--Buscar-->
+          <div class="btn-group mr-1">
+            <button type="button" id="btnBuscarConfiguracionPedidos" class="btn btn-sm btn-primary" (click)="listarConfiguracionPedidos(false)"
+              title="{{constantes.ATAJO_BUSCAR}}">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="listarConfiguracionPedidos(true)"> {{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+            </div>
+          </div>
+          <!--Nuevo-->
+          <button id="btnNuevoConfiguracionPedidos" [disabled]="!frmConfiguracionPedido?.form.valid || !empresaSeleccionada?.listaSisPermisoTO?.gruCrear"
+            class="btn btn-sm btn-primary" type="button" (click)="frmConfiguracionPedido?.form.valid ? nuevoConfiguracionPedido() : null"
+            title="{{constantes.ATAJO_NUEVO}}">
+            <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-------------CONFIGURACIÓN GENERAL----------------->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="vistaFormulario">
+    <form #frmConfiguracionOP="ngForm" autocomplete="off">
+      <div class="card m-0">
+        <div class="card-header p-1">
+          <button id="btnActivarConfiguracionPedidos" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="activar = !activar"
+            type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+            <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+          </button>
+          <b>{{tituloFormulario}} </b>
+          <div class="card-header-actions">
+            <div class="btn-group">
+              <!-- Guardar nuevo-->
+              <button id="btnGuardarConfiguracionPedidos" type="button" class="btn btn-sm btn-primary mr-1" placement="top"
+                ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" (click)="guardarConfiguracionPedido(frmConfiguracionOP)"
+                title="{{constantes.ATAJO_GUARDAR}}" *ngIf="accion === constantes.ACCION_CREAR">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <!--Guardar editar-->
+              <button id="btnGuardarConfiguracionPedidos" type="button" class="btn btn-sm btn-primary mr-1" placement="top"
+                ngbTooltip="{{constantes.LABEL_GUARDAR}}" container="body" (click)="actualizarConfiguracionPedido(frmConfiguracionOP)"
+                title="{{constantes.ATAJO_GUARDAR}}" *ngIf="accion === constantes.ACCION_EDITAR">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <!--Cancelar-->
+              <button id="btnCancelarConfiguracionPedidos" type="button" class="btn btn-sm btn-default mr-1" placement="top"
+                ngbTooltip="{{constantes.LABEL_CANCELAR}}" container="body" (click)="cancelarAccion()" [disabled]="cargando"
+                title="{{constantes.ATAJO_CANCELAR}}" *ngIf="!(accion === constantes.ACCION_CONSULTAR)">
+                <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+              </button>
+              <!--Regresar-->
+              <button id="btnCancelarConfiguracionPedidos" type="button" class="btn btn-sm btn-default mr-1" placement="top"
+                ngbTooltip="{{constantes.LABEL_REGRESAR}}" container="body" (click)="cancelarConfiguracionPedido()"
+                [disabled]="cargando" *ngIf="(accion === constantes.ACCION_CONSULTAR)">
+                <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+          <div class="card-body p-0">
+            <div class="card m-1">
+              <div class="card-header">
+                <b>{{constantes.CONFIGURACION_GENERAL}}</b>
+                <div class="card-header-actions">
+                  <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#general"
+                    aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+                    <i class="fa fa-minus"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="general">
+                <div class="row">
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm has-feedback">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_CODIGO}}</strong>&nbsp;
+                      </label>
+                      <input [appFocus]="accion === constantes.ACCION_CREAR" name="pmCodigo" [(ngModel)]="invPedidosMotivo.invPedidosMotivoPK.pmCodigo"
+                        placeholder="{{constantes.TAG_OBLIGATORIO}}" pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm text-uppercase mousetrap"
+                        required appUppercase [disabled]="accion !== constantes.ACCION_CREAR">
+                      <span class="fa fa-question-circle form-control-feedback" placement="left" ngbPopover="{{constantes.MSJ_INFOCODIGO}}"
+                        container="body" triggers="mouseenter:mouseleave" *ngIf="accion === constantes.ACCION_CREAR"></span>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label  ">
+                        <strong>{{constantes.TAG_DETALLE}}</strong>
+                      </label>
+                      <input [appFocus]="accion === constantes.ACCION_EDITAR" name="pmDetalle" [(ngModel)]="invPedidosMotivo.pmDetalle"
+                        class="form-control form-control-sm text-uppercase mousetrap" required placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                        appUppercase>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm cp">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_CATEGORIA}}</strong>&nbsp;
+                        <a (click)="listarCategorias()" *ngIf="!(accion===constantes.ACCION_CONSULTAR)">
+                          <span class="fa fa-refresh" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CATEGORIAS}}"
+                            container="body"></span>
+                        </a>
+                      </label>
+                      <p-dropdown [options]="listaCategorias" name="categoria" [showClear]="true" [(ngModel)]="categoriaSeleccionada"
+                        placeholder="{{constantes.TAG_TODOS}}" optionLabel="catDetalle" [disabled]="accion === constantes.ACCION_CONSULTAR">
+                        <ng-template let-item pTemplate="selectedItem">
+                          {{categoriaSeleccionada?.catDetalle}} ({{categoriaSeleccionada?.catCodigo}})
+                        </ng-template>
+                        <ng-template let-elemento pTemplate="item">
+                          <div class=""> {{elemento.value.catDetalle}} ({{elemento.value.catCodigo}})</div>
+                        </ng-template>
+                      </p-dropdown>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm mb-0">
+                      <label class="control-label  ">
+                        <strong>{{constantes.MSJ_DIAS_PEDIDO}}</strong>
+                      </label>
+                      <div class="p-2">
+                        <p-toggleButton onLabel="{{constantes.TAG_LUN}}" offLabel="{{constantes.TAG_LUN}}" name="pmLunes"
+                          [(ngModel)]="invPedidosMotivo.pmLunes" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_MAR}}" offLabel="{{constantes.TAG_MAR}}" name="pmMartes"
+                          [(ngModel)]="invPedidosMotivo.pmMartes" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_MIE}}" offLabel="{{constantes.TAG_MIE}}" name="pmMiercoles"
+                          [(ngModel)]="invPedidosMotivo.pmMiercoles" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_JUE}}" offLabel="{{constantes.TAG_JUE}}" name="pmJueves"
+                          [(ngModel)]="invPedidosMotivo.pmJueves" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_VIE}}" offLabel="{{constantes.TAG_VIE}}" name="pmViernes"
+                          [(ngModel)]="invPedidosMotivo.pmViernes" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_SAB}}" offLabel="{{constantes.TAG_SAB}}" name="pmSabado"
+                          [(ngModel)]="invPedidosMotivo.pmSabado" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_DOM}}" offLabel="{{constantes.TAG_DOM}}" name="pmDomingo"
+                          [(ngModel)]="invPedidosMotivo.pmDomingo" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label  ">
+                        <strong>{{constantes.TAG_HORA_INICIO}}</strong>
+                      </label>
+                      <input name="pmHoraInicio" type="time" [(ngModel)]="invPedidosMotivo.pmHoraInicio" appMaxTime="pmHoraFin"
+                        reverse="true" required class="form-control form-control-sm mousetrap">
+                    </div>
+                  </div>
+                  <div class="col-lg-2 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label  ">
+                        <strong>{{constantes.TAG_HORA_FIN}}</strong>
+                      </label>
+                      <input name="pmHoraFin" type="time" [(ngModel)]="invPedidosMotivo.pmHoraFin" appMinTime="pmHoraInicio"
+                        required class="form-control form-control-sm mousetrap">
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_DIAS_VENCIMIENTO_ORDEN}} </strong>
+                      </label>
+                      <input type="text" [(ngModel)]="invPedidosMotivo.pmPlazoPredeterminado" name="pmPlazoPredeterminado"
+                        class="form-control form-control-sm mousetrap text-uppercase" placeholder="{{constantes.TAG_OBLIGATORIO}} ({{constantes.TAG_CANTIDAD_DIAS}})"
+                        appMinNumber="1" maxlength="3" appEnteroPositivo required>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="form-group form-group-sm">
+                      <label class="control-label">
+                        <strong>{{constantes.TAG_NOTIFICAR_CORREO}}</strong>
+                      </label>
+                      <div class="p-2">
+                        <p-toggleButton *ngIf="!invPedidosMotivo.pmRegistradorAprobador" onLabel="{{constantes.TAG_REGISTRADOR}}"
+                          offLabel="{{constantes.TAG_REGISTRADOR}}" name="pmNotificarRegistrador" [(ngModel)]="invPedidosMotivo.pmNotificarRegistrador"
+                          [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_APROBADOR}}" offLabel="{{constantes.TAG_APROBADOR}}"
+                          name="pmNotificarAprobador" [(ngModel)]="invPedidosMotivo.pmNotificarAprobador" *ngIf="!invPedidosMotivo.pmAprobacionAutomatica"
+                          [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                        <p-toggleButton onLabel="{{constantes.TAG_EJECUTOR}}" offLabel="{{constantes.TAG_EJECUTOR}}"
+                          name="pmNotificarEjecutor" [(ngModel)]="invPedidosMotivo.pmNotificarEjecutor" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-toggleButton>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-6 col-sm-12">
+                    <div class="switch">
+                      <label>
+                        <input id="pmAprobacionAutomatica" name="pmAprobacionAutomatica" type="checkbox" [(ngModel)]="invPedidosMotivo.pmAprobacionAutomatica">
+                        <span class="lever"></span>{{constantes.MSJ_APROBACION_AUTOMATICA}}
+                      </label>
+                    </div>
+                    <div class="switch">
+                      <label>
+                        <input id="pmExigirCliente" name="pmExigirCliente" type="checkbox" [(ngModel)]="invPedidosMotivo.pmExigirCliente">
+                        <span class="lever"></span> {{constantes.TAG_REQUERIR_CLIENTE}}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card m-1">
+              <div class="card-header">
+                <b>{{constantes.CONFIGURACION_USUARIO}}</b>
+                <div class="card-header-actions">
+                  <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#usuarios"
+                    aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+                    <i class="fa fa-minus"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="usuarios">
+                <div class="row">
+                  <div [ngClass]="{'col-lg-4 col-md-12 col-sm-12':!invPedidosMotivo?.pmAprobacionAutomatica,'col-lg-6 col-md-6 col-sm-6':invPedidosMotivo?.pmAprobacionAutomatica}"
+                    class="p-0">
+                    <!--Registradores-->
+                    <div class="card m-1">
+                      <div class="card-header p-1">
+                        <i class="{{constantes.ICON_USUARIO}}"></i>
+                        <strong>{{constantes.PEDIDOS_CONFIGURACION_REGISTRADOR}}</strong>
+                        <button type="button" *ngIf="!accionAgregarUsuario && empresaSeleccionada.listaSisPermisoTO.gruCrear && accion !== constantes.ACCION_CONSULTAR"
+                          class="btn btn-sm btn-primary pull-right" (click)="mostrarAgregarUsuario(constantes.TAG_REGISTRADOR)"
+                          placement="top" ngbTooltip="{{constantes.LABEL_AGREGAR}}" triggers="mouseenter:mouseleave"
+                          container="body">
+                          <i class="{{constantes.ICON_AGREGAR}}"></i>
+                        </button>
+                      </div>
+                      <div class="card-body" class="no-padding">
+                        <div [hidden]="invPedidosConfiguracionTO.listRegistradores.length==0">
+                          <ag-grid-angular #agGridRegistrador id="agGridRegistrador" style="width: 100%;" class="ag-theme-balham"
+                            [rowData]="invPedidosConfiguracionTO.listRegistradores" [columnDefs]="columnRegistrador"
+                            [enableCellChangeFlash]="true" [enableSorting]="true" [rowSelection]="rowSelection"
+                            [enableColResize]="true" [components]="components" [context]="context" [animateRows]="true"
+                            (gridSizeChanged)="redimencionarColumnasConfiguracion($event.api)" [gridAutoHeight]="true"
+                            (gridReady)="onGridReadyConfiguracion($event, constantes.TAG_REGISTRADOR)" (rowSelected)="usuarioSeleccionado = $event.node.data"
+                            (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenuConfiguracion($event.data, $event.event, cmr)"
+                            [overlayNoRowsTemplate]="overlayNoRowsTemplate">
+                          </ag-grid-angular>
+                        </div>
+                        <p-contextMenu #cmr [model]="opcionesRegistrador" appendTo='body'></p-contextMenu>
+                      </div>
+                    </div>
+                  </div>
+                  <div [ngClass]="{'col-lg-4 col-md-12 col-sm-12':!(invPedidosMotivo?.pmAprobacionAutomatica),'col-lg-6 col-md-6 col-sm-6': invPedidosMotivo?.pmAprobacionAutomatica}"
+                    class="p-0" *ngIf="!invPedidosMotivo.pmAprobacionAutomatica">
+                    <!--Aprobadores-->
+                    <div class="card m-1 ">
+                      <div class="card-header p-1">
+                        <i class="{{constantes.ICON_USUARIO}}"></i>
+                        <strong>{{constantes.PEDIDOS_CONFIGURACION_APROBADOR}}</strong>
+                        <button type="button" *ngIf="!accionAgregarUsuario && empresaSeleccionada.listaSisPermisoTO.gruCrear && accion !== constantes.ACCION_CONSULTAR"
+                          class="btn btn-sm btn-primary pull-right" (click)="mostrarAgregarUsuario(constantes.TAG_APROBADOR)"
+                          placement="top" ngbTooltip="{{constantes.LABEL_AGREGAR}}" container="body">
+                          <i class="{{constantes.ICON_AGREGAR}}"></i>
+                        </button>
+                      </div>
+                      <div class="card-body" class="no-padding">
+                        <div [hidden]="invPedidosConfiguracionTO.listAprobadores.length==0">
+                          <ag-grid-angular #agGridAprobador id="agGridAprobador" style="width: 100%;" class="ag-theme-balham"
+                            [rowData]="invPedidosConfiguracionTO.listAprobadores" [columnDefs]="columnAprobador"
+                            [enableCellChangeFlash]="true" [enableSorting]="true" [rowSelection]="rowSelection"
+                            [enableColResize]="true" [components]="components" [context]="context" [animateRows]="true"
+                            (gridSizeChanged)="redimencionarColumnasConfiguracion($event.api)" [gridAutoHeight]="true"
+                            (gridReady)="onGridReadyConfiguracion($event, constantes.TAG_APROBADOR)" (rowSelected)="usuarioSeleccionado = $event.node.data"
+                            (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenuConfiguracion($event.data, $event.event, cma)"
+                            [overlayNoRowsTemplate]="overlayNoRowsTemplate">
+                          </ag-grid-angular>
+                        </div>
+                        <p-contextMenu #cma [model]="opcionesAprobador" appendTo='body'></p-contextMenu>
+                      </div>
+                    </div>
+                  </div>
+                  <div [ngClass]="{'col-lg-4 col-md-12 col-sm-12':!invPedidosMotivo?.pmAprobacionAutomatica,'col-lg-6 col-md-6 col-sm-6':invPedidosMotivo?.pmAprobacionAutomatica}"
+                    class="p-0">
+                    <!--Regitrador y aprobador-->
+                    <div class="card m-1 ">
+                      <div class="card-header p-1">
+                        <i class="{{constantes.ICON_USUARIO}}"></i>
+                        <strong> {{constantes.PEDIDOS_CONFIGURACION_EJECUTOR}}</strong>
+                        <button type="button" *ngIf="!accionAgregarUsuario && empresaSeleccionada.listaSisPermisoTO.gruCrear && accion !== constantes.ACCION_CONSULTAR"
+                          class="btn btn-sm btn-primary pull-right" (click)="mostrarAgregarUsuario(constantes.TAG_EJECUTOR)"
+                          placement="top" ngbTooltip="{{constantes.LABEL_AGREGAR}}" container="body">
+                          <i class="{{constantes.ICON_AGREGAR}}"></i>
+                        </button>
+                      </div>
+                      <div class="card-body" class="no-padding">
+                        <div [hidden]="invPedidosConfiguracionTO.listEjecutores.length==0">
+                          <ag-grid-angular #agGridEjecutor id="agGridEjecutor" style="width: 100%;" class="ag-theme-balham"
+                            [rowData]="invPedidosConfiguracionTO.listEjecutores" [columnDefs]="columnEjecutor"
+                            [enableCellChangeFlash]="true" [enableSorting]="true" [rowSelection]="rowSelection"
+                            [enableColResize]="true" [components]="components" [context]="context" [animateRows]="true"
+                            (gridSizeChanged)="redimencionarColumnasConfiguracion($event.api)" [gridAutoHeight]="true"
+                            (gridReady)="onGridReadyConfiguracion($event,constantes.TAG_EJECUTOR)" (rowSelected)="usuarioSeleccionado = $event.node.data"
+                            (contextmenu)="$event.preventDefault()" (cellContextMenu)="mostrarContextMenuConfiguracion($event.data, $event.event, cme)"
+                            [overlayNoRowsTemplate]="overlayNoRowsTemplate">
+                          </ag-grid-angular>
+                        </div>
+                        <p-contextMenu #cme [model]="opcionesEjecutor" appendTo='body'></p-contextMenu>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </form>
+  </div>
+  <!---------------LISTADO DE MOTIVOS------------------->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="!vistaFormulario">
+    <div class="card m-0" *ngIf="listadoResultado?.length > 0">
+      <div class="card-header p-1">
+        <button id="btnActivarConfiguracionPedidos" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="activar = !activar"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <b>{{constantes.TITULO_CONFIGURACION_PEDIDOS}}</b>
+        <div class="card-header-actions">
+          <div class="btn-group">
+            <button id="btnImprimir" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}"
+              container="body" (click)="imprimir()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruImprimir"
+              title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+            </button>
+            <button id="btnExportar" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}"
+              container="body" (click)="exportar()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar"
+              title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <!--Tabla-->
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listadoResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (gridSizeChanged)="redimencionarColumnas()" (gridReady)="onGridReady($event)"
+          (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" (cellFocused)="filaFocused($event)">
+        </ag-grid-angular>
+      </div>
+    </div>
+  </div>
+</div>
+<p-contextMenu #menuOpciones appendTo="body" [model]="opciones" [baseZIndex]="1100"></p-contextMenu>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

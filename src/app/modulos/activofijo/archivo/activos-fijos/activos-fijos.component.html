@@ -1,0 +1,393 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class=" {{constantes.ICON_FILTRAR}}"></i>
+        <b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmActivoFijo='ngForm' name="frmActivoFijo">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()"
+              [disabled]="accion">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}} ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_SECTOR}}</b>
+              &nbsp;
+              <a (click)="listarSectores()" *ngIf="!accion">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}" container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listadoSectores" name="sec" [showClear]="true" [(ngModel)]="sectorSeleccionado" optionLabel="secNombre"
+              placeholder="{{constantes.TAG_TODOS}}" class="mousetrap" [disabled]="accion">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_UBICACION}}</b>
+              &nbsp;
+              <a (click)="listarUbicaciones()" *ngIf="!accion">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_UBICACIONES}}" container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listadoUbicaciones" name="ubi" [showClear]="true" [(ngModel)]="ubicacionSeleccionado" optionLabel="ubiDescripcion"
+              placeholder="{{constantes.TAG_TODOS}}" class="mousetrap" [disabled]="accion">
+              <ng-template let-item pTemplate="selectedItem">
+                {{ubicacionSeleccionado?.ubiDescripcion}} ({{ubicacionSeleccionado?.ubiCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.ubiDescripcion}} ({{fs.value.ubiCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+        </form>
+      </div>
+
+      <div class="card-footer" *ngIf="!accion">
+        <div class="text-right">
+          <button type="button" id="btnBuscarActivoFijo" class="btn btn-sm btn-primary mr-1" (click)="listarActivosFijos()">
+            <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}
+          </button>
+
+          <button type="button" id="btnNuevoActivoFijo" class="btn btn-sm btn-primary" (click)="operacionesActivoFijo(constantes.ACCION_CREAR)">
+            <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+
+    <!--Formulario-->
+    <form #frmDatos='ngForm' autocomplete="off" class="card m-0" *ngIf="accion && accion !== constantes.ACCION_ELIMINAR">
+      <div class="card-header p-1">
+        <button id="btnActivarActivoFijo" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+
+        <b> {{frmTitulo}} - </b>
+        <strong class="text-primary">{{empresaSeleccionada.empNombre}}</strong>
+
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <ng-template #tipContentGuardar>{{constantes.LABEL_GUARDAR}}</ng-template>
+            <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentGuardar" id="btnGuardarActivoFijo" *ngIf="accion === constantes.ACCION_CREAR"
+              title="{{constantes.ATAJO_GUARDAR}}" (click)="insertarActivosFijos(frmDatos)">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentGuardar" id="btnGuardarActivoFijo" *ngIf="accion === constantes.ACCION_EDITAR"
+              title="{{constantes.ATAJO_GUARDAR}}" (click)="actualizarActivosFijos(frmDatos)">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            </button>
+            <ng-template #tipContentCancelar>{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}</ng-template>
+            <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarActivoFijo"
+              [ngbTooltip]="tipContentCancelar" (click)="resetearFormulario()">
+              <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+
+          <!-- con etiquetas-->
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarActivoFijo" *ngIf="accion === constantes.ACCION_CREAR"
+              title="{{constantes.ATAJO_GUARDAR}}" (click)="insertarActivosFijos(frmDatos)">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarActivoFijo" *ngIf="accion === constantes.ACCION_EDITAR"
+              title="{{constantes.ATAJO_GUARDAR}}" (click)="actualizarActivosFijos(frmDatos)">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarActivoFijo"
+              (click)="resetearFormulario()">
+              <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+              {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card-body p-1">
+        <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+
+          <div class="card mb-1 card-accent-primary">
+            <div class="card-header h6">
+              <b> {{constantes.TAG_ACTIVO_FIJO_INFORMACION}}</b>
+            </div>
+
+            <div class="card-body mt-0 mb-0 pt-1 pb-0">
+
+              <div class="row">
+                <div class="form-group col-lg-4 col-sm-6 has-feedback">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}}</strong>
+                  </label>
+                  <input *ngIf="accion === constantes.ACCION_CREAR" [appFocus]="accion === constantes.ACCION_CREAR" name="codigoProducto" #codigo="ngModel"
+                    [(ngModel)]="afActivoTO.afCodigo" pattern="{{constantes.PATTERN_CODIGO}}" placeholder="{{constantes.TAG_OPCIONAL}}"
+                    class="form-control form-control-sm mousetrap text-uppercase" required maxlength="20" appUppercase (keydown)="buscarProducto($event)"
+                    (blur)="validarProducto()">
+                  <span *ngIf="accion === constantes.ACCION_CREAR" class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_COINCIDENCIA_PRODUCTO}}"
+                    triggers="mouseenter:mouseleave" container="body"></span>
+
+                  <label *ngIf="accion !== constantes.ACCION_CREAR" class="form-control form-control-sm text-uppercase label-input">{{afActivoTO.afCodigo}}</label>
+
+                </div>
+
+                <div class="form-group col-lg-4 col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_DESCRIPCION}}</strong>
+                  </label>
+                  <input *ngIf="accion === constantes.ACCION_CREAR" class="form-control form-control-sm mousetrap text-uppercase" name="detalle"
+                    maxlength="150" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="afActivoTO.afDescripcion"
+                    id="detalle" required appUppercase [disabled]="true">
+                  <label *ngIf="accion !== constantes.ACCION_CREAR" class="form-control form-control-sm text-uppercase label-input">{{afActivoTO.afDescripcion}}</label>
+                </div>
+
+                <div class="form-group col-lg-4 col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_FECHA_ADQUISION}}</strong>
+                  </label>
+                  <p-calendar inputId="fecha" name="fecha" id="fecha" [(ngModel)]="afActivoTO.afFechaAdquisicion" dateFormat="dd/mm/yy" [locale]="es"
+                    [showIcon]="true" [required]="true" [disabled]="accion === constantes.ACCION_CONSULTAR"></p-calendar>
+                </div>
+              </div>
+
+              <div class="row">
+
+                <div class="form-group col-lg-4 col-sm-6">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_SECTOR}}</b>
+                  </label>
+                  <select *ngIf="accion !== constantes.ACCION_CONSULTAR" [compareWith]="inicializarSectores" class="form-control form-control-sm mousetrap"
+                    name="sector" [(ngModel)]="afActivoTO.prdListaSectorTO" required>
+                    <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="sector" *ngFor="let sector of listadoSectores"> {{sector?.secNombre}} ({{sector?.secCodigo}}
+                      )
+                    </option>
+                  </select>
+                  <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input">{{afActivoTO.prdListaSectorTO.secNombre}}</label>
+                </div>
+
+                <div class="form-group col-lg-4 col-sm-6">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_UBICACION}}</b>
+                  </label>
+                  <select *ngIf="accion !== constantes.ACCION_CONSULTAR" [compareWith]="inicializarUbicaciones" class="form-control form-control-sm mousetrap"
+                    name="ubicacion" [(ngModel)]="afActivoTO.afUbicaciones" required>
+                    <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="ubicacion" *ngFor="let ubicacion of listadoUbicaciones"> {{ubicacion?.ubiDescripcion}}
+                      ({{ubicacion?.ubiCodigo}} )</option>
+                  </select>
+                  <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input">{{afActivoTO.afUbicaciones.ubiDescripcion}}</label>
+                </div>
+
+                <div class="form-group col-lg-4 col-sm-6">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_GRUPO_CLASIFICACION}}</strong>
+                  </label>
+                  <select *ngIf="accion !== constantes.ACCION_CONSULTAR" [compareWith]="inicializarCategorias" class="form-control form-control-sm mousetrap"
+                    name="categoria" [(ngModel)]="afActivoTO.afCategorias" required (ngModelChange)="validarDepreciacionMeses()">
+                    <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="categoria" *ngFor="let categoria of listadoCategorias"> {{categoria?.catDescripcion}}
+                      ({{categoria?.catCodigo}} )</option>
+                  </select>
+                  <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input">{{afActivoTO.afCategorias.catDescripcion}}</label>
+                </div>
+
+              </div>
+
+              <div class="row">
+                <div class="form-group col-lg-3 col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_VALOR_ADQUISION}}</strong>
+                  </label>
+                  <input *ngIf="accion !== constantes.ACCION_CONSULTAR" name="afValorAdquision" type="text" [(ngModel)]="afActivoTO.afValorAdquision"
+                    class="form-control form-control-sm text-right text-uppercase unselectable" [appAutonumeric2]="afActivoTO.afValorAdquision"
+                    value="{{afActivoTO.afValorAdquision}}" (updateValue)="afActivoTO.afValorAdquision = $event" [appMinNumber]="0"
+                    required (blur)="validarValorResidual()">
+                  <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input text-right">{{afActivoTO.afValorAdquision
+                    |number:'1.2-2'}}
+                  </label>
+
+                </div>
+
+                <div class="form-group col-lg-3 col-sm-6">
+                  <label>
+                    <strong>{{constantes.TAG_VALOR_RESIDUAL}}</strong>
+                  </label>
+                  <input *ngIf="accion !== constantes.ACCION_CONSULTAR" name="afValorResidual" type="text" [(ngModel)]="afActivoTO.afValorResidual"
+                    class="form-control form-control-sm text-right text-uppercase unselectable" [appAutonumeric2]="afActivoTO.afValorResidual"
+                    value="{{afActivoTO.afValorResidual}}" (updateValue)="afActivoTO.afValorResidual = $event" [appMinNumber]="0"
+                    required (blur)="validarValorResidual()" [ngClass]="{ 'has-error':!valorResidualValido}">
+                  <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input text-right">{{afActivoTO.afValorResidual
+                    |number:'1.2-2'}}
+                  </label>
+
+                </div>
+
+                <div class="form-group col-lg-3 col-sm-6">
+                  <label placement="top" ngbTooltip="{{constantes.TAG_DEPRECIACION_INICIAL_MESES}}" container="body" title="{{constantes.TAG_DEPRECIACION_INICIAL_MESES}}">
+                    <strong>{{constantes.TAG_DEPRECIACION_INICIAL_MESES_REDUCIDO}}</strong>
+                  </label>
+                  <input *ngIf="accion !== constantes.ACCION_CONSULTAR" class="form-control form-control-sm mousetrap text-uppercase text-right"
+                    name="mesesInicial" maxlength="4" type="text" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="afActivoTO.afDepreciacionInicialMeses"
+                    id="deprIniMeses" required pKeyFilter="pint" (keypress)="soloNumeros($event)" (blur)="validarDepreciacionMeses()"
+                    [ngClass]="{ 'has-error':!valorDepreciacionMesesValido}">
+                  <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input text-right">{{afActivoTO.afDepreciacionInicialMeses}}</label>
+
+                </div>
+
+                <div class="form-group col-lg-3 col-sm-6">
+                  <label placement="top" ngbTooltip="{{constantes.TAG_DEPRECIACION_INICIAL_MONTO}}" container="body" title="{{constantes.TAG_DEPRECIACION_INICIAL_MONTO}}">
+                    <strong>{{constantes.TAG_DEPRECIACION_INICIAL_MONTO_REDUCIDO}}</strong>
+                  </label>
+                  <input *ngIf="accion !== constantes.ACCION_CONSULTAR" name="montoInicial" type="text" maxlength="11" [(ngModel)]="afActivoTO.afDepreciacionInicialMonto"
+                    class="form-control form-control-sm text-right unselectable" [appAutonumeric2]="afActivoTO.afDepreciacionInicialMonto"
+                    value="{{afActivoTO.afDepreciacionInicialMonto}}" (updateValue)="afActivoTO.afDepreciacionInicialMonto = $event"
+                    [appMinNumber]="0" required (blur)="validarDepreciacionMonto()" [ngClass]="{ 'has-error':!valorDepreciacionMontoValido}">
+                  <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input text-right">{{afActivoTO.afDepreciacionInicialMonto
+                    |number:'1.2-2'}}
+                  </label>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+
+        </fieldset>
+      </div>
+
+    </form>
+
+    <!--Listado-->
+
+    <div class="card m-0" *ngIf="listadoResultado?.length>0 && (!accion || accion === constantes.ACCION_ELIMINAR)">
+
+      <div class="card-header p-1">
+        <button id="btnActivarActivoFijo" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="activar=!activar" type="button"
+          title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.ACTIVO_FIJO_LISTADO}}</strong>
+
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirActivoFijo" (click)="imprimirActivosFijos()" placement="top"
+              ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarActivoFijo" (click)="exportarActivosFijos()" placement="top"
+              ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimirActivoFijo" (click)="imprimirActivosFijos()" placement="top"
+              ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+              <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+            </button>
+            <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportarActivoFijo" (click)="exportarActivosFijos()" placement="top"
+              ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card-body" style="padding: 0 0 0 0">
+        <p-table #dt [appRowSelector]="indexTable" [appIndexLimit]="listadoFiltrado?.length" (updateIndex)="indexTable = $event"
+          (updateFiltro)="filtrarGlobalmente(dt, true)" [columns]="columnasSeleccionadas" [value]="listadoResultado" [scrollable]="true"
+          scrollHeight="calc(100vh - 245px)" [resizableColumns]="true" [responsive]="true" [(contextMenuSelection)]="objetoSeleccionado"
+          [contextMenu]="men" selectionMode="single" [(selection)]="objetoSeleccionado" (onContextMenuSelect)="generarOpciones()"
+          [metaKeySelection]="true" (onFilter)="onFilterTabla($event)">
+
+          <ng-template pTemplate="caption">
+            <div class="row">
+              <div class="col-sm-5 col-md-6">
+                <div class="input-group">
+                  <input [(ngModel)]="filtroGlobal" type="text" class="form-control form-control-sm input-filter" style="font-family: Arial, FontAwesome"
+                    placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100" (keydown)="verificarFiltros($event,dt,'TECLAS')"
+                    (blur)="verificarFiltros(null,dt,'BLUR')">
+                  <div class="input-group-append">
+                    <button class="btn btn-sm btn-primary" (click)="verificarFiltros(null,dt,'CLICK')" type="button"> <i
+                        class="{{constantes.ICON_BUSCAR}}"></i></button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-7 col-md-6">
+                <div style="float:right">
+                  <p-multiSelect [options]="columnas" [(ngModel)]="columnasSeleccionadas" maxSelectedLabels="1" optionLabel="header" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}"
+                    defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template pTemplate="colgroup" let-columns *ngIf="isScreamMd">
+            <colgroup>
+              <col *ngFor="let col of columns" [style.width]="col.width">
+              <col style="width:20%">
+            </colgroup>
+          </ng-template>
+
+          <ng-template pTemplate="header" let-columns>
+            <tr class="text-center">
+              <th *ngFor="let col of columns" pResizableColumn [pSortableColumn]="col.field">
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+              <th class="text-md-center text-sm-center">
+                <i class="{{constantes.ICON_OPCIONES}}" placement="top" ngbTooltip="{{constantes.TAG_OPCIONES}}"></i>
+              </th>
+            </tr>
+          </ng-template>
+
+          <ng-template pTemplate="body" let-rowData let-columns="columns" let-index="rowIndex">
+            <tr tabindex="{{index}}" [pSelectableRow]="rowData" [pContextMenuRow]="rowData" (click)="indexTable = index" [ngClass]="{ 'table-condensed':true,'ui-state-highlight': indexTable === index}">
+              <td *ngFor="let col of columns" class="ui-resizable-column ocultar-en-tabla">
+                <span class="ui-column-title">{{col.header}}</span>
+                <span>{{rowData[col.field]}}</span>
+              </td>
+              <!--OPCIONES-->
+              <td class="text-md-center text-sm-center" style="width:20%">
+                <span class="ui-column-title">{{constantes.TAG_OPCIONES}}</span>
+                <button id="opciones_{{index}}" type="button" class="btn btn-primary btn-sm pb-0 pt-0" placement="top" ngbTooltip="{{constantes.TAG_OPCIONES}}"
+                  container="body" (click)="objetoSeleccionado=rowData;generarOpciones();men.show($event);$event.stopPropagation()">
+                  <i class="{{constantes.ICON_OPCIONES}}"></i>
+                </button>
+              </td>
+            </tr>
+          </ng-template>
+
+        </p-table>
+      </div>
+    </div>
+
+  </div>
+  <p-contextMenu #men [model]="opciones" appendTo="body"></p-contextMenu>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

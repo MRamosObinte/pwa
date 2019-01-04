@@ -1,0 +1,382 @@
+<div *ngIf="vistaFormulario">
+  <div class="card m-0">
+    <div class="card-header p-1">
+      <button id="btnActivarFormOrdenCompra" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="cambiarActivar()"
+        type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <strong>
+        {{ frmTitulo }}:
+        <span *ngIf="accion !== constantes.ACCION_EJECUTAR">
+          {{invPedidosOrdenCompra.invPedidosOrdenCompraPK.ocNumero}}
+        </span>
+        <span class="text-primary">{{ empresaSeleccionada.empNombre }}</span>
+      </strong>
+      <div class="card-header-actions">
+        <!--  BOTONES   -->
+        <div class="btn-group">
+          <!-- Anular -->
+          <button id="btnAnularOrdenCompra" *ngIf="accion===constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+            placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularOrdenCompra()">
+            <i class="{{constantes.ICON_ANULAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.ACCION_ANULAR}}</span>
+          </button>
+          <!-- Aprobar -->
+          <button id="btnAprobarOrdenCompra" *ngIf="accion===constantes.ACCION_APROBAR" type="button" class="btn btn-sm btn-primary mr-1"
+            placement="top" ngbTooltip="{{constantes.ACCION_APROBAR}}" (click)="aprobarOrdenCompra()">
+            <i class="{{constantes.ICON_APROBAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.ACCION_APROBAR}}</span>
+          </button>
+          <!-- Ejecutor -->
+          <button id="btnGuardarOrdenCompra" *ngIf="accion===constantes.ACCION_EJECUTAR && funcionesUsuario.indexOf('Ejecutor')>-1"
+            type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_GENERAR}}"
+            (click)="guardarOrdenCompra(frmOrdenCompra)">
+            <i class="{{constantes.ICON_EJECUTAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GENERAR}} </span>
+          </button>
+          <!--Reporte-->
+          <button *ngIf="accion === constantes.ACCION_CONSULTAR && !invPedidosOrdenCompra.ocAnulado" id="btnImprimirOrdenCompra"
+            type="button" class="btn btn-sm btn-primary mr-1" (click)="imprimirOrdenCompra()" placement="top"
+            ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar || cargando">
+            <i class="fa fa-print" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+          </button>
+          <button *ngIf="accion === constantes.ACCION_CONSULTAR && !invPedidosOrdenCompra.ocAnulado" id="btnExportarOrdenCompra"
+            type="button" class="btn btn-sm btn-primary mr-1" (click)="exportarOrdenCompra()" placement="top"
+            ngbTooltip="{{constantes.LABEL_EXPORTAR}}" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar || cargando">
+            <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+          </button>
+          <!--Cancelar-->
+          <button *ngIf="!(accion===constantes.ACCION_CONSULTAR) && accion!=constantes.ACCION_CARRITO" id="btnCancelar"
+            type="button" class="btn btn-sm btn-default mr-1" (click)="cancelarAccion()" placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}"
+            title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+          </button>
+          <button *ngIf="accion===constantes.ACCION_CONSULTAR || accion===constantes.ACCION_CARRITO" id="btnCancelar"
+            type="button" class="btn btn-sm btn-default mr-1" (click)="cancelarAccion()" placement="top" ngbTooltip="{{constantes.LABEL_REGRESAR}}"
+            title="{{constantes.ATAJO_CANCELAR}}">
+            <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body p-1">
+
+      <form #frmOrdenCompra="ngForm" autocomplete="off">
+        <!--Informacion general de orden de compra -->
+        <fieldset *ngIf="accion!=constantes.ACCION_CARRITO" [disabled]="accion===constantes.ACCION_CONSULTAR || accion===constantes.ACCION_ANULAR || accion===constantes.ACCION_APROBAR">
+          <div class="card mb-1" [ngClass]="{'card-accent-default': invPedidosOrdenCompra.ocAnulado}" *ngIf="!cargando">
+            <div class="card-header">
+              <strong>{{ constantes.TAG_DATOS_GENERALES }} : {{constantes.TAG_ORDEN_COMPRA}}
+                <span *ngIf="accion !== constantes.ACCION_EJECUTAR">
+                  No. {{invPedidosOrdenCompra.invPedidosOrdenCompraPK.ocNumero}}</span>
+              </strong>
+              <div class="card-header-actions">
+                <span *ngIf="invPedidosOrdenCompra.ocAnulado" class="mr-2 badge badge-pill badge-default">{{constantes.ETIQUETA_ANULADO}}</span>
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionOrden"
+                  aria-expanded="true" placement="left" ngbTooltip="Ocultar/Mostrar" (click)="collpase()">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInformacionOrden">
+              <div class="row">
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_MOTIVO}}</b>&nbsp;
+                      <a *ngIf="accion === constantes.ACCION_EJECUTAR" (click)="listarMotivosOC()">
+                        <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                          container="body"></span>
+                      </a>
+                    </label>
+                    <select class="form-control input-sm" style="height: calc(2.0625rem + 7px);" name="motivoSeleccionada"
+                      [(ngModel)]="motivoOCSeleccionado" required [disabled]="accion===constantes.ACCION_CONSULTAR || accion===constantes.ACCION_ANULAR"
+                      (change)="establecerPrecioReferencial();">
+                      <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                      <option selected [ngValue]="mot" *ngFor="let mot of listadoMotivoOC">{{mot.ocmDetalle}}
+                        ({{mot.ocmCodigo}})</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label mb-2">
+                      <strong>{{constantes.TAG_FECHA}}</strong>
+                    </label>
+                    <p-calendar name="ocFecha" [(ngModel)]="invPedidosOrdenCompra.ocFechaEmision" [showIcon]="true"
+                      [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [maxDate]="fechaActual" [appMaxDate]="fechaActual"
+                      [required]="true"></p-calendar>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group form-group-sm has-feedback">
+                    <label class="control-label mb-2">
+                      <strong>{{constantes.TAG_PROVEEDOR}}</strong>
+                    </label>
+                    <input id="provCodigo" name="provCodigo" [(ngModel)]="invPedidosOrdenCompra.invProveedor.invProveedorPK.provCodigo"
+                      placeholder="{{constantes.TAG_OBLIGATORIO}}" pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm mousetrap text-uppercase"
+                      maxlength="500" required (keydown)="buscarProveedor($event)" (blur)="validarProveedor()"
+                      appUppercase>
+                    <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_ENTERTOMODAL}}"
+                      triggers="mouseenter:mouseleave" container="body"></span>
+                  </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label mb-2">
+                      <strong>{{constantes.TAG_PROVEEDOR}}
+                        <span class="text-lowecase">{{constantes.TAG_RAZON_SOCIAL}}</span>
+                      </strong>
+                    </label>
+                    <input name="provRazonSocial" [(ngModel)]="proveedorCopia.provRazonSocial" class="form-control form-control-sm mousetrap text-uppercase"
+                      readonly>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-3 col-sm-6">
+
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_COSTO_REFERENCIAL}}</b>&nbsp;
+                      <a *ngIf="accion === constantes.ACCION_EJECUTAR" (click)="obtenerEtiquetas()">
+                        <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.TAG_RECARGAR}}"
+                          container="body"></span>
+                      </a>
+                      &nbsp;
+                      <a *ngIf="accion != constantes.ACCION_CONSULTAR && listadoEtiquetas?.length === 0" (click)="configurarEtiquetas()">
+                        <span class="{{constantes.ICON_CONFIGURACION}}" placement="top" ngbTooltip="{{constantes.TAG_CONFIGURAR}}"
+                          container="body"></span>
+                      </a>
+                    </label>
+                    <select [compareWith]="inicializarCostoReferencial" class="form-control input-sm text-uppercase"
+                      style="height: calc(2.0625rem);" name="etiqueta" [(ngModel)]="etiquetaSeleccionada" required
+                      (change)="establecerPrecioReferencial();">
+                      <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                      <option selected [ngValue]="etiqueta" *ngFor="let etiqueta of listadoEtiquetas">{{etiqueta.value}}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6" *ngIf="!invPedidosOrdenCompra.invCliente?.invClientePK?.cliCodigo">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_FECHA_HORA_ENTREGA}}</b>
+                    </label>
+                    <p-calendar name="pedidoFechaHora" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                      [showIcon]="true" [(ngModel)]="invPedidosOrdenCompra.ocFechaHoraEntrega" showTime="true" disabled></p-calendar>
+                  </div>
+                </div>
+
+                <div class="col-md-6 col-sm-6" *ngIf="!invPedidosOrdenCompra.invCliente?.invClientePK?.cliCodigo">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_OBSERVACIONES}}</b>
+                    </label>
+                    <input name="ocObservacionesRegistra" [(ngModel)]="invPedidosOrdenCompra.ocObservacionesRegistra"
+                      class="form-control form-control-sm text-uppercase" appUppercase>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--Informacion de cliente-->
+          <div class="card mb-1" *ngIf="invPedidosOrdenCompra.invCliente && invPedidosOrdenCompra.invCliente.invClientePK.cliCodigo">
+            <div class="card-header">
+              <strong>{{ constantes.TAG_DATOS_CLIENTE }}<span class="text-primary">: {{
+                  invPedidosOrdenCompra.invCliente.cliRazonSocial}}</span></strong>
+              <div class="card-header-actions">
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionCliente"
+                  aria-expanded="true" placement="left" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}" (click)="collpaseCliente()">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInformacionCliente">
+              <div class="row">
+                <!--Orden de compra-->
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <strong>{{constantes.TAG_ORDEN_COMPRA_DE_CLIENTE}} </strong>
+                    </label>
+                    <label class="form-control form-control-sm label-input">{{ordenDeCompra}}</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_CODIGO_CLIENTE}}</b>
+                    </label>
+                    <label class="form-control form-control-sm label-input">{{invPedidosOrdenCompra.invCliente.invClientePK.cliCodigo}}</label>
+                  </div>
+                </div>
+                <div class="col-md-3" *ngIf="invPedidosOrdenCompra.invCliente.invClienteGrupoEmpresarial && invPedidosOrdenCompra.invCliente.invClienteGrupoEmpresarial.geNombre">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.INVENTARIO_GRUPO_EMPRESARIAL}}</b>
+                    </label>
+                    <label class="form-control form-control-sm label-input">{{invPedidosOrdenCompra.invCliente.invClienteGrupoEmpresarial.geNombre}}</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_CONTACTO_NOMBRE}}</b>
+                    </label>
+                    <label class="form-control form-control-sm label-input">{{invPedidosOrdenCompra.ocContactoNombre}}</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_TELEFONO}}</b>
+                    </label>
+                    <label class="form-control form-control-sm label-input">{{invPedidosOrdenCompra.ocContactoTelefono}}</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_LUGAR_ENTREGA}}</b>
+                    </label>
+                    <label class="form-control form-control-sm label-input">{{invPedidosOrdenCompra.ocLugarEntrega}}</label>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_FECHA_HORA_ENTREGA}}</b>
+                    </label>
+                    <p-calendar name="pedidoFechaHora" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                      [showIcon]="true" [(ngModel)]="invPedidosOrdenCompra.ocFechaHoraEntrega" showTime="true" disabled></p-calendar>
+                  </div>
+                </div>
+                <div class="col-md-6 col-sm-6">
+                  <div class="form-group form-group-sm">
+                    <label class="control-label">
+                      <b>{{constantes.TAG_OBSERVACIONES}}</b>
+                    </label>
+                    <input name="ocObservacionesRegistra" [(ngModel)]="invPedidosOrdenCompra.ocObservacionesRegistra"
+                      class="form-control form-control-sm text-uppercase" appUppercase>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <div class="card mb-1" *ngIf="accion!=constantes.ACCION_CARRITO">
+          <div class="card-header">
+            <strong>{{constantes.PEDIDOS_ORDEN_COMPRA_DETALLE}}</strong>
+          </div>
+          <div class="card-body m-0 p-0">
+            <ag-grid-angular #agGrid id="agGrid" [ngStyle]="estilos" class="ag-theme-balham" [rowData]="listadoResultado"
+              [columnDefs]="columnDefs" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+              [enableColResize]="true" [context]="context" [frameworkComponents]="frameworkComponents" [rowDragManaged]="true"
+              [pinnedBottomRowData]="pinnedBottomRowData" [animateRows]="true" [singleClickEdit]="true" [rowClassRules]="rowClassRules"
+              [stopEditingWhenGridLosesFocus]="true" [overlayNoRowsTemplate]="noData" [singleClickEdit]="true"
+              (cellValueChanged)="terminadoEditar($event)" (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data"
+              (cellFocused)="filaFocused($event)" [suppressDragLeaveHidesColumns]="true" (gridColumnsChanged)="redimensionarColumnas()"
+              (gridSizeChanged)="redimensionarColumnas()">
+            </ag-grid-angular>
+          </div>
+        </div>
+      </form>
+
+      <!--Informacion general de orden de compra -->
+      <div *ngIf="accion===constantes.ACCION_CARRITO">
+        <div *ngFor="let oc of ordenesDeCompra">
+          <div class="card mb-1">
+            <div class="card-header text-white bg-primary">
+              <strong>{{constantes.TAG_ORDEN_COMPRA}} No. {{oc.invPedidosOrdenCompraPK.ocNumero}}</strong>
+              <div class="card-header-actions">
+                <span *ngIf="oc.ocAnulado" class="mr-2 badge badge-pill badge-default">{{constantes.ETIQUETA_ANULADO}}</span>
+                <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" [attr.data-target]="'#collapseInformacion'+oc.invPedidosOrdenCompraPK.ocNumero"
+                  aria-expanded="true" placement="left" ngbTooltip="Ocultar/Mostrar">
+                  <i class="fa fa-minus"></i>
+                </a>
+              </div>
+            </div>
+            <div class="card-body collapse mt-0 mb-0 pt-1 pb-0 pl-1 pr-1" id="collapseInformacion{{oc.invPedidosOrdenCompraPK.ocNumero}}">
+              <div class="card mb-1" [ngClass]="{'card-accent-default': oc.ocAnulado}" *ngIf="!cargando">
+                <div class="card-header">
+                  <strong>{{ constantes.TAG_DATOS_GENERALES }}</strong>
+                  <div class="card-header-actions">
+                    <span *ngIf="oc.ocAnulado" class="mr-2 badge badge-pill badge-default">{{constantes.ETIQUETA_ANULADO}}</span>
+                    <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" [attr.data-target]="'#collapseInformacionOrden'+oc.invPedidosOrdenCompraPK.ocNumero"
+                      aria-expanded="true" placement="left" ngbTooltip="Ocultar/Mostrar">
+                      <i class="fa fa-minus"></i>
+                    </a>
+                  </div>
+                </div>
+                <div class="card-body collapse mt-0 mb-0 pt-1 pb-0" id="collapseInformacionOrden{{oc.invPedidosOrdenCompraPK.ocNumero}}">
+                  <div class="row">
+                    <div class="col-md-3 col-sm-6">
+                      <div class="form-group form-group-sm">
+                        <label class="control-label mb-2"> <strong>{{constantes.TAG_MOTIVO}}</strong> </label>
+                        <label class="form-control form-control-sm label-input">{{oc.invPedidosOrdenCompraMotivo.ocmDetalle}}</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-sm-6">
+                      <div class="form-group form-group-sm">
+                        <label class="control-label mb-2"> <strong>{{constantes.TAG_FECHA}}</strong> </label>
+                        <label class="form-control form-control-sm label-input">{{oc.ocFechaEmision}}</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      <div class="form-group form-group-sm has-feedback">
+                        <label class="control-label mb-2"> <strong>{{constantes.TAG_PROVEEDOR}}</strong> </label>
+                        <label class="form-control form-control-sm label-input">{{oc.invProveedor.invProveedorPK.provCodigo}}</label>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      <div class="form-group form-group-sm">
+                        <label class="control-label mb-2">
+                          <strong>{{constantes.TAG_PROVEEDOR}}
+                            <span class="text-lowecase">{{constantes.TAG_RAZON_SOCIAL}}</span>
+                          </strong>
+                        </label>
+                        <label class="form-control form-control-sm label-input">{{oc.invProveedor.provRazonSocial}}</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-12 col-sm-12">
+                      <div class="form-group form-group-sm">
+                        <label class="control-label"> <b>{{constantes.TAG_OBSERVACIONES}}</b> </label>
+                        <label class="form-control form-control-sm label-input">{{oc.ocObservacionesRegistra}}</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card mb-1">
+                <div class="card-header">
+                  <strong>{{constantes.PEDIDOS_ORDEN_COMPRA_DETALLE}}</strong>
+                </div>
+                <div class="card-body m-0 p-0">
+                  <ag-grid-angular #agGrid id="agGrid" style="width: 100%;" class="ag-theme-balham" [rowData]="oc.invPedidosOrdenCompraDetalleList"
+                    [columnDefs]="columnDefs" [enableSorting]="true" [multiSortKey]="multiSortKey" [rowSelection]="rowSelection"
+                    [enableColResize]="true" [context]="context" [frameworkComponents]="frameworkComponents"
+                    [rowDragManaged]="true" [pinnedBottomRowData]="pinnedBottomRowData" [animateRows]="true"
+                    [overlayNoRowsTemplate]="noData" [gridAutoHeight]="true" [rowClassRules]="rowClassRules"
+                    [suppressDragLeaveHidesColumns]="true" (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data"
+                    (cellValueChanged)="calcularTotal()" (gridSizeChanged)="redimensionarColumnas()">
+                  </ag-grid-angular>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

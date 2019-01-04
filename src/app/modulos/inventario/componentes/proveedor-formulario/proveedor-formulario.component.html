@@ -1,0 +1,313 @@
+<form #frmProveedorDatos='ngForm' autocomplete="off" class="card m-0" *ngIf="accion !== constantes.ACCION_ELIMINAR && accion !== constantes.ACCION_EDITAR_ESTADO">
+  <div class="card-header p-1" style="padding: 0.5rem 0.5rem;">
+    <button class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="cambiarEstadoActivar(activar)" type="button">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{tituloFormulario}} - </b>
+    <strong class="text-primary">{{empresaSeleccionada.empNombre}}</strong>
+    <div class="card-header-actions">
+      <div class="btn-group d-lg-none">
+        <ng-template #tipContentGuardar>{{constantes.LABEL_GUARDAR}}</ng-template>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentGuardar" id="btnGuardarProveedor"
+          *ngIf="accion === constantes.ACCION_CREAR" title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? insertarProveedor(frmProveedorDatos) : null">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentGuardar" id="btnGuardarProveedor"
+          *ngIf="accion === constantes.ACCION_EDITAR" title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarProveedor(frmProveedorDatos) : null">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <ng-template #tipContentCancelar>{{accion ===
+          constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}</ng-template>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarProveedor"
+          [ngbTooltip]="tipContentCancelar" (click)="cerrarFormulario()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarProveedor" *ngIf="accion === constantes.ACCION_CREAR"
+          title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? insertarProveedor(frmProveedorDatos) : null"
+          [ngbTooltip]="tipContentGuardar">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}
+        </button>
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarProveedor" *ngIf="accion === constantes.ACCION_EDITAR"
+          title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarProveedor(frmProveedorDatos) : null"
+          [ngbTooltip]="tipContentGuardar">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarProveedor"
+          (click)="cerrarFormulario()" [ngbTooltip]="tipContentCancelar">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i> {{accion ===
+          constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <!--informacion de proveedor-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_PROVEEDOR_INFORMACION}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionProveedor"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInformacionProveedor">
+          <div class="row">
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_CODIGO}}</strong>
+              </label>
+              <input [appFocus]="accion === constantes.ACCION_CREAR" class="form-control form-control-sm text-uppercase mousetrap"
+                name="codigo" maxlength="30" type="text" placeholder="{{constantes.TAG_OPCIONAL}}" pattern="{{constantes.PATTERN_CODIGO}}"
+                [(ngModel)]="invProveedorTO.provCodigo" appUppercase *ngIf="accion === constantes.ACCION_CREAR">
+              <label *ngIf="accion !== constantes.ACCION_CREAR" class="form-control form-control-sm text-uppercase label-input">{{invProveedorTO.provCodigo}}</label>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_TIPO_IDENTIFICACION}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap" name="identificacion" [(ngModel)]="invProveedorTO.provTipoId"
+                (ngModelChange)="establecerLongitudIdentificacion();validarIdentificacion()" required>
+                <option [value]="" disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="identificacion.tiCodigo" *ngFor="let identificacion of listadoTipoIdentificacion">
+                  {{identificacion.tiDetalle}}</option>
+              </select>
+            </div>
+
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_NUMERO_IDENTIFICACION}}</strong>
+              </label>
+              <input *ngIf="empresaExtranjera && accion !== constantes.ACCION_CONSULTAR" type="text" name="provId"
+                placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="invProveedorTO.provId" class="form-control form-control-sm text-uppercase"
+                required [disabled]="!invProveedorTO.provTipoId" (blur)="validarIdentificacion()" appUppercase>
+              <input *ngIf="!empresaExtranjera && accion !== constantes.ACCION_CONSULTAR" [ngClass]="{'has-error':rptaCedula || rptaRepetido}"
+                type="text" name="provId" pKeyFilter="pint" (keypress)="soloNumeros($event)" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                minlength="{{digitosCedulaMin}}" maxlength="{{digitosCedulaMax}}" [(ngModel)]="invProveedorTO.provId"
+                class="form-control form-control-sm text-uppercase mousetrap" required [disabled]="!invProveedorTO.provTipoId"
+                (blur)="validarIdentificacion()">
+              <label *ngIf="accion === constantes.ACCION_CONSULTAR" class="form-control form-control-sm text-uppercase label-input">{{invProveedorTO.provId}}</label>
+            </div>
+
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_TIPO_CONTRIBUYENTE}}</strong>
+                &nbsp;
+                <a (click)="mostrarTipoContribuyente()" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap" name="categoria" [(ngModel)]="invProveedorTO.provCategoria">
+                <option value="" disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="categoria.pcCodigo" *ngFor="let categoria of listadoCategorias">
+                  {{categoria.pcDetalle}}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_RAZON_SOCIAL}}</strong>
+              </label>
+              <input type="text" name="provRazonSocial" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="invProveedorTO.provRazonSocial"
+                appUppercase class="form-control form-control-sm text-uppercase mousetrap" required (blur)="espacios()">
+            </div>
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_NOMBRE_COMERCIAL}}</strong>
+              </label>
+              <input type="text" name="provNombre" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invProveedorTO.provNombreComercial"
+                appUppercase class="form-control form-control-sm text-uppercase mousetrap">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group form-group-sm col-md-3">
+              <label ngbTooltip="{{constantes.LABEL_TELEFONO_CONVENCIONAL}}">
+                <strong>{{constantes.TAG_TELEFONO_CONVENCIONAL}}</strong>
+              </label>
+              <input class="form-control form-control-sm text-uppercase mousetrap" name="provTelefono" maxlength="130"
+                type="text" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invProveedorTO.provTelefono"
+                (keypress)="soloNumeros($event)">
+            </div>
+            <div class="form-group form-group-sm col-md-3">
+              <label ngbTooltip="{{constantes.LABEL_TELEFONO_CELULAR}}">
+                <strong>{{constantes.TAG_TELEFONO_CELULAR}}</strong>
+              </label>
+              <input class="form-control form-control-sm text-uppercase mousetrap" name="provCelular" maxlength="130"
+                type="text" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invProveedorTO.provCelular"
+                (keypress)="soloNumeros($event)">
+            </div>
+            <div class="form-group form-group-sm col-md-3">
+              <label>
+                <strong>{{constantes.TAG_EMAIL}}
+                  <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                    autoClose="outside" ngbPopover="{{constantes.MSJ_EMAIL}}" container="body"></span>
+                </strong>
+              </label>
+              <p-chips [(ngModel)]="correos" name="emails" class="mousetrap" [inputStyleClass]="accion===constantes.ACCION_CREAR || correos.length==0 ? 
+              'form-control form-control-sm grande text-lowercase' : 'form-control form-control-sm chico text-lowercase'"
+                [allowDuplicate]="false" (onAdd)="clickear('E')" addOnTab="false" id="chip" placeholder="{{constantes.TAG_OPCIONAL}}"
+                id="correosolo" [disabled]="accion === constantes.ACCION_CONSULTAR" (onBlur)="tamanioGrande(1)"
+                (onFocus)="tamanioChico(1)">
+                <ng-template let-item pTemplate="item">
+                  {{item}}
+                </ng-template>
+              </p-chips>
+            </div>
+            <div class="form-group form-group-sm col-md-3">
+              <label>
+                <strong>{{constantes.TAG_EMAIL_COMPRA}}
+                  <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                    autoClose="outside" ngbPopover="{{constantes.MSJ_EMAIL}}" container="body"></span>
+                </strong>
+              </label>
+              <p-chips [(ngModel)]="correosCompra" name="emailsCompra" class="mousetrap" [inputStyleClass]="accion===constantes.ACCION_CREAR || correosCompra.length==0 ? 
+              'form-control form-control-sm grande text-lowercase' : 'form-control form-control-sm chico text-lowercase'"
+                [allowDuplicate]="false" (onAdd)="clickear('EC')" addOnTab="false" id="chip" placeholder="{{constantes.TAG_OPCIONAL}}"
+                id="correocompra" [disabled]="accion === constantes.ACCION_CONSULTAR" (onBlur)="tamanioGrande(2)"
+                (onFocus)="tamanioChico(2)">
+                <ng-template let-item pTemplate="item">
+                  {{item}}
+                </ng-template>
+              </p-chips>
+              <!-- <input type="text" pKeyFilter="email" pattern="[a-zA-Z0-9_.-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}((;\s?){1}[a-zA-Z0-9_]+@[a-zA-Z0-9.-]+\.[a-z]{2,})*$"
+                name="provEmailCompra" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invProveedorTO.provEmailOrdenCompra"
+                appLowerCase maxlength="500'" class="form-control form-control-sm mousetrap text-lowercase"> -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--informacion de ubicacion de proveedor-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_PROVEEDOR_UBICACION}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseUbicacionProveedor"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseUbicacionProveedor">
+          <!--SI NO ES EXTRANJERO-->
+          <div class="row" *ngIf="!empresaExtranjera">
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PROVINCIA}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap" name="provincia" [(ngModel)]="provinciaSeleccionada"
+                required (ngModelChange)="listarCiudades()">
+                <option value="" disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="provincia" *ngFor="let provincia of listadoProvincias"> {{provincia.nombre}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_CIUDAD}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap" name="ciudad" [(ngModel)]="invProveedorTO.provCiudad"
+                required>
+                <option value="" disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="ciudad.nombre" *ngFor="let ciudad of listadoCiudades"> {{ciudad.nombre}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PARROQIA}}</strong>
+              </label>
+              <input type="text" name="provParroquia" appUppercase placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                [(ngModel)]="invProveedorTO.provParroquia" class="form-control form-control-sm text-uppercase mousetrap">
+            </div>
+          </div>
+          <!--SI ES EXTRANJERO-->
+          <div class="row" *ngIf="empresaExtranjera">
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PROVINCIA}}</strong>
+              </label>
+              <input type="text" name="provProvincia" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="invProveedorTO.provProvincia"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_CIUDAD}}</strong>
+              </label>
+              <input type="text" name="provCiudad" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="invProveedorTO.provCiudad"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PARROQIA}}</strong>
+              </label>
+              <input type="text" name="provParroquia" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="invProveedorTO.provParroquia"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_ZONA}}</strong>
+              </label>
+              <input type="text" name="provZona" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invProveedorTO.provZona"
+                class="form-control form-control-sm text-uppercase mousetrap" appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-md-8">
+              <label>
+                <strong>{{constantes.TAG_DIRECCION}}</strong>
+              </label>
+              <input type="text" name="provDireccion" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="invProveedorTO.provDireccion"
+                class="form-control form-control-sm text-uppercase mousetrap" appUppercase required maxlength="500">
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--Observaciones-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b placement="right" ngbTooltip="{{constantes.LABEL_INFORMACION_ADICIONAL}}">
+            {{constantes.TAG_INFORMACION_ADICIONAL}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseInformacionAdicional"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseInformacionAdicional">
+          <div class="row">
+            <div class="form-group form-group-sm form-group-sm col-md-10">
+              <label class="control-label">
+                <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+              </label>
+              <input id="observaciones" name="observaciones" [(ngModel)]="invProveedorTO.provObservaciones" class="form-control form-control-sm text-uppercase"
+                maxlength="1000" appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-md-2">
+              <!--Relacionado-->
+              <label class="control-label">
+                <strong>{{constantes.TAG_RELACIONADO}}</strong>
+              </label>
+              <div class="text-md-center pb-2">
+                <input type="checkbox" name="relacionado" [(ngModel)]="invProveedorTO.provRelacionado" [disabled]="accion === constantes.ACCION_CONSULTAR">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

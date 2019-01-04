@@ -1,0 +1,14 @@
+<div *ngIf="listaIA?.length === 0" class="text-center">
+  <button class="btn btn-sm btn-primary" [disabled]="!puedeEditar" type="button" (click)="agregarFila()">
+    <i class="{{constantes.ICON_SELECCIONAR}}"></i> {{constantes.TAG_AGREGAR_INFORMACION_ADICIONAL}}</button>
+</div>
+<div *ngIf="listaIA?.length > 0 && isScreamMd">
+  <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 900px);" class="ag-theme-balham"
+    [rowData]="listaIA" [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection"
+    [enableColResize]="true" [context]="context" [singleClickEdit]="true" (gridReady)="onGridReady($event)"
+    (rowSelected)="iaSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)" (contextmenu)="$event.preventDefault()"
+    (cellContextMenu)="mostrarContextMenu($event.data, $event.event)" [stopEditingWhenGridLosesFocus]="true"
+    (gridColumnsChanged)="redimensionarColumnas()" (gridSizeChanged)="redimensionarColumnas()">
+  </ag-grid-angular>
+</div>
+<p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>

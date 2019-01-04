@@ -1,0 +1,16 @@
+<div class="row" *ngIf="showIndex">
+    <div class="col-lg-5 col-md-4 pt-5">
+        <h1 class="text-center">Lo más usado:</h1>
+        <div class="form-group form-group-sm text-center" *ngFor="let acceso of listaAccesoRapido">
+            <a routerLink="{{acceso.url}}" *ngIf="acceso.mostrar">
+                <button type="button" class="btn btn-primary btn-ancho-250"> {{acceso.item}}</button>
+            </a>
+        </div>
+    </div>
+    <div class="col-lg-7 col-md-8">
+        <div class="text-center">
+            <img src="assets/images/activoFijo.png" class="img-thumbnail">
+        </div>
+    </div>
+</div>
+<router-outlet></router-outlet>

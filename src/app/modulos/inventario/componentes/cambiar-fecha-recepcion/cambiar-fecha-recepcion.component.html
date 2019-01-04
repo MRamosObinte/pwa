@@ -1,0 +1,77 @@
+<div [ngClass]="{'modal-primary': esModal}">
+  <div *ngIf="esModal" class="modal-header p-2">
+    <span class="modal-title">
+      <strong>{{empresaSeleccionada.empNombre}} ({{empresaSeleccionada.empCodigo}})</strong>
+    </span>
+    <button type="button" class="close" style="color: white;" aria-label="close" (click)="cerrarModal()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div [ngClass]="{'modal-body': esModal}">
+    <div class="row">
+      <div [ngClass]="{'sr-only':activar}" class="col-lg-12 col-md-12 col-sm-11">
+        <div class="card m-0 mb-2">
+          <div class="card-header p-1">
+            <b>
+              <i class="{{constantes.ICON_EDITAR}}"></i>
+              <strong> {{constantes.INVENTARIO_CAMBIAR_FECHA_RECEPCION_COMPRAS}}</strong>
+            </b>
+            <div class="card-header-actions">
+              <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="insertar(frmCambiarFecha)"
+                title="{{constantes.ATAJO_GUARDAR}}">
+                <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+              </button>
+              <button class="btn btn-sm btn-default mr-1" type="button" (click)="cerrarModal();" title="{{constantes.ATAJO_CANCELAR}}">
+                <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body pb-0 pt-1">
+            <!--FORMULARIO OPERACIONES-->
+            <form #frmCambiarFecha='ngForm' autocomplete="off">
+              <div class="row">
+                <div class="form-group form-group-sm col-lg-6">
+                  <!--PERIODO-->
+                  <label class="control-label">
+                    <b>{{constantes.TAG_PERIODO}}</b>
+                  </label>
+                  <label class="form-control form-control-sm text-uppercase label-input">
+                    {{datosCambiarFecha.compPeriodo}}</label>
+                </div>
+                <!--MOTIVO-->
+                <div class="form-group form-group-sm col-lg-6">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_MOTIVO}}</b>
+                  </label>
+                  <label class="form-control form-control-sm text-uppercase label-input">
+                    {{datosCambiarFecha.compMotivo}}</label>
+                </div>
+                <!--NUMERO-->
+                <div class="form-group form-group-sm col-lg-6">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_NUMERO}}</b>
+                  </label>
+                  <label class="form-control form-control-sm text-uppercase label-input">
+                    {{datosCambiarFecha.compNumero}}</label>
+                </div>
+                <!--FECHA-->
+                <div class="form-group form-group-sm col-lg-6">
+                  <label class="control-label">
+                    <strong>{{constantes.TAG_FECHA}}</strong>
+                  </label>
+                  <p-calendar name="fecha" [(ngModel)]="fecha" [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}"
+                    [required]="true" [maxDate]="fechaActual" [appMaxDate]="fechaActual"></p-calendar>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

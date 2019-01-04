@@ -1,0 +1,10 @@
+<div class="input-group">
+  <input #input [(ngModel)]="value" name="{{name}}" type="text" maxlength="{{maxlength}}" class="form-control form-control-sm text-right mousetrap"
+    placeholder="{{placeholder}}" [appAutonumeric]="configAutonumeric" [appAutonumericValue]="value" [value]="value">
+  <span class="input-group-append">
+    <button class="btn btn-primary btn-sm pb-0 pt-0 pl-1 pr-1" tabindex='-1' type="button" (click)="accionAdicional()"
+      title="{{title}}">
+      <i class="{{clase}}" aria-hidden="true"></i>
+    </button>
+  </span>
+</div>

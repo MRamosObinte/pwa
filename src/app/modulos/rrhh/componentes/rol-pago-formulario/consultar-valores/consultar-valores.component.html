@@ -1,0 +1,52 @@
+<div class="modal-primary">
+  <div class="modal-header p-2">
+    <h4 class="modal-title">{{titulo}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body pb-0 pt-1">
+    <div class="row">
+      <div class="col-sm-8 col-md-8 pr-0">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" name="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..." size="100">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4 col-md-4 pl-0">
+        <div class="float-right pr-1">
+          <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" name="columnDefsSelected" optionLabel="headerName"
+            maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+        </div>
+      </div>
+      <div class="col-sm-12 col-md-12">
+        <div style="float: right">
+          <button type="button" class="btn btn-sm btn-primary mr-1" (click)="exportar()" placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}">
+            <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+          </button>
+        </div>
+      </div>
+    </div>
+    <!--Tabla-->
+    <div class="row p-3" *ngIf="parametros.length > 0">
+      <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 303px);" class="ag-theme-balham"
+        [rowData]="parametros" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+        [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+        (gridReady)="onGridReady($event)" (gridColumnsChanged)="redimensionarColumnas()" (gridSizeChanged)="redimensionarColumnas()">
+      </ag-grid-angular>
+    </div>
+  </div>
+
+
+
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

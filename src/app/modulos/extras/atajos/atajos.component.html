@@ -1,0 +1,32 @@
+<div class="card">
+  <div class="card-header p-1">
+    <b> {{constantes.TAG_ATAJOS_DE_TECLADO}}</b>
+  </div>
+  <div class="card-body p-0">
+    <div class="row">
+      <div class="col-sm-5 col-md-6">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+            size="100">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-7 col-md-6">
+        <div class="float-right pr-1">
+          <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+            maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+        </div>
+      </div>
+    </div>
+    <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 194px);" class="ag-theme-balham"
+      [rowData]="atajos" [columnDefs]="columnDefsSelected" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()"
+      [rowSelection]="rowSelection" [enableColResize]="true" [context]="context" (gridReady)="onGridReady($event)"
+      (filterChanged)="actualizarFilas()" [rowClassRules]="rowClassRules" (cellFocused)="filaFocused($event)">
+    </ag-grid-angular>
+  </div>
+</div>

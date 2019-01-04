@@ -1,0 +1,465 @@
+<form #frmProductoDatos='ngForm' name="frmProductoDatos" autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivarFormulario" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="cambiarActivar()"
+      type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{accion}} {{constantes.TAG_PRODUCTO_MINUSCULA}} - </b>
+    <strong class="text-primary">{{empresaSeleccionada.empNombre}}</strong>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <ng-template #tipContentImagenes>{{constantes.LABEL_IMAGENES}}</ng-template>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentImagenes" (click)="verImagenes()"
+          *ngIf="accion === constantes.ACCION_CONSULTAR">
+          <i class="{{constantes.ICON_IMAGENES}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <ng-template #tipContentGuardar>{{constantes.LABEL_GUARDAR}}</ng-template>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentGuardar" id="btnGuardarProducto"
+          *ngIf="accion === constantes.ACCION_CREAR" title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? insertarProducto(frmProductoDatos) : null">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentGuardar" id="btnGuardarProducto"
+          *ngIf="accion === constantes.ACCION_EDITAR" title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarProducto(frmProductoDatos) : null"
+          title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <ng-template #tipContentCancelar>{{accion ===
+          constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}</ng-template>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarProducto"
+          [ngbTooltip]="tipContentCancelar" (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <button type="button" class="btn btn-sm btn-primary mr-1" (click)="verImagenes()" *ngIf="accion === constantes.ACCION_CONSULTAR">
+          <i class="{{constantes.ICON_IMAGENES}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_IMAGENES}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarProducto" *ngIf="accion === constantes.ACCION_CREAR"
+          title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? insertarProducto(frmProductoDatos) : null"
+          [ngbTooltip]="constantes.LABEL_GUARDAR">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}
+        </button>
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardarProducto" *ngIf="accion === constantes.ACCION_EDITAR"
+          title="{{constantes.ATAJO_GUARDAR}}" (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarProducto(frmProductoDatos) : null"
+          [ngbTooltip]="constantes.LABEL_GUARDAR">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarProducto"
+          (click)="cancelar()" [ngbTooltip]="tipContentCancelar">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <!--Codigo producto-->
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_PRODUCTO_CODIGO}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseProductoCodigo"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseProductoCodigo">
+          <div class="row">
+
+            <div class="form-group form-group-sm col-sm-4">
+              <label>
+                <strong>{{constantes.TAG_PRINCIPAL}}</strong>
+              </label>
+              <input [appFocus]="accion===constantes.ACCION_CREAR" class="form-control form-control-sm text-uppercase mousetrap"
+                name="proCodigoPrincipal" type="text" placeholder="{{constantes.TAG_OPCIONAL}}" pKeyFilter="alphanum"
+                [(ngModel)]="producto.proCodigoPrincipal" appUppercase *ngIf="accion === constantes.ACCION_CREAR">
+              <label *ngIf="accion!=constantes.ACCION_CREAR" class="form-control form-control-sm text-uppercase label-input">{{producto.proCodigoPrincipal}}</label>
+              <span *ngIf="accion === constantes.ACCION_CREAR" class="fa fa-question-circle form-control-feedback"
+                placement="right" autoClose="outside" ngbPopover="{{constantes.MSJ_INFOCODIGO}}" triggers="mouseenter:mouseleave"
+                container="body"></span>
+            </div>
+
+            <div class="form-group form-group-sm col-sm-4" *ngIf="mostrarCampos">
+              <label>
+                <strong>{{constantes.TAG_ALTERNO}}</strong>
+              </label>
+              <input type="text" name="proCodigoAlterno" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="producto.proCodigoAlterno"
+                class="form-control form-control-sm text-uppercase mousetrap" appUppercase>
+            </div>
+
+            <div class="form-group form-group-sm col-sm-4">
+              <label>
+                <strong>{{constantes.TAG_CODIGO_BARRAS}}</strong>
+                &nbsp;
+                <a (click)="mostrarCodigoBarras()" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <input class="form-control form-control-sm text-uppercase mousetrap" name="proCodigoBarra" type="text"
+                placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="producto.proCodigoBarra" appUppercase>
+            </div>
+
+          </div>
+        </div>
+        <div class="card-footer" *ngIf="vistaFormulario">
+          <div class="text-right">
+            <button *ngIf="accion === constantes.ACCION_CREAR" id="btnGuardar" type="button" (click)="guardarVendedor(frmVendedor)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i> &nbsp; {{constantes.LABEL_GUARDAR}}</button>
+            <button *ngIf="accion === constantes.ACCION_EDITAR" id="btnGuardar" type="button" (click)="actualizarVendedor(frmVendedor)"
+              class="btn btn-sm btn-primary mr-1" [disabled]="cargando" title="{{constantes.ATAJO_EDITAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}"></i> &nbsp; {{constantes.LABEL_GUARDAR}}</button>
+            <button (click)="resetearFormulario();" type="button" class="btn btn-sm btn-default" [disabled]="cargando"
+              title="{{constantes.ATAJO_CANCELAR}}" *ngIf="listaInvVendedorComboListadoTO.length!=0">
+              <i class="{{constantes.ICON_CANCELAR}}"></i> &nbsp; {{constantes.LABEL_CANCELAR}} </button>
+          </div>
+        </div>
+      </div>
+
+      <!--Código información-->
+      <div class="card mb-1 pt-0">
+        <div class="card-header">
+          <b> {{constantes.TAG_PRODUCTO_INFORMACION}}</b>
+          <div class="card-header-actions">
+            <a (click)="verPrecios()" class="card-header-action btn-minimize">
+              <span container="body">
+                <i class="fa fa-plus-square"></i> {{constantes.TAG_CONFIGURAR_PRECIOS}}</span>
+            </a>
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseProductoInformacion"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseProductoInformacion">
+          <div class="row">
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label class="cursor-pointer">
+                <strong>{{constantes.TAG_PRODUCTO_MARCA}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? mostrarProductoMarca() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap" name="marca" [(ngModel)]="producto.marCodigo" required>
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="marca.marCodigo" *ngFor="let marca of listadoMarcas"> {{marca.marDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_PRODUCTO_EMPAQUE}}</strong>
+              </label>
+              <input type="text" name="proEmpaque" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="producto.proEmpaque"
+                class="form-control form-control-sm text-uppercase mousetrap" appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label class="cursor-pointer">
+                <strong>{{constantes.TAG_PRODUCTO_PRESENT_UNIDAD}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? mostrarProductoPresentacionMedida() : null"
+                  *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap" name="pmedida" [(ngModel)]="producto.presUCodigo"
+                required>
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="medida.presuCodigo" *ngFor="let medida of listadoPresentacionesMedida">
+                  {{medida.presuDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label class="cursor-pointer">
+                <strong>{{constantes.TAG_PRODUCTO_CAJA}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? mostrarPPCajas() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap" name="caja" [(ngModel)]="producto.presCCodigo" required>
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="caja.prescCodigo" *ngFor="let caja of listadoPresentacionesCaja">
+                  {{caja.prescDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_NOMBRE}}</strong>
+              </label>
+              <input class="form-control form-control-sm text-uppercase mousetrap" name="proNombre" required type="text"
+                placeholder="OBLIGATORIO" [(ngModel)]="producto.proNombre" appUppercase (blur)="espacios()">
+            </div>
+            <div class="form-group form-group-sm col-lg-6 col-sm-6" *ngIf="mostrarCampos">
+              <label>
+                <strong>{{constantes.TAG_DETALLE}}</strong>
+              </label>
+              <input type="text" name="proDetalle" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="producto.proDetalle"
+                class="form-control form-control-sm text-uppercase mousetrap" appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label class="cursor-pointer">
+                <strong>{{constantes.TAG_CATEGORIA}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? mostrarProductoCategoria() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap" name="categoria" [(ngModel)]="producto.catCodigo"
+                required>
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="categoria.catCodigo" *ngFor="let categoria of listadoCategorias">
+                  {{categoria.catDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label class="cursor-pointer">
+                <strong>{{constantes.TAG_PRODUCTO_TIPO}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? mostrarProductoTipo() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap" name="tipo" [(ngModel)]="producto.tipCodigo" required>
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="tipo.tipCodigo" *ngFor="let tipo of listadoTipos"> {{tipo.tipDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label class="cursor-pointer">
+                <strong>{{constantes.TAG_PRODUCTO_MEDIDA}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_CREAR, true) ? medidaProducto() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap" name="medida" [(ngModel)]="producto.medCodigo" required>
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="medida.medidaCodigo" *ngFor="let medida of listadoMedidas"> {{medida.medidaDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_PRODUCTO_FACTOR}}</strong>
+              </label>
+              <input type="text" name="proFactorCajabulto" [appAutonumeric]="configAutonumeric" [appAutonumericValue]="producto.proFactorCajabulto"
+                value="{{producto.proFactorCajabulto}}" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="producto.proFactorCajabulto"
+                class="form-control form-control-sm text-uppercase mousetrap">
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_IVA}}</strong>
+              </label>
+              <select [disabled]="!puedeModificarIva" class="form-control input-sm mousetrap" name="proIva" [(ngModel)]="producto.proIva"
+                required (change)="activarCreditoTributario()">
+                <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="iva.clave" *ngFor="let iva of listadoOpcionesIVA"> {{iva.clave}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_STOCK_MINIMO}}</strong>
+              </label>
+              <input type="text" name="prominimo" placeholder="{{constantes.TAG_OPCIONAL}}" [appAutonumeric]="configAutonumericEnteros"
+                [appAutonumericValue]="producto.proMinimo" value="{{producto.proMinimo}}" [(ngModel)]="producto.proMinimo"
+                class="form-control form-control-sm text-uppercase mousetrap">
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_STOCK_MAXIMO}}</strong>
+              </label>
+              <input type="text" name="promaximo" placeholder="{{constantes.TAG_OPCIONAL}}" [appAutonumeric]="configAutonumericEnteros"
+                [appAutonumericValue]="producto.proMaximo" value="{{producto.proMaximo}}" [(ngModel)]="producto.proMaximo"
+                class="form-control form-control-sm text-uppercase mousetrap">
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6" *ngIf="mostrarCampos && mostrarCreditoTributario">
+              <div class="pb-2 pt-4">
+                <input type="checkbox" name="proCreditoTributario" [(ngModel)]="producto.proCreditoTributario">
+                {{constantes.TAG_CREDITO_TRIBUTARIO}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--Configuración de cuentas-->
+      <div class="card mb-1" *ngIf="mostrarCampos">
+        <div class="card-header pt-1">
+          <b> {{constantes.TAG_PRODUCTO_CONFIGURACION_CUENTAS}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseProductoConfiguracionCuentas"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseProductoConfiguracionCuentas">
+          <div class="row">
+            <div class="form-group form-group-sm col-lg-4 col-sm-4">
+              <label>
+                <strong>{{constantes.TAG_COMPRAS}}</strong>
+              </label>
+              <ng-template #tipCuentaCompra>{{cuentaCompras.cuentaDetalle}}</ng-template>
+              <input type="text" name="proCuentaInventario" [ngbTooltip]="cuentaCompras.cuentaDetalle ? tipCuentaCompra : null"
+                placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="producto.proCuentaInventario" class="form-control form-control-sm text-uppercase mousetrap"
+                (keydown)="buscarConfiguracionDeCuentas($event, producto.proCuentaInventario, 'C')" (blur)="validarCuenta('C')"
+                appUppercase *ngIf="accion!=constantes.ACCION_CONSULTAR" [ngClass]="{ 'has-error':!cuentasValidoC}">
+              <label class="form-control form-control-sm text-uppercase label-input" [ngbTooltip]="cuentaCompras.cuentaDetalle ? tipCuentaCompra : null"
+                *ngIf="accion===constantes.ACCION_CONSULTAR">
+                {{producto.proCuentaInventario}} &nbsp;
+              </label>
+            </div>
+            <div class="form-group form-group-sm col-lg-4 col-sm-4">
+              <label>
+                <strong>{{constantes.TAG_VENTAS}}</strong>
+              </label>
+              <ng-template #tipCuentaVenta>{{cuentaVentas.cuentaDetalle}}</ng-template>
+              <input type="text" id="tipCuentaVenta" name="proCuentaVenta" [ngbTooltip]="cuentaVentas.cuentaDetalle ? tipCuentaVenta : null"
+                placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="producto.proCuentaVenta" class="form-control form-control-sm text-uppercase mousetrap"
+                (keydown)="buscarConfiguracionDeCuentas($event, producto.proCuentaVenta, 'V')" (blur)="validarCuenta('V')"
+                appUppercase *ngIf="accion!=constantes.ACCION_CONSULTAR" [ngClass]="{ 'has-error':!cuentasValidoV}">
+              <label class="form-control form-control-sm text-uppercase label-input" [ngbTooltip]="cuentaVentas.cuentaDetalle ? tipCuentaVenta : null"
+                *ngIf="accion===constantes.ACCION_CONSULTAR">
+                {{producto.proCuentaVenta}} &nbsp;
+              </label>
+            </div>
+            <div class="form-group form-group-sm col-lg-4 col-sm-4">
+              <label>
+                <strong>{{constantes.TAG_COSTO_AUTOMATICO}}</strong>
+              </label>
+              <ng-template #tipCuentaCosto>{{cuentaCostos.cuentaDetalle}}</ng-template>
+              <input type="text" id="tipCuentaCosto" name="proCuentaCostoAutomatico" [ngbTooltip]="cuentaCostos.cuentaDetalle ? tipCuentaCosto : null"
+                placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="producto.proCuentaCostoAutomatico" class="form-control form-control-sm text-uppercase mousetrap"
+                (keydown)="buscarConfiguracionDeCuentas($event, producto.proCuentaCostoAutomatico, 'A')" (blur)="validarCuenta('A')"
+                appUppercase *ngIf="accion!=constantes.ACCION_CONSULTAR" [ngClass]="{ 'has-error':!cuentasValidoA}">
+              <label class="form-control form-control-sm text-uppercase label-input" [ngbTooltip]="cuentaCostos.cuentaDetalle ? tipCuentaCosto : null"
+                *ngIf="accion===constantes.ACCION_CONSULTAR">
+                {{producto.proCuentaCostoAutomatico}} &nbsp;
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--retencion predeterminada-->
+      <div class="card mb-1" *ngIf="!empresaExtranjera && mostrarCampos">
+        <div class="card-header">
+          <b> {{constantes.TAG_RETENCION_PREDETERMINADA}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseProductoRetencion"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseProductoRetencion">
+          <div class="row">
+            <div class="form-group form-group-sm col-md-12">
+              <label>
+                <strong>{{constantes.TAG_SUSTENTO_TRIBUTARIO}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" id="susCodigo" name="susCodigo"
+                [(ngModel)]="producto.susCodigo">
+                <option value=null disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="sustento.susCodigo" *ngFor="let sustento of listadoSustentos">
+                  {{sustento.susDescripcion}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-md-12">
+              <label>
+                <strong>{{constantes.TAG_TIPO_CONCEPTO}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" name="conCodigo" [(ngModel)]="producto.conCodigo">
+                <option value=null disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="concepto.conCodigo" *ngFor="let concepto of listadoConceptos">
+                  {{concepto.conConcepto}}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--Imagenes-->
+      <div class="card mb-1" *ngIf="accion === constantes.ACCION_EDITAR  || accion === constantes.ACCION_CREAR">
+        <div class="card-header">
+          <strong>{{ constantes.TAG_IMAGENES }}</strong>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseDatosImagenes"
+              aria-expanded="true" placement="top" ngbTooltip="Ocultar/Mostrar">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="card-body collapse show p-1" id="collapseDatosImagenes">
+          <!--Nuevo-->
+          <div class="form-group form-group-sm" *ngIf="mostrarFileUploadNuevo">
+            <p-fileUpload mode="advanced" id="imageUploadNuevo" name="listadoImagenes[]" [showCancelButton]="false"
+              [showUploadButton]="false" invalidFileTypeMessageSummary="{0}:  {{constantes.MSJ_ARCHIVO_NO_VALIDO}}, "
+              invalidFileSizeMessageSummary="{0}: Tamaño de archivo inválido" invalidFileTypeMessageDetail="{{constantes.MSJ_ARCHIVO_PERMITIDO}}: {0}."
+              chooseLabel="{{constantes.TAG_SELECCIONE}}" cancelLabel="{{constantes.LABEL_CANCELAR}}" accept="image/*"
+              multiple="multiple" previewWidth="200" maxFileSize="1000000" (onSelect)="seleccionarImagenes($event)"
+              (onRemove)="eliminarItem($event)" invalidFileSizeMessageDetail="El tamaño máximo de carga es 1 MB.">
+
+            </p-fileUpload>
+          </div>
+          <!--Editar-->
+          <div class="form-group form-group-sm" id="imageUploadEditar" *ngIf="!mostrarFileUploadNuevo">
+            <p-fileUpload name="listadoImagenes[]" [showCancelButton]="false" [showUploadButton]="false"
+              invalidFileTypeMessageSummary="{0}:  {{constantes.MSJ_ARCHIVO_NO_VALIDO}}, "
+              invalidFileSizeMessageSummary="{0}: 
+            Tamaño de archivo inválido" invalidFileTypeMessageDetail="{{constantes.MSJ_ARCHIVO_PERMITIDO}}: {0}."
+              chooseLabel="{{constantes.TAG_SELECCIONE}}" cancelLabel="{{constantes.LABEL_CANCELAR}}" accept="image/*"
+              multiple="multiple" previewWidth="150" maxFileSize="1000000" (onSelect)="seleccionarImagenes($event)"
+              invalidFileSizeMessageDetail="El tamaño máximo de carga es 1 MB.">
+
+              <ng-template pTemplate="toolbar">
+
+              </ng-template>
+
+              <ng-template let-file pTemplate="file">
+
+              </ng-template>
+
+              <ng-template pTemplate="content">
+
+              </ng-template>
+
+            </p-fileUpload>
+
+            <div class="row">
+              <div class="col-lg-2 col-md-2 col-sm-3" *ngFor="let imagen of listadoImagenes">
+                <div class="card p-1 mb-1">
+                  <img #img class="card-img-top img-responsive" src="{{imagen.imagenString}}" alt="Card image cap"
+                    width="100" height="150">
+                  <div class="card-footer text-muted text-center">
+                    <button class="btn btn-sm btn-danger mr-1" (click)="eliminar(imagen)"> <i class="{{constantes.ICON_ELIMINAR}}"
+                        aria-hidden="true"></i></button>
+                    <button class="btn btn-sm btn-primary" (click)="visualizar(imagen)"> <i class="{{constantes.ICON_CONSULTAR}}"
+                        aria-hidden="true"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p-dialog header="Visualización de imágen" styleClass="visualizadorImagenes" [(visible)]="visualizarImagen"
+              modal="true" minWidth="200" minHeight="200" showHeader="false">
+              <img #img class="card-img-top img-responsive" src="{{imagen.imagenString}}" alt="Card image cap">
+            </p-dialog>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

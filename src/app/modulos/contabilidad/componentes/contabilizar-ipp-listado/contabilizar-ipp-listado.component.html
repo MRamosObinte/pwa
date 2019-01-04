@@ -1,0 +1,39 @@
+<div class="card m-0 mb-1" *ngIf="listadoResultado?.length > 0">
+  <div class="card-header p-1">
+    <button id="btnActivar" class="btn btn-sm btn-primary mr-2" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b placement="right" ngbTooltip="{{constantes.LABEL_CONTABILIZAR}} {{constantes.IPP_SUBTITULO}} {{titulo}}">{{constantes.TITULO_IPP_CONTABILIZAR}} {{titulo}}</b>
+    <div class="card-header-actions">
+      <div class="btn-group d-lg-none">
+        <button id="btnContabilizar" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CONTABILIZAR}}"
+          container="body" (click)="empresaSeleccionada.listaSisPermisoTO.gruCrear ? contabilizar() : null" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruCrear"
+          title="{{constantes.ATAJO_CONTABILIZAR}}">
+          <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"></i>
+        </button>
+        <button id="btnCancelar" type="button" class="btn btn-sm btn-outline mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}"
+          container="body" (click)="limpiarResultado()" title="{{constantes.ATAJO_CANCELAR}}">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="btn-group d-none d-lg-block">
+        <button id="btnContabilizar" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CONTABILIZAR}}"
+          container="body" (click)="empresaSeleccionada.listaSisPermisoTO.gruCrear ? contabilizar() : null" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruCrear"
+          title="{{constantes.ATAJO_CONTABILIZAR}}">
+          <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"> </i> {{constantes.LABEL_CONTABILIZAR}}
+        </button>
+        <button id="btnCancelar" type="button" class="btn btn-sm btn-outline mr-1" placement="top" ngbTooltip="{{constantes.LABEL_CANCELAR}}"
+          container="body" (click)="limpiarResultado()" title="{{constantes.ATAJO_CANCELAR}}">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0" *ngIf="listadoResultado.length>0">
+    <app-tabla-ipp [columnas]="columnDefs" [tamanio]="tamanio" [filasTiempo]="filasTiempo" [listadoResultado]="listadoResultado"></app-tabla-ipp>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

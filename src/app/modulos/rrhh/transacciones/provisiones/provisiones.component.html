@@ -1,0 +1,76 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i><b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmProvisiones='ngForm' name="frmProvisiones" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [appFocus]="true" class="form-control form-control-sm mousetrap" name="empresa" required
+              [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_CENTRO_PRODUCCION}}</b>
+            </label>
+            <select class="form-control form-control-sm  mousetrap" name="sector" required [(ngModel)]="provisionesListadoTransTO.sector"
+              (ngModelChange)="limpiarResultado()" [disabled]="accion">
+              <option selected disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="sector.secCodigo" *ngFor="let sector of listaSectores">
+                {{sector.secNombre}} ({{sector.secCodigo}})
+              </option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_PERIODO}}</b>
+            </label>
+            <select class="form-control form-control-sm  mousetrap" name="periodo" required [(ngModel)]="periodoSeleccionado"
+              (ngModelChange)="limpiarResultado()" [disabled]="accion">
+              <option selected disabled value=null>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="periodo" *ngFor="let periodo of listaPeriodos">
+                {{periodo.sisPeriodoPK.perCodigo}} | {{periodo.perDetalle}}
+              </option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_ESTADO}}</b>
+            </label>
+            <select class="form-control form-control-sm  mousetrap" name="estado" required [(ngModel)]="provisionesListadoTransTO.estado"
+              (ngModelChange)="limpiarResultado()" [disabled]="accion">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="estado" *ngFor="let estado of listaEstados">{{estado}}</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer text-muted">
+        <div class="text-right">
+          <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="listarProvisiones(frmProvisiones)"
+            [disabled]="accion">
+            <i class="{{constantes.ICON_GENERAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_GENERAR}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Listado de provisiones-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="mostrarListado">
+    <app-provisiones-listado [parametrosBusqueda]="parametrosListado" [empresaSeleccionada]="empresaSeleccionada"
+      (enviarActivar)="activar=$event" (enviarAccion)="ejecutarAccion($event)" (estadoformulario)="estadoformulario=$event"></app-provisiones-listado>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

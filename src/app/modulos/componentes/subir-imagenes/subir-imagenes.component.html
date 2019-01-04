@@ -1,0 +1,29 @@
+<div class="card-body usuario" style="text-align: center;">
+  <p-fileUpload name="listadoImagenes[]" [showCancelButton]="false" [showUploadButton]="true"
+    invalidFileTypeMessageSummary="{0}:  {{constantes.MSJ_ARCHIVO_NO_VALIDO}}, " multiple="multiple"
+    invalidFileSizeMessageSummary="{0}:  {{constantes.MSJ_TAMANIO_ARCHIVO_NO_VALIDO}}" invalidFileTypeMessageDetail="{{constantes.MSJ_ARCHIVO_PERMITIDO}}: {0}."
+    chooseLabel="{{constantes.TAG_SELECCIONE}}" cancelLabel="{{constantes.LABEL_CANCELAR}}" accept="image/*"
+    maxFileSize="1000000" (onSelect)="seleccionarImagenes($event)" (onRemove)="eliminarItem($event)"
+    invalidFileSizeMessageDetail="El tamaño máximo de carga es 1 MB.">
+
+  </p-fileUpload>
+
+  <div class="card">
+    <div class="row">
+      <div class="col-sm-4" *ngFor="let imagen of listadoImagenes">
+        <img #img class="foto-perfil card-img-top img-responsive" src="{{imagen.adjArchivo}}" alt="Card image cap"
+          width="50">
+        <div class="card-footer text-muted text-center">
+          <button class="btn btn-sm btn-danger mr-1" (click)="eliminarItem(imagen)"> <i class="{{constantes.ICON_ELIMINAR}}"
+              aria-hidden="true"></i></button>
+          <button class="btn btn-sm btn-primary" (click)="visualizar(imagen)"> <i class="{{constantes.ICON_CONSULTAR}}"
+              aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p-dialog header="Visualización de imágen" [(visible)]="visualizarImagen" [modal]="true" [responsive]="true" [style]="{width: '350px', minWidth: '200px'}"
+    [minY]="70" maximizable="true" [baseZIndex]="10000">
+    <img #img class="card-img-top img-responsive" src="{{imagen.adjArchivo}}" alt="Card image cap">
+  </p-dialog>
+</div>

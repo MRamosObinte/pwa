@@ -1,0 +1,97 @@
+<!--SECCION FORMULARIO NUEVO-->
+<form #frmFormaPagoDatos='ngForm' autocomplete="off" class="card m-0">
+  <fieldset>
+    <div class="card-header p-1">
+      <button id="btnActivarFormulario" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar()"
+        type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+        <i class="{{activarFormulario?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+      </button>
+      <b class="pl-2"> {{tituloForm}} </b>
+      <!--SECCION BOTONES GUARDAR - MODIFICAR - CANCELAR -->
+      <div class="card-header-actions">
+        <!--BOTON GUARDAR NUEVO -->
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="insertarFormaPago(frmFormaPagoDatos)"
+          *ngIf="accion === constantes.ACCION_CREAR" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+        <!--BOTON GUARDAR MODIFICADO -->
+        <button type="button" class="btn btn-sm btn-primary mr-1" id="btnGuardar" (click)="modificarFormaPago(frmFormaPagoDatos)"
+          *ngIf="accion === constantes.ACCION_EDITAR" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i> {{constantes.LABEL_GUARDAR}}</button>
+        <!--BOTON REGRESAR -->
+        <button type="button" class="btn btn-sm btn-default mr-1" id="btnCancelarFormaPago" (click)="cancelar()" title="{{constantes.ATAJO_CANCELAR}}"
+          *ngIf="accion === constantes.ACCION_CONSULTAR">
+          <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+        </button>
+        <!--BOTON CANCELAR -->
+        <button class="btn btn-sm btn-default mr-1" type="button" id="btnCancelarFormaPago" (click)="cancelar()" title="{{constantes.ATAJO_CANCELAR}}"
+          *ngIf="!(accion === constantes.ACCION_CONSULTAR)">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i> {{constantes.LABEL_CANCELAR}}</button>
+      </div>
+    </div>
+    <!--Formulario Forma de Pago-->
+    <div class="card-body p-1">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_DATOS_GENERALES}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseFormPagoInfo"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseFormPagoInfo">
+          <div class="row">
+            <!--CODIGO CUENTA-->
+            <div class="form-group form-group-sm col-lg-4 col-sm-4 has-feedback">
+              <label class="control-label">
+                <b>{{constantes.TAG_CUENTA}}</b>
+              </label>
+              <label class="form-control form-control-sm label-input" *ngIf="accion === constantes.ACCION_CONSULTAR">
+                {{formaPago.ctaCodigo}} </label>
+              <input [appFocus]="true" class="form-control form-control-sm text-uppercase mousetrap" name="txtCuentaCodigo"
+                #conCuenta maxlength="20" placeholder="{{constantes.TAG_OBLIGATORIO}}" id="cuenta" (keydown)="buscarConCuentas($event)"
+                (blur)="validarCuenta()" [(ngModel)]="formaPago.ctaCodigo" appUppercase required *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_EDITAR">
+              <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_COINCIDENCIA_CUENTA}}"
+                container="body" *ngIf="accion !== constantes.ACCION_CONSULTAR" triggers="mouseenter:mouseleave"></span>
+            </div>
+            <!--DETALLE CUENTA-->
+            <div class="form-group form-group-sm col-lg-4 col-sm-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_DETALLE_CUENTA}}</b>
+              </label>
+              <label class="form-control form-control-sm label-input text-uppercase">{{formaPago &&
+                formaPago.fpDetalle?formaPago.fpDetalle:constantes.TAG_SIN_DETALLE}}</label>
+            </div>
+            <!--SECTOR-->
+            <div class="form-group form-group-sm col-lg-4 col-sm-4">
+              <label class="control-label">
+                <b>{{constantes.TAG_SECTOR}}</b>
+                &nbsp;
+                <a (click)="listarSectores()" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_EDITAR">
+                  <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                    container="body"></span>
+                </a>
+              </label>
+              <label class="form-control form-control-sm label-input" *ngIf="accion === constantes.ACCION_CONSULTAR && sectorSeleccionado">
+                {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})</label>
+              <label class="form-control form-control-sm label-input" *ngIf="accion === constantes.ACCION_CONSULTAR && !sectorSeleccionado">
+                {{formaPago.secCodigo}} </label>
+              <select [(ngModel)]="sectorSeleccionado" name="sectorSeleccionado" class="form-control input-sm mousetrap" required
+                *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_EDITAR">
+                <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                <option selected [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}}
+                  ({{sector.secCodigo}})</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+</form>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

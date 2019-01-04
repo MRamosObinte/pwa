@@ -1,0 +1,97 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <!--FORMULARIO DE FILTRADO-->
+    <div class="card mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i>
+        <strong>{{constantes.TITULO_FILTROS}}</strong>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <form #frmFiltroOrdenPedido="ngForm" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [(ngModel)]="empresaSeleccionada" class="form-control input-sm" name="empresaSeleccionada"
+              [disabled]="deshabilitarOpciones" (change)="cambiarempresaSeleccionada();limpiarResultado();" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <strong>{{constantes.TAG_SECTOR}}</strong>
+              &nbsp;
+              <a *ngIf="!deshabilitarOpciones" (click)="listarSectores()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_SECTORES}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown [options]="listaSectores" name="listaSectores" [showClear]="true" [(ngModel)]="sectorSeleccionado"
+              placeholder="{{constantes.TAG_TODOS}}" optionLabel="secNombre" (ngModelChange)="listarMotivos();limpiarResultado()"
+              [disabled]="deshabilitarOpciones">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-elemento pTemplate="item">
+                <div class=""> {{elemento.value.secNombre}} ({{elemento.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+
+          <div class="form-group form-group-sm" *ngIf="!dataFormularioOrden">
+            <label class="control-label">
+              <b>{{constantes.TAG_MOTIVO}}</b>
+              &nbsp;
+              <a *ngIf="!deshabilitarOpciones" (click)="listarMotivos()">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <select [(ngModel)]="motivoSeleccionado" class="form-control input-sm" name="motivoSeleccionado" [disabled]="deshabilitarOpciones"
+              (change)="traerConfiguracionPedidos();limpiarResultado();" required>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="motivo" *ngFor="let motivo of listaMotivos">{{motivo.pmDetalle}}
+                ({{motivo.invPedidosMotivoPK.pmCodigo}})</option>
+            </select>
+          </div>
+
+        </form>
+      </div>
+      <div class="card-footer" *ngIf="!deshabilitarOpciones">
+        <div class="text-right">
+          <div class="btn-group">
+            <button id="btnBuscar" type="button" class="btn btn-sm btn-primary" (click)="buscarOrdenesPedido(20)"
+              [disabled]="!frmFiltroOrdenPedido?.form.valid" title="{{constantes.ATAJO_BUSCAR}}">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+              [disabled]="!frmFiltroOrdenPedido?.form.valid">
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="buscarOrdenesPedido(50)">{{constantes.TAG_ULTIMOS_50}} </a>
+              <a class="dropdown-item" (click)="buscarOrdenesPedido(100)">{{constantes.TAG_ULTIMOS_100}}</a>
+              <a class="dropdown-item" (click)="buscarOrdenesPedido(null)">{{constantes.TAG_TODOS}}</a>
+            </div>&nbsp;
+            <button id="btnNuevo" class="btn btn-sm btn-primary" type="button" (click)="nuevaOrdenPedido()" title="{{constantes.ATAJO_NUEVO}}"
+              [disabled]="!frmFiltroOrdenPedido?.form.valid || !empresaSeleccionada?.listaSisPermisoTO?.gruCrear || !(funcionesUsuario.indexOf('Registrador')>-1) || !(motivoSeleccionado && !motivoSeleccionado.pmInactivo) || !(sectorSeleccionado && sectorSeleccionado.secActivo)">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>&nbsp; {{constantes.ACCION_NUEVO}}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <!--LISTADO DE ORDEN DE PEDIDO -->
+    <app-listado-orden-pedido [hidden]="!vistaListado" [parametrosBusqueda]="dataListadoOrden" [empresaSeleccionada]="empresaSeleccionada"
+      [operacion]="operacionListado" (enviarCancelar)="cancelar()" (enviarActivar)="cambiarActivar($event)"
+      (enviarDatosOC)="accionLista($event)" [filasTiempoRecargar]="filasTiempoRecargar"></app-listado-orden-pedido>
+    <!-- GENERAR ORDEN DE PEDIDO -->
+    <app-orden-pedido-formulario *ngIf="dataFormularioOrden" [data]="dataFormularioOrden" [empresaSeleccionada]="empresaSeleccionada"
+      (enviarLista)="accionLista($event)" (enviarCancelar)="cancelar()" (enviarActivar)="cambiarActivar($event)"></app-orden-pedido-formulario>
+    <!-- GENERAR ORDEN DE COMPRA -->
+    <app-formulario-generar-orden-compra *ngIf="dataFormularioCompra" [data]="dataFormularioCompra"
+      [empresaSeleccionada]="empresaSeleccionada" (enviarActivar)="cambiarActivar($event)" (enviarCancelar)="cancelar($event)"
+      (enviarLista)="limpiarResultado()"></app-formulario-generar-orden-compra>
+  </div>
+</div>

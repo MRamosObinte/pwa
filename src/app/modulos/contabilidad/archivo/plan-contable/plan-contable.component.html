@@ -1,0 +1,125 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div #prueba class="card-header">
+        <i class="{{classForm}}"></i>
+        <b> {{tituloForm}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmPlanContable='ngForm' name="frmPlanContable">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="accion || vistaImportarContable">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <!--BOTONES FOOTER DE FORMULARIO EMPRESA (LISTA PLAN CONTABLE)-->
+      <div class="card-footer text-muted" *ngIf="!accion && !vistaImportarContable">
+        <div class="text-right">
+          <button type="button" class="btn btn-sm btn-primary" id="btnBuscar" (click)="listarPlanContables()"
+            [disabled]="cargando">
+            <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> Buscar</button>
+          <div class="btn-group ml-1">
+            <button type="button" class="btn btn-sm btn-primary" (click)="empresaSeleccionada.listaSisPermisoTO.gruModificar?editarConfiguracion($event):null"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruModificar">
+              <i class="{{constantes.ICON_CONFIGURACION}}"></i> Estructura </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruCrear && !empresaSeleccionada.listaSisPermisoTO.gruEliminar">
+              <span class="sr-only">Estructura</span>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" (click)="importarCuentas()">{{constantes.TAG_IMPORTAR_DATOS}}</a>
+              <a class="dropdown-item" *ngIf="!tamanioPlan" (click)="nuevaCuenta()">{{constantes.TAG_NUEVA_CUENTA}}</a>
+              <a class="dropdown-item" (click)="eliminarTodoCuentas()">{{constantes.TAG_ELIMINAR_TODO}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" [hidden]="vistaPlanFormulario">
+    <div *ngIf="vistaImportarContable">
+      <app-cuentas-formulario [empresaSeleccionada]="empresaSeleccionada" [data]="dataFormulario" (enviarCancelar)="formularioCancelar()"
+        (enviarActivar)="formularioActivar($event)"></app-cuentas-formulario>
+    </div>
+    <div class="card m-0" *ngIf="vistaListado && listaResultado?.length>0">
+      <div class="card-header p-1">
+        <button id="btnActivar" class="btn btn-sm btn-primary mr-2 d-none d-md-inline" (click)="activar = !activar"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.CONTABILIDAD_PLAN_CUENTAS_LISTADO}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group mr-1">
+            <button type="button" class="btn btn-sm btn-primary" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar" (click)="exportarPlanCuentas()">
+              <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              <span class="sr-only">Toggle Dropdown</span>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item {{!empresaSeleccionada.listaSisPermisoTO.gruExportar?'disabled':''}}" (click)="exportarTxtPlanCuentas()">{{constantes.TAG_FORMATO_TXT}}</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <!--195px-->
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          [frameworkComponents]="frameworkComponents" (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data"
+          (cellContextMenu)="mostrarContextMenu($event.data, $event.event)" (contextmenu)="$event.preventDefault()"
+          (filterChanged)="actualizarFilas()" (gridColumnsChanged)="redimencionarColumnas()" (gridSizeChanged)="redimencionarColumnas()"
+          (cellFocused)="filaFocused($event)" (cellDoubleClicked)="objetoSeleccionado = $event.node.data; operacionPlanContable(constantes.ACCION_CONSULTAR, true)">
+        </ag-grid-angular>
+        <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+        <app-list-detail *ngIf="screamXSS" [rowData]="listaResultado" [columnDefs]="columnDefsSelected" [components]="components"
+          [context]="context" [frameworkComponents]="frameworkComponents"></app-list-detail>
+      </div>
+    </div>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <app-plan-contable-formulario *ngIf="vistaPlanFormulario" [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+      (enviarCancelar)="cancelar($event)" (enviarActivar)="activar=!$event" (enviarAccion)="ejecutarAccion($event)">
+    </app-plan-contable-formulario>
+  </div>
+
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>
+<ng-template #tipContent>Hello,
+  <b></b>!</ng-template>

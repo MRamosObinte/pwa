@@ -1,0 +1,140 @@
+<header class="app-header navbar">
+  <button class="navbar-toggler sidebar-toggler d-lg-none mr-auto" type="button" data-toggle="sidebar-show" (click)="mostrarMenuConLetras()">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" routerLink="/modulos">
+    <img class="navbar-brand-full" src="assets/images/logo.png" width="90" height="70" alt="CoreUI Logo">
+    <img class="navbar-brand-minimized" src="assets/images/ICO.png" width="30" height="30" alt="CoreUI Logo">
+  </a>
+  <button class="navbar-toggler sidebar-toggler d-md-down-none" type="button" data-toggle="sidebar-lg-show" (click)="mostrarMenuConLetras()">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="col d-md-down-none">
+    <ul class="navbar-nav">
+      <li class="nav-item dropdown px-3" *ngFor="let item of menues; let i = index">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown_{{item.id}}" role="button" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          {{item.label}}
+        </a>
+        <div class="dropdown-menu menuSuperior mt-0" aria-labelledby="navbarDropdown" style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 39px, 0px);">
+          <a class="dropdown-item" routerLink={{s.id}} *ngFor="let s of item.submenus" (click)="navegar(s.id)">{{s.label}}</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <ul class="nav navbar-nav ml-auto">
+    <li class="nav-item dropdown">
+      <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-bell"></i>
+        <span class="badge badge-pill badge-success" *ngIf="notificaciones && notificaciones.length>0">{{notificaciones.length}}</span>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right">
+        <div class="dropdown-header text-center">
+          <strong>NOTIFICACIONES</strong>
+        </div>
+        <a class="dropdown-item" routerLink="{{not.url}}" *ngFor="let not of notificaciones">{{not.notificacion}}</a>
+        <a class="dropdown-item" routerLink="perfil" *ngIf="!notificaciones || notificaciones.length == 0">
+          Usted no tiene notificaciones</a>
+      </div>
+    </li>
+    <li class="nav-item dropdown">
+      <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+        <img class="img-avatar" src="{{auth.getImagenUser()}}" alt="{{auth.getNombrecompleto()}}">
+      </a>
+      <div class="dropdown-menu dropdown-menu-right">
+        <div class="dropdown-header text-center">
+          <strong>{{auth.getNombrecompleto()}}</strong>
+        </div>
+        <a class="dropdown-item" routerLink="perfil">
+          <i class="fa fa-user"></i> Perfil</a>
+        <a class="dropdown-item" href="https://obinte.zendesk.com/hc/es/requests/new" target="_blank">
+          <i class="fa fa-wrench"></i> Soporte Técnico</a>
+        <a class="dropdown-item" routerLink="atajo">
+          <i class="fa fa-keyboard-o"></i> Atajos de teclado</a>
+        <div class="divider"></div>
+        <a class="dropdown-item" routerLink="../login">
+          <i class="fa fa-lock"></i> Salir del sistema</a>
+      </div>
+    </li>
+  </ul>
+  <button class="navbar-toggler aside-menu-toggler d-lg-none d-xl-none" type="button" data-toggle="aside-menu-show"
+    (click)="mostrarMenuMovil()">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+</header>
+
+<div class="app-body" style="margin-bottom:  30px!important;">
+  <div class="sidebar">
+    <nav class="sidebar-nav sinScroll" [ngClass]="{ps: mostrarTodo}">
+      <ul class="nav">
+        <li class="nav-title">MÓDULOS</li>
+        <li *ngFor="let item of modulos" class="nav-item">
+          <a class="nav-link-2 text-nowrap" routerLink={{item.url}} routerLinkActive="active-link" (click)="cargar($event, item.url)">
+            <i class="nav-icon {{item.icono}} pr-3"></i> {{item.label}}</a>
+        </li>
+      </ul>
+    </nav>
+    <button class="sidebar-minimizer brand-minimizer" type="button" (click)="mostrarMenuConIconos()"></button>
+  </div>
+  <main class="main">
+    <!--Breadcrumb-->
+    <ol class="breadcrumb mb-2">
+      <li class="breadcrumb-item">
+        <a routerLink="/modulos">Inicio </a>
+      </li>
+      <li *ngFor="let camino of caminos; let i=index" class="breadcrumb-item">
+        <a *ngIf="!camino.url">
+          <strong *ngIf="i===caminos.length-1">{{camino.label}}</strong>
+          <span *ngIf="i!==caminos.length-1">{{camino.label}}</span>
+        </a>
+        <a *ngIf="camino.url" routerLink={{camino.url}}>{{camino.label}}</a>
+      </li>
+    </ol>
+    <div class="container-fluid pr-3 pl-3 pb-0">
+      <div class="animated fadeIn">
+        <router-outlet #routerOutlet="outlet" (activate)='onActivate($event)' (deactivate)='onDeactivate($event)'></router-outlet>
+      </div>
+    </div>
+  </main>
+  <!--Submenus movil-->
+  <div class="d-lg-none d-xl-none">
+    <aside class="aside-menu">
+      <nav class="navbar navbar-expand-lg">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown" *ngFor="let item of menues; let i = index">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-{{i}}" role="button" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              {{item.label}}
+            </a>
+            <div class="dropdown-menu menuSuperiorMovil mt-0 " aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" routerLink={{s.id}} (click)="navegar(s.id)" *ngFor="let s of item.submenus">{{s.label}}</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+  </div>
+</div>
+<!--Footer-->
+<footer class="app-footer custom-footer">
+  <div class="d-none d-sm-block">
+    <span style=" font-size: 12.5px;">® Software del Grupo Empresarial Obinte. &copy; Todos los derechos reservados.</span>
+  </div>
+  <div class="ml-auto" style="margin-right: 13rem !important;  font-size: 12.5px;">
+    <span>Filas: {{filas}} | Tiempo: {{tiempo}}ms</span>
+  </div>
+</footer>
+<app-chat>
+  chat();
+</app-chat>
+<app-chat async src="https://www.googletagmanager.com/gtag/js?id=UA-108082150-1"></app-chat>
+<div *ngIf="cargando">
+  <div class="pantalla-completa opaco">
+    <div class="content text-center" style="padding-top: 20%">
+      <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+      <h5>Cargando...</h5>
+    </div>
+  </div>
+</div>

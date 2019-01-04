@@ -1,0 +1,62 @@
+<form #frmURL='ngForm' name="frmURL">
+  <!--URL WEB SERVICE-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div class="card m-0">
+      <div class="card-header p-1">
+        <strong>{{constantes.TRIBUTACION_WEB_SERVICE}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group">
+            <!-- Botón Guardar-->
+            <button id="btnGuardarURLWebService" type="button" class="btn btn-sm btn-primary mr-1" placement="top"
+              container="body" (click)="actualizarAnexoURLWebService(frmURL)" [disabled]="cargando" title="{{constantes.ATAJO_GUARDAR}}">
+              <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+            </button>
+            <!--Botón Restaurar-->
+            <button id="btnRestaurarURLWebService" type="button" class="btn btn-sm btn-default mr-1" placement="top"
+              container="body" (click)="listaURLWebServices(frmURL)" [disabled]="cargando">
+              <i class="{{constantes.ICON_RESTAURAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.TRIBUTACION_RESTABLECER_VALORES}}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <!--URL-->
+      <div class="card-body p-1 pb-4">
+        <div class="card-body collapse show mt-0 mb-0 pt-3 pb-0">
+          <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12">
+              <div class="form-group form-group-lg has-feedback">
+                <label class="control-label">
+                  <strong><a href="{{constantes.ENLACE_URL_OFFLINE}}" target="_blanck">{{constantes.TRIBUTACION_URL_PRODUCCION}}</a></strong>
+                </label>
+                <input type="url" name="urlAmbienteProduccion" id="urlAmbienteProduccion" [(ngModel)]="urlWebService.urlAmbienteProduccion"
+                  class="form-control form-control-sm mousetrap pt-4">
+                <a class="form-control-feedback form-control-lg" (click)="verificarURL(frmURL, 'Pro')">
+                  <span class="{{constantes.ICON_VERIFICAR}} " placement="left" container="body" triggers="mouseenter:mouseleave"
+                    ngbPopover="{{constantes.MSJ_INFO_URL}}"></span>
+                </a>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12">
+              <div class="form-group form-group-lg has-feedback">
+                <label class="control-label">
+                  <strong><a href="{{constantes.ENLACE_URL_OFFLINE}}" target="_blanck">{{constantes.TRIBUTACION_URL_PRUEBAS}}</a></strong>
+                </label>
+                <input type="url" name="urlAmbientePruebas" id="urlAmbientePruebas" [(ngModel)]="urlWebService.urlAmbientePruebas"
+                  class="form-control form-control-sm mousetrap pt-4">
+                <a class="form-control-feedback form-control-lg" (click)="verificarURL(frmURL, 'Pru')">
+                  <span class="{{constantes.ICON_VERIFICAR}} form-control-feedback form-control-lg" placement="left"
+                    container="body" triggers="mouseenter:mouseleave" ngbPopover="{{constantes.MSJ_INFO_URL}}"></span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

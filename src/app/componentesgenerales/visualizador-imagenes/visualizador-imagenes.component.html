@@ -1,0 +1,29 @@
+<div class="modal-primary" *ngIf="listaImagenes?.length>0">
+  <div class="modal-header p-2">
+    <span class="modal-title modal-basic-title">
+      <strong>{{constantes.LABEL_IMAGENES}}</strong>
+    </span>
+    <button type="button" class="close" style="color: white;" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <!--<div class="col-sm-2 col-lg-2"></div>-->
+      <div class="col-sm-12 col-lg-12">
+        <!--col-sm-8 col-lg-8-->
+        <ngb-carousel *ngIf="listaImagenes" [showNavigationArrows]="true" [showNavigationIndicators]="true">
+          <ng-template ngbSlide *ngFor="let imagen of listaImagenes">
+            <img [src]="imagen.source" alt="Random first slide" class="img-responsive" style="width:100%; height:100%">
+            <div class="carousel-caption">
+              <h6 class="imagen-titulo"><strong>{{imagen.title}}</strong></h6>
+            </div>
+          </ng-template>
+        </ngb-carousel>
+        <!--<p-galleria [images]="listaImagenes" showCaption="true" responsive="true">
+        </p-galleria>-->
+      </div>
+      <!--<div class="col-sm-2 col-lg-2"></div>-->
+    </div>
+  </div>
+</div>

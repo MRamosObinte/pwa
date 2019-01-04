@@ -1,0 +1,162 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmDatos='ngForm' name="frmDatos" class="card m-0 mb-2">
+      <fieldset [disabled]="vistaFormulario || mostrarAccionesContabilidad">
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--Empresa-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select [appFocus]="true" class="form-control form-control-sm mousetrap" name="empresa" required
+              [(ngModel)]="empresaSeleccionada" (ngModelChange)="cambiarEmpresaSeleccionada()" [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <!--SECTOR-->
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_CENTRO_PRODUCCION}}</b>
+              &nbsp;
+              <a (click)="listarSectores()" *ngIf="!vistaFormulario && !mostrarAccionesContabilidad">
+                <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_CENTRO_PRODUCCION}}"
+                  container="body"></span>
+              </a>
+            </label>
+            <p-dropdown class="text-uppercase mousetrap" [options]="listadoSectores" name="sector" [showClear]="true"
+              [(ngModel)]="sectorSeleccionado" optionLabel="secNombre" (ngModelChange)="limpiarResultado()" placeholder="{{constantes.TAG_TODOS}}"
+              [disabled]="vistaFormulario || mostrarAccionesContabilidad">
+              <ng-template let-item pTemplate="selectedItem">
+                {{sectorSeleccionado?.secNombre}} ({{sectorSeleccionado?.secCodigo}})
+              </ng-template>
+              <ng-template let-fs pTemplate="item">
+                <div class="">{{fs.value.secNombre}} ({{fs.value.secCodigo}})</div>
+              </ng-template>
+            </p-dropdown>
+          </div>
+          <!--Proveedor-->
+          <div class="form-group form-group-sm has-feedback">
+            <label class="control-label">
+              <b>{{constantes.TAG_PROVEEDOR}}</b>
+            </label>
+            <input [appFocus]="true" id="codProveedor" name="codProveedor" class="form-control form-control-sm mousetrap text-uppercase"
+              type="text" (blur)="validarProveedor()" (keydown)="limpiarResultado();buscarProveedor($event);"
+              [(ngModel)]="proveedor.invProveedorPK.provCodigo" placeholder="{{constantes.TAG_OPCIONAL}}" appUppercase
+              [ngbTooltip]="proveedor.provRazonSocial ? proveedor.provRazonSocial : null" [disabled]="objetoContableEnviar">
+            <span class="fa fa-question-circle form-control-feedback" placement="right" ngbPopover="{{constantes.MSJ_ENTERTOMODAL}}"
+              container="body" triggers="mouseenter:mouseleave" *ngIf="!objetoContableEnviar"></span>
+          </div>
+          <!--FECHA HASTA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar inputId="fechaHasta" class="mousetrap" name="fechaHasta" [(ngModel)]="fechaHasta"
+              (ngModelChange)="limpiarResultado()" dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [disabled]="objetoContableEnviar"
+              placeholder="DD/MM/YYYY"></p-calendar>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <button type="button" id="btnBuscar" class="btn btn-sm btn-primary mr-1" (click)="!vistaFormulario && !mostrarAccionesContabilidad ? listar() : null"
+              title="{{constantes.ATAJO_BUSCAR}}">
+              <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}</button>
+            <button *ngIf="!esConsulta" class="btn btn-sm btn-primary" id="btnNuevo" type="button" (click)="!vistaFormulario && !mostrarAccionesContabilidad ? nuevo() : null"
+              title="{{constantes.ATAJO_NUEVO}}">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaFormulario">
+      <app-pago-anticipos-formulario [parametrosFormulario]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarAccion)="ejecutarAccion($event)"></app-pago-anticipos-formulario>
+    </div>
+    <div [hidden]="vistaFormulario">
+      <div *ngIf="mostrarAccionesContabilidad">
+        <app-contable-formulario [data]="objetoContableEnviar" (cargandoEstado)="cambiarEstadoCargando($event)"
+          (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivar($event)"></app-contable-formulario>
+      </div>
+      <div class="card m-0" [hidden]="mostrarAccionesContabilidad" *ngIf="listadoPagosAnticipo?.length>0">
+        <div class="card-header p-1">
+          <button id="btnActivar" class="btn btn-sm btn-primary mr-1" *ngIf="isScreamMd" (click)="activar=!activar"
+            type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+            <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+          </button>
+          <b> {{constantes.CARTERA_LISTADO_ANTICIPO_PROVEEDORES}}</b>
+          <div class="card-header-actions">
+            <div class="btn-group d-lg-none">
+              <!--Imprimir-->
+              <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimir()" placement="top"
+                ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"></span>
+              </button>
+              <!--EXPORTAR-->
+              <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportar()" placement="top"
+                ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"></span>
+              </button>
+            </div>
+            <div class="btn-group d-none d-lg-block">
+              <!--Imprimir-->
+              <button type="button" class="btn btn-sm btn-primary mr-1" id="btnImprimir" (click)="imprimir()" placement="top"
+                ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+              </button>
+              <!--EXPORTAR-->
+              <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportar(false)"
+                placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+                <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i> {{constantes.LABEL_EXPORTAR}}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div class="row">
+            <div class="col-sm-5 col-md-6">
+              <div class="input-group p-1">
+                <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                  size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                  size="100">
+                <div class="input-group-append">
+                  <span class="input-group-text">
+                    <i class="{{constantes.ICON_BUSCAR}}"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-7 col-md-6">
+              <div class="float-right pr-1">
+                <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                  maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+              </div>
+            </div>
+          </div>
+          <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+            [rowData]="listadoPagosAnticipo" [columnDefs]="columnDefsSelected" [enableSorting]="true" (gridSizeChanged)="redimensionarColumnas()"
+            [rowSelection]="rowSelection" [enableColResize]="true" [context]="context" (gridReady)="onGridReady($event)"
+            (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+            (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" (cellFocused)="filaFocused($event)"
+            (cellDoubleClicked)="objetoSeleccionado = $event.node.data;verContable()">
+          </ag-grid-angular>
+        </div>
+        <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

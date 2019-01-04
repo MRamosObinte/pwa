@@ -1,0 +1,589 @@
+<form #frm='ngForm' autocomplete="off" class="card m-0" *ngIf="!mostrarFormularioPagos && mostrarFormularioCompras && !mostrarAccionesContabilidad && !mostrarAccionesProveedor && !mostrarProrrateoCompras && !mostrarRetencionCompras">
+  <div class="card-header" style="padding: 0.5rem 0.5rem;">
+    <button id="btnActivarCompra" class="btn btn-sm btn-primary" *ngIf="!screamXS" (click)="cambiarEstadoActivar()"
+      type="button">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{tituloForm}} - {{empresaSeleccionada?.empNombre}}</b>
+    <div class="card-header-actions" *ngIf="!estamosEnVistaImagenes">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Imprimir-->
+        <button id="btnImprimirCompra" *ngIf="accion === constantes.ACCION_CONSULTAR && !invCompraTO?.compPendiente && !invCompraTO?.compAnulado"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}"
+          (click)="imprimirCompras()">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Imagenes-->
+        <button id="btnImagenesCompra" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.TAG_IMAGENES}}"
+          (click)="imagenesCompra()">
+          <i class="{{constantes.ICON_IMAGENES}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Contable-->
+        <button id="btnContableCompra" *ngIf="accion === constantes.ACCION_CONSULTAR && !invCompraTO.compAnulado && !invCompraTO.compPendiente && this.invCompraTO.contNumero"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_VER_CONTABLE}}"
+          (click)="verContable()">
+          <i class="{{constantes.ICON_VER}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Contabilizar-->
+        <button id="btnContabilizarCompra" *ngIf="accion === constantes.ACCION_CONSULTAR && !invCompraTO.compAnulado && !invCompraTO.compPendiente && !this.invCompraTO.contNumero && mostrarBtnContabilizar"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_CONTABILIZAR}}"
+          (click)="contabilizarCompra()">
+          <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Retencion-->
+        <button id="btnRetencionCompra" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_RETENCION}}"
+          (click)="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR?consultarRetencion():retencionCompras(frm)"
+          *ngIf="invCompraTO.compDocumentoTipo &&
+          ((invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_CREDITO && invCompraTO.compDocumentoNumero !== '999-999-999999999') ||
+          (invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_ENTREGA && invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_CREDITO))">
+          <i class="{{constantes.ICON_RETENCION}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Guardar y mayorizar-->
+        <div class="btn-group" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR">
+          <button type="button" class="btn btn-sm btn-primary" id="btnGuardarCompra" (click)="accion ===constantes.ACCION_CREAR?insertarCompra(frm,false):modificarCompra(frm,false)"
+            title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"></span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+            style="margin-right: 3px;">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="accion ===constantes.ACCION_CREAR?insertarCompra(frm,true):modificarCompra(frm,true)">
+              {{constantes.TAG_PENDIENTE}}</a>
+          </div>
+        </div>
+        <!--Anular-->
+        <button id="btnAnularCompra" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularCompra()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Restaurar-->
+        <button id="btnRestaurarCompra" *ngIf="accion === constantes.ACCION_RESTAURAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_RESTAURAR}}" (click)="restaurarCompra()">
+          <i class="{{constantes.ICON_OK}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"></span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarCompra"
+          ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}"
+          (click)="cancelar()">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Imprimir-->
+        <button id="btnImprimirCompra" *ngIf="accion === constantes.ACCION_CONSULTAR && !invCompraTO?.compPendiente && !invCompraTO?.compAnulado"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_IMPRIMIR}}"
+          (click)="imprimirCompra()">
+          <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_IMPRIMIR}}</span>
+        </button>
+        <!--Imagenes-->
+        <button id="btnImagenesCompra" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.TAG_IMAGENES}}"
+          (click)="imagenesCompra()">
+          <i class="{{constantes.ICON_IMAGENES}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.TAG_IMAGENES}}</span>
+        </button>
+        <!--Contable-->
+        <button id="btnContableCompra" *ngIf="accion === constantes.ACCION_CONSULTAR && !invCompraTO.compAnulado && !invCompraTO.compPendiente && this.invCompraTO.contNumero"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_VER_CONTABLE}}"
+          (click)="verContable()">
+          <i class="{{constantes.ICON_VER}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_CONTABLE}}</span>
+        </button>
+        <!--Contabilizar-->
+        <button id="btnContabilizarCompra" *ngIf="accion === constantes.ACCION_CONSULTAR && !invCompraTO.compAnulado && !invCompraTO.compPendiente && !this.invCompraTO.contNumero && mostrarBtnContabilizar"
+          type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_CONTABILIZAR}}"
+          (click)="contabilizarCompra()">
+          <i class="{{constantes.ICON_CALCULADORA}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_CONTABILIZAR}}</span>
+        </button>
+        <!--Retencion-->
+        <button id="btnRetencionCompra" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_RETENCION}}"
+          (click)="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR?consultarRetencion():retencionCompras(frm)"
+          *ngIf="invCompraTO.compDocumentoTipo &&
+          ((invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_CREDITO && invCompraTO.compDocumentoNumero !== '999-999-999999999') ||
+          (invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_ENTREGA && invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_CREDITO))">
+          <i class="{{constantes.ICON_RETENCION}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.TAG_RETENCION}}</span>
+        </button>
+        <!--Guardar y mayorizar-->
+        <div class="btn-group" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR">
+          <button type="button" class="btn btn-sm btn-primary" id="btnGuardarCompra" (click)="accion ===constantes.ACCION_CREAR?insertarCompra(frm,false):modificarCompra(frm,false)"
+            title="{{constantes.ATAJO_GUARDAR}}">
+            <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_MAYORIZAR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+            style="margin-right: 3px;">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="accion ===constantes.ACCION_CREAR?insertarCompra(frm,true):modificarCompra(frm,true)">
+              {{constantes.TAG_PENDIENTE}}</a>
+          </div>
+        </div>
+        <!--Anular-->
+        <button id="btnAnularCompra" *ngIf="accion === constantes.ACCION_ANULAR" type="button" class="btn btn-sm btn-danger mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_ANULAR}}" (click)="anularCompra()">
+          <i class="{{constantes.ICON_ELIMINAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_ANULAR}}</span>
+        </button>
+        <!--Restaurar-->
+        <button id="btnRestaurarCompra" *ngIf="accion === constantes.ACCION_RESTAURAR" type="button" class="btn btn-sm btn-primary mr-1"
+          placement="top" ngbTooltip="{{constantes.ACCION_RESTAURAR}}" (click)="restaurarCompra()">
+          <i class="{{constantes.ICON_OK}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.ACCION_RESTAURAR}}</span>
+        </button>
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarCompra"
+          (click)="cancelar()" ngbTooltip="{{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}">
+          <i class="{{accion === constantes.ACCION_CONSULTAR?constantes.ICON_REGRESAR:constantes.ICON_CANCELAR}}"
+            aria-hidden="true"></i>
+          {{accion === constantes.ACCION_CONSULTAR?constantes.LABEL_REGRESAR:constantes.LABEL_CANCELAR}}
+        </button>
+      </div>
+    </div>
+    <div class="card-header-actions" *ngIf="estamosEnVistaImagenes">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarImagenes"
+          ngbTooltip="{{constantes.LABEL_REGRESAR}}" (click)="estamosEnVistaImagenes = false;">
+          <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- Con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <!--Cancelar y/o regresar-->
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" id="btnCancelarImagenes"
+          (click)="estamosEnVistaImagenes = false;" ngbTooltip="{{constantes.LABEL_REGRESAR}}">
+          <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+          {{constantes.LABEL_REGRESAR}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-1" [hidden]="estamosEnVistaImagenes">
+    <fieldset [disabled]="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">
+      <!--Datos de la cabecera de la venta-->
+      <div class="card mb-0" [ngClass]="{'card-accent-warning': invCompraTO?.compAnulado, 'card-accent-success': invCompraTO?.compRevisado, 'card-accent-danger': invCompraTO?.compPendiente && accion !== constantes.ACCION_CREAR}">
+        <div class="row pl-3 pr-3">
+          <!--DATOS DE LA COMPRA-->
+          <div class="col-md-3 col-sm-12 p-0" style="border-right: 1px solid #c8ced3;">
+            <div class="card-header">
+              <b>{{constantes.TAG_DATOS_PROVEEDOR}}</b>
+            </div>
+            <div class="card-body p-2">
+              <div class="row" *ngIf="!proveedor.provCodigo || 
+              ((accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && !importarXmlEstado && !comprobarRetencionAutorizadaProcesamiento)">
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}} </strong>
+                  </label>
+                  <input [appFocus]="true" id="provCodigo" name="provCodigo" [(ngModel)]="invCompraTO.provCodigo"
+                    placeholder="{{constantes.TAG_OBLIGATORIO}}" pattern="{{constantes.PATTERN_CODIGO}}" class="form-control form-control-sm mousetrap text-uppercase"
+                    maxlength="500" (keydown)="buscarProveedor($event)" (blur)="validarProveedor()" [ngbTooltip]="proveedor.provRazonSocial ? proveedor.provRazonSocial : null"
+                    appUppercase required>
+                </div>
+              </div>
+              <div class="row" *ngIf="proveedor.provCodigo">
+                <div class="form-group-sm col-lg-12" *ngIf="(accion === constantes.ACCION_CONSULTAR 
+                || accion === constantes.ACCION_ANULAR 
+                || accion === constantes.ACCION_RESTAURAR 
+                || (accion === constantes.ACCION_MAYORIZAR && comprobarRetencionAutorizadaProcesamiento) 
+                || ((accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && importarXmlEstado))">
+                  <label>
+                    <strong>{{constantes.TAG_CODIGO}}: </strong> {{proveedor?.provCodigo}}
+                  </label>
+                </div>
+
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_RUC_ID}}: </strong> {{proveedor?.provId}}
+                  </label>
+                </div>
+
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_NOMBRE}}: </strong> {{proveedor?.provRazonSocial}}
+                  </label>
+                </div>
+                <div class="form-group-sm col-lg-12">
+                  <label>
+                    <strong>{{constantes.TAG_DIRECCION}}: </strong> {{proveedor?.provDireccion}}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-9 col-sm-12 p-0">
+            <div class="card-header">
+              <b>{{constantes.TAG_DATOS_GENERALES}}</b>
+            </div>
+            <div class="card-body p-2">
+              <div class="row">
+                <!--Fecha emision-->
+                <div class="form-group form-group-sm col-lg-3">
+                  <label>
+                    <strong>{{constantes.TAG_FECHA_EMISION}} </strong>
+                  </label>
+                  <p-calendar inputId="fechaEmision" class="mousetrap calendar" name="fechaEmision" [(ngModel)]="fechaEmision"
+                    [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true"
+                    (ngModelChange)="validarFechaVencimiento()" [minDate]="fechaInicioMesGuardado" [appMinDate]="fechaInicioMesGuardado"
+                    placeholder="DD/MM/YYYY" [disabled]="((accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && importarXmlEstado) || 
+                     (accion === constantes.ACCION_MAYORIZAR && comprobarRetencionAutorizadaProcesamiento)"
+                    [maxDate]="fechaFinMesGuardado" [appMaxDate]="fechaFinMesGuardado" [inputStyleClass]="periodoAbierto == false ? 'has-error height-26' : 'height-26' "></p-calendar>
+                </div>
+                <!--Motivo-->
+                <div class="form-group form-group-sm col-lg-3 has-feedback">
+                  <label style="margin-bottom: 3px;">
+                    <strong>{{constantes.TAG_MOTIVO}}</strong>
+                  </label>
+                  &nbsp;
+                  <a (click)="listarMotivos()" *ngIf="accion === constantes.ACCION_CREAR">
+                    <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_MOTIVOS}}"
+                      container="body"></span>
+                  </a>
+                  <label class="form-control form-control-sm text-uppercase label-input" *ngIf="accion !== constantes.ACCION_CREAR">{{motivoSeleccionado?.cmDetalle}}
+                  </label>
+                  <select class="form-control form-control-sm mousetrap color-no-disabled" name="cboMotivo" [(ngModel)]="motivoSeleccionado"
+                    [compareWith]="inicializarMotivos" required *ngIf="accion === constantes.ACCION_CREAR">
+                    <option ngValue="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                    <option [ngValue]="motivo" *ngFor="let motivo of listadoMotivos"> {{motivo.cmDetalle}}
+                    </option>
+                  </select>
+                </div>
+                <!--Documento-->
+                <div class="form-group form-group-sm col-lg-3">
+                  <label class="control-label">
+                    <b>{{constantes.TAG_DOCUMENTO}}</b>
+                  </label>
+                  <select id="documento" class="form-control form-control-sm mousetrap color-no-disabled" name="documento"
+                    [(ngModel)]="invCompraTO.compDocumentoTipo" required [disabled]="!invCompraTO.provCodigo || 
+                    (accion === constantes.ACCION_MAYORIZAR && comprobarRetencionAutorizadaProcesamiento) ||
+                    ((accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && importarXmlEstado)"
+                    (ngModelChange)="validarSiEsNotaEntrega()">
+                    <option [ngValue]="doc.tcCodigo" *ngFor="let doc of listaDocumentos">
+                      {{doc.tcDescripcion}} ({{doc?.tcCodigo}})
+                    </option>
+                  </select>
+                </div>
+
+                <!--observaciones-->
+                <div class="form-group form-group-sm col-lg-3">
+                  <label>
+                    <strong>{{constantes.TAG_OBSERVACIONES}} </strong>
+                  </label>
+                  <textarea class="form-control form-control-sm text-uppercase mousetrap" appUppercase type="text" cols="2"
+                    [(ngModel)]="invCompraTO.compObservaciones" placeholder="{{constantes.TAG_OBSERVACIONES}}" name="observacion"></textarea>
+                </div>
+
+                <!--Fecha autoriz-->
+                <div class="form-group form-group-sm col-lg-3" *ngIf="invCompraTO.compDocumentoTipo &&
+                ((invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_CREDITO && invCompraTO.compDocumentoNumero !== '999-999-999999999') ||
+                (invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_ENTREGA && invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_CREDITO))">
+                  <label>
+                    <strong>{{constantes.TAG_FECHA_AUTORIZACION}} </strong>
+                  </label>
+                  <p-calendar class="mousetrap calendar" name="fechaAutorizacion" [(ngModel)]="fechaAutorizacion"
+                    [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true"
+                    (ngModelChange)="validacionFechas();" placeholder="DD/MM/YYYY" [inputStyleClass]="fechaAutorizacionValida == false?'has-error height-26':'height-26'"
+                    [disabled]="(accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && importarXmlEstado"></p-calendar>
+                </div>
+                <!--Fecha caduca-->
+                <div class="form-group form-group-sm col-lg-3" *ngIf="invCompraTO.compDocumentoTipo &&
+                ((invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_CREDITO && invCompraTO.compDocumentoNumero !== '999-999-999999999') ||
+                (invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_ENTREGA && invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_CREDITO))">
+                  <label>
+                    <strong>{{constantes.TAG_FECHA_CADUCA}} </strong>
+                  </label>
+                  <p-calendar class="mousetrap calendar" name="fechaCaduca" [(ngModel)]="fechaCaduca" [showIcon]="true"
+                    [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true" (ngModelChange)="validacionFechas()"
+                    placeholder="DD/MM/YYYY" [inputStyleClass]=" fechaCaducaValida ==false?'has-error height-26':'height-26'"
+                    [disabled]="(accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && importarXmlEstado"></p-calendar>
+                </div>
+                <!--Numero-->
+                <div class="form-group form-group-sm col-lg-3" *ngIf="invCompraTO.compDocumentoTipo && invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_ENTREGA">
+                  <label>
+                    <strong>{{constantes.TAG_NUMERO}}</strong>
+                  </label>
+                  <p-inputMask class="mousetrap mascara" name="numeroDoc" [(ngModel)]="invCompraTO.compDocumentoNumero"
+                    mask="999-999-999999999" required (onBlur)="invCompraTO.compDocumentoNumero ? validarNumeroDocumento() : null"
+                    [ngClass]="{'has-error': !numeroDocValido000 || numeroRepetido}" [disabled]="invCompraTO.compDocumentoTipo === constantes.CODIGO_COMPROBANTE_PAGOS 
+                    || ((accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && importarXmlEstado)
+                    || (accion === constantes.ACCION_MAYORIZAR && comprobarRetencionAutorizadaProcesamiento)"></p-inputMask>
+                </div>
+                <!--Nro autorizacion-->
+                <div class="form-group form-group-sm col-lg-3" *ngIf="invCompraTO.compDocumentoTipo &&
+                ((invCompraTO.compDocumentoTipo === constantes.CODIGO_NOTA_CREDITO && invCompraTO.compDocumentoNumero !== '999-999-999999999') ||
+                (invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_ENTREGA && invCompraTO.compDocumentoTipo !== constantes.CODIGO_NOTA_CREDITO))">
+                  <label>
+                    <strong>{{constantes.TAG_NUMERO_AUTORIZACION}} </strong>
+                  </label>
+                  <input class="form-control form-control-sm mousetrap text-uppercase " name="nroAutorizacion"
+                    maxlength="49" onkeypress='return event.charCode >= 48 && event.charCode <= 57' type="text"
+                    placeholder="{{constantes.TAG_SIN_DETALLE}}" [(ngModel)]="anxCompraTO.compAutorizacion" (ngModelChange)="validarNumeroAutorizacionRetencion();validacionFechas()"
+                    id="detalle" required [ngClass]="{'has-error': !numeroAutorizacionValidaLongitud}" [disabled]="(accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR) && importarXmlEstado">
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </fieldset>
+    <!--Datos del detalle de la cabecera-->
+    <div class="card mb-1">
+      <div class="card-header">
+        <strong>{{constantes.TAG_DETALLE_COMPRA}}</strong>
+      </div>
+      <div class="card-body m-0 p-0" *ngIf="listInvComprasDetalleTO?.length>0">
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 590px); min-height: 95px" class="ag-theme-balham"
+          [rowData]="listInvComprasDetalleTO" [columnDefs]="columnDefs" [enableSorting]="true" [rowSelection]="rowSelection"
+          [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+          [rowDragManaged]="true" (rowDragEnd)="refrescarOrdenDetalle()" [animateRows]="true" [suppressClickEdit]=true
+          (gridReady)="onGridReady($event)" (rowSelected)="detalleSeleccionado = $event.node.data" (cellFocused)="filaFocused($event)"
+          (filterChanged)="actualizarFilas()" (contextmenu)="accion !== constantes.ACCION_CONSULTAR?  $event.preventDefault():null"
+          (cellContextMenu)="accion !== constantes.ACCION_CONSULTAR? mostrarContextMenu($event.data,$event.rowIndex, $event.event):null"
+          (cellEditingStopped)="alCambiarValorDeCelda($event)" [stopEditingWhenGridLosesFocus]="true"
+          [suppressDragLeaveHidesColumns]="true" (gridSizeChanged)="redimensionarColumnas()">
+        </ag-grid-angular>
+      </div>
+    </div>
+    <!--TAB PANEL PARA OPCIONES DE PECIOS, INFORMAC. ADICIONAL Y FORMA DE PAGO-->
+    <div class="card mb-1">
+      <div class="row">
+        <div class="col-lg-7 col-md-7">
+          <ul class="nav nav-tabs nav-justified" role="tablist" id="ulOpciones" style="box-shadow: inset 0 -1px 0 #ddd;">
+            <li role="presentation" class="nav-item">
+              <a class="nav-link active p-1" href data-target="#formaPago" aria-controls="formaPago" role="tab"
+                data-toggle="tab">
+                <b>{{constantes.INVENTARIO_FORMA_PAGO}}</b>
+              </a>
+            </li>
+            <li role="presentation" class="nav-item">
+              <a class="nav-link p-1" href data-target="#otros" aria-controls="otros" role="tab" data-toggle="tab">
+                <b>{{constantes.TAG_OTROS}}</b>
+              </a>
+            </li>
+            <li role="presentation" class="nav-item" *ngIf="listaInvListadoPagosTO.length>0">
+              <a class="nav-link p-1" href data-target="#pagos" aria-controls="pagos" role="tab" data-toggle="tab">
+                <b>{{constantes.TAG_PAGOS}}</b>
+              </a>
+            </li>
+          </ul>
+          <div class="tab-content panel" style="border-top-width: 0px;">
+
+            <div role="tabpanel" class="tab-pane fade show active" id="formaPago">
+              <div class="panel-default">
+                <div class="panel-body">
+                  <fieldset [disabled]="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">
+                    <div class="row">
+
+                      <div class="form-group form-group-sm col-lg-4">
+                        <label>
+                          <strong>{{constantes.TAG_FECHA_VENCIMIENTO}} </strong>
+                        </label>
+                        <p-calendar class="mousetrap calendar" name="compFechaVencimiento" [(ngModel)]="fechaVencimiento"
+                          [showIcon]="true" [locale]="es" dateFormat="{{constantes.CALENDAR_FORMATO}}" [required]="true"
+                          placeholder="DD/MM/YYYY" [minDate]="fechaEmision" [appMinDate]="fechaEmision"></p-calendar>
+                      </div>
+
+                      <div class="form-group form-group-sm col-md-4 has-feedback">
+                        <label>
+                          <strong>{{constantes.TAG_TIPO}}</strong>
+                          &nbsp;
+                          <a (click)="listarFormaPago()" *ngIf="accion === constantes.ACCION_CREAR || accion === constantes.ACCION_MAYORIZAR">
+                            <span class="{{constantes.ICON_REFRESCAR}}" placement="top" ngbTooltip="{{constantes.MSJ_RECARGAR_FORMAS_PAGO}}"
+                              container="body"></span>
+                          </a>
+                        </label>
+                        <select class="form-control form-control-sm mousetrap" name="formaPago" [(ngModel)]="formaPagoSeleccionada"
+                          required (ngModelChange)="validarChequeRepetido();" [compareWith]="inicializarTipos">
+                          <option disabled selected>{{constantes.TAG_SELECCIONE}}</option>
+                          <option [ngValue]="fp" *ngFor="let fp of listaFormaPago"> {{fp?.fpDetalle}}</option>
+                        </select>
+                      </div>
+
+                      <div class="form-group form-group-sm col-md-4">
+                        <label>
+                          <strong>{{constantes.TAG_REFERENCIA}}</strong>
+                        </label>
+                        <input class="form-control form-control-sm mousetrap text-uppercase " name="referencia"
+                          maxlength="30" type="text" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="invCompraTO.compDocumentoFormaPago"
+                          id="detalle" [ngClass]="{'has-error': chequeRepetido}" (blur)="validarChequeRepetido()">
+                      </div>
+
+                    </div>
+                  </fieldset>
+                </div>
+              </div>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="otros">
+              <fieldset [disabled]="accion !== constantes.ACCION_CREAR && accion !== constantes.ACCION_MAYORIZAR">
+                <div class="row">
+                  <div class="col-lg-4">
+                    <button type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_DISTRIBUIR_DESCUENTO}}"
+                      (click)="distribuirDescuento()">
+                      <i class="{{constantes.ICON_DISTRIBUIR}}" aria-hidden="true"></i>
+                      <span class="d-none d-md-inline"> {{constantes.ACCION_DISTRIBUIR_DESCUENTO}}</span>
+                    </button>
+                  </div>
+                  <div class="col-lg-4">
+                    <button type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.ACCION_DISTRIBUIR_COSTO}}"
+                      (click)="distrubuirCosto()">
+                      <i class="{{constantes.ICON_DISTRIBUIR}}" aria-hidden="true"></i>
+                      <span class="d-none d-md-inline"> {{constantes.ACCION_DISTRIBUIR_COSTO}}</span>
+                    </button>
+                  </div>
+                  <div class="col-lg-4" *ngIf="accion !== constantes.ACCION_CREAR">
+                    <input [(ngModel)]="invCompraTO.compElectronica" class="form-check-input" name="compElectronica"
+                      type="checkbox" [disabled]="!importarXmlEstado"> {{constantes.TAG_IMPORTAR_XML}}
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <div role="tabpanel" class="tab-pane fade" id="pagos" *ngIf="listaInvListadoPagosTO.length>0">
+              <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true" [value]="listaInvListadoPagosTO">
+                <ng-template pTemplate="header">
+                  <tr class="text-center">
+                    <th style="width:100px" pResizableColumn>{{constantes.TAG_PERIODO}}</th>
+                    <th style="width:80px" pResizableColumn>{{constantes.TAG_MOTIVO}}</th>
+                    <th style="width:80px" pResizableColumn>{{constantes.TAG_NUMERO}}</th>
+                    <th style="width:80px" pResizableColumn>{{constantes.TAG_FECHA}}</th>
+                    <th style="width:80px" pResizableColumn>{{constantes.TAG_VALOR}}</th>
+                    <th style="width:80px" pResizableColumn></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                  <tr>
+                    <td style="width:100px">{{item.pagPeriodo}}</td>
+                    <td style="width:80px">{{item.pagTipo}}</td>
+                    <td style="width:80px">{{item.pagNumero}}</td>
+                    <td style="width:80px">{{item.pagFecha}}</td>
+                    <td style="width:80px" class="text-right">{{item.pagValor}}</td>
+                    <td style="width:80px" class="text-center">
+                      <button type="button" class="btn btn-sm btn-primary" (click)="consultarPagos(item)"><i class="{{constantes.ICON_CONSULTAR}}"
+                          aria-hidden="true"></i></button>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+
+
+            </div>
+          </div>
+        </div>
+        <!--TOTALES-->
+        <div class="col-md-5 col-lg-5">
+          <br>
+          <p-table [resizableColumns]="true" [scrollable]="true" [resizableColumns]="true">
+            <ng-template pTemplate="colgroup" *ngIf="!screamXS">
+              <colgroup>
+                <col [style.width]="'100px'">
+                <col [style.width]="'80px'">
+                <col [style.width]="'80px'">
+              </colgroup>
+            </ng-template>
+            <ng-template pTemplate="header">
+              <tr class="text-center">
+                <th style="width:100px" pResizableColumn></th>
+                <th style="width:80px" pResizableColumn>0%</th>
+                <th style="width:80px" pResizableColumn>{{invCompraTO.compIvaVigente}}%</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <tr>
+                <td class="totales-tabla">{{constantes.TAG_SUBTOTAL}}</td>
+                <td>
+                  <span class="f-r">{{invCompraTO.compBase0 | number : '1.2-2'}}</span>
+                </td>
+                <td>
+                  <span class="f-r">{{invCompraTO.compBaseImponible | number : '1.2-2'}}</span>
+                </td>
+              </tr>
+              <!--Ice-->
+              <tr>
+                <td class="totales-tabla">{{constantes.TAG_ICE}}</td>
+                <td></td>
+                <td>
+                  <span class="f-r">{{invCompraTO.compIce| number : '1.2-2'}}</span>
+                </td>
+              </tr>
+              <!--Iva-->
+              <tr>
+                <td class="totales-tabla">{{constantes.TAG_IVA}}</td>
+                <td></td>
+                <td>
+                  <span class="f-r">{{invCompraTO.compMontoIva| number : '1.2-2'}}</span>
+                </td>
+              </tr>
+              <!--Otrs imp-->
+              <tr>
+                <td class="totales-tabla">{{constantes.TAG_OTROS_IMPUESTOS}}</td>
+                <td></td>
+                <td>
+                  <span class="f-r">{{invCompraTO.compOtrosImpuestos| number : '1.2-2'}}</span>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="summary" style="height: 90px;">
+              <h1>{{invCompraTO.compTotal| number : '1.2-2'}}</h1>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-1" [hidden]="!estamosEnVistaImagenes">
+    <app-subir-imagenes></app-subir-imagenes>
+  </div>
+</form>
+
+
+<!--Pagos-->
+<div *ngIf="mostrarFormularioPagos">
+  <app-pago-formulario [empresaSeleccionada]="empresaSeleccionada" [parametrosFormulario]="parametrosFormularioPagos"
+    (enviarAccion)="ejecutarAccion($event)"></app-pago-formulario>
+</div>
+<!--Proveedor-->
+<div *ngIf="mostrarAccionesProveedor">
+  <app-proveedor-formulario [parametros]="parametrosFormulario" (cerrarFormularioProveedor)="cerrarFormularioProveedor($event)"
+    (activarEstado)="cambiarEstadoActivar($event)"></app-proveedor-formulario>
+</div>
+<!--Prorrateo-->
+<div *ngIf="mostrarProrrateoCompras">
+  <app-prorrateo-compras [empresaSeleccionada]="empresaSeleccionada" [activar]="activar" [fecha]="fechaEmision"
+    (accionProrrateo)="accionProrrateo($event)"></app-prorrateo-compras>
+</div>
+<!--Retencion compras-->
+<div *ngIf="parametrosRetencion">
+  <app-retencion-compras [empresaSeleccionada]="empresaSeleccionada" [fechaCompra]="fechaEmision"
+    [comprobarRetencionAutorizadaProcesamiento]="comprobarRetencionAutorizadaProcesamiento" [fechaAutorizacion]="fechaAutorizacion"
+    [fechaCaduca]="fechaCaduca" [activar]="activar" [parametrosRetencion]="parametrosRetencion" (enviarAccion)="accionRetencion($event)"
+    (mostrarRetencionCompras)="mostrarRetencionCompras=$event"></app-retencion-compras>
+</div>
+<!--Contable-->
+<div *ngIf="mostrarAccionesContabilidad">
+  <app-contable-formulario [data]="parametrosContabilidad" (cargandoEstado)="cargando = $event"
+    (cerrarContabilidadAcciones)="cerrarContabilidadAcciones($event)" (activarEstado)="cambiarEstadoActivarContabilidad($event)"></app-contable-formulario>
+</div>
+
+<p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

@@ -1,0 +1,75 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmPiscina='ngForm' name="frmPiscina" class="card m-0 mb-2" autocomplete="off">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSelect()">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_SECTOR}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="sector" required [(ngModel)]="sectorSeleccionado"
+            (ngModelChange)="limpiarPiscinas()">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}}
+                ({{sector.secCodigo}})</option>
+            </select>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary" (click)="!vistaFormulario ? listarPiscinas(false) : null"
+                title="{{constantes.ATAJO_BUSCAR}}" id="btnBuscar">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+                id="btnInactivo">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="!vistaFormulario ? listarPiscinas(true) : null">{{constantes.TAG_INCLUIR_INACTIVOS}}</a>
+              </div>
+            </div>&nbsp;
+            <button class="btn btn-sm btn-primary" type="button" (click)="!vistaFormulario && verificarPermiso(constantes.ACCION_CREAR, true) ? nuevaPiscina() : null"
+              [disabled]="!frmPiscina.valid" title="{{constantes.ATAJO_NUEVO}}">
+              <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+            </button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div [hidden]="!vistaListado">
+      <app-piscina-listado [parametros]="parametro" [isModal]="false" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarActivar)="activar=!$event" (enviarAccion)="accionLista($event)"></app-piscina-listado>
+    </div>
+    <div *ngIf="vistaFormulario && !vistaListado">
+      <app-piscina-formulario [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+      [listaSectores]="listaSectores" (enviarCancelar)="cancelar($event)" (enviarActivar)="activar=!$event">
+      </app-piscina-formulario>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

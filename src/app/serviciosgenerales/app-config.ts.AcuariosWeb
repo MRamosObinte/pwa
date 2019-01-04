@@ -1,0 +1,14 @@
+import { Injectable } from '@angular/core';
+
+/**
+ * This is a singleton class
+ */
+@Injectable()
+export class AppConfig {
+
+    public baseApiPath: string = "https://tws.acuariosdelgolfo.com:1443/Acuarios/";
+    
+    constructor() {
+
+    }
+}

@@ -1,0 +1,74 @@
+<!--LISTADO DE ORDEN DE PEDIDO -->
+<div class="card m-0" [hidden]="!vistaListado" *ngIf="listadoResultado?.length > 0">
+  <div class="card-header p-1">
+    <button id="btnActivarOrdenCompra" class="btn btn-sm btn-primary mr-1 d-none d-sm-inline" (click)="cambiarActivar()"
+      type="button">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <strong>{{constantes.PEDIDOS_ORDEN_COMPRA_LISTADO}}</strong>
+    <div class="card-header-actions">
+      <div class="btn-group">
+        <div class="btn-group mr-1">
+          <button id="btnImprimir" type="button" class="btn btn-sm btn-primary" placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}"
+            container="body" (click)="imprimir()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruImprimir" title="{{constantes.ATAJO_IMPRIMIR}}">
+            <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_IMPRIMIR}}</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown"
+            [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruImprimir">
+          </button>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" (click)="imprimirIndividual()">{{constantes.LABEL_IMPRIMIR_INDIVIDUAL}}</a>
+          </div>
+        </div>
+        <button id="btnExportar" type="button" class="btn btn-sm btn-primary mr-1" placement="top" ngbTooltip="{{constantes.LABEL_EXPORTAR}}"
+          container="body" (click)="exportar()" [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruExportar" title="{{constantes.ATAJO_EXPORTAR}}">
+          <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="row">
+      <div class="col-sm-5 col-md-6">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+            size="100">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-7 col-md-6">
+        <div class="float-right pr-1">
+          <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+            maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+        </div>
+      </div>
+    </div>
+    <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+      [rowData]="listadoResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+      [suppressRowClickSelection]="true" (gridSizeChanged)="redimensionarColumnas()" [rowSelection]="rowSelection"
+      [enableColResize]="true" [components]="components" [context]="context" [frameworkComponents]="frameworkComponents"
+      (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+      (contextmenu)="$event.preventDefault()" (filterChanged)="actualizarFilas()" (cellDoubleClicked)="onCellDoubleClicked($event)"
+      [rowClassRules]="rowClassRules">
+    </ag-grid-angular>
+  </div>
+  <p-contextMenu #menuOpciones appendTo="body" [model]="opciones"></p-contextMenu>
+</div>
+
+<!-- ORDEN DE COMPRA -->
+<app-formulario-generar-orden-compra *ngIf="dataFormularioCompra" [data]="dataFormularioCompra" [empresaSeleccionada]="empresaSeleccionada"
+  (enviarActivar)="cambiarActivarFormulario($event)" (enviarCancelar)="cancelar($event)" (enviarLista)="operacionEnLista($event)"></app-formulario-generar-orden-compra>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>
+<div class="row justify-content-end">
+  <a href="" id="excelDownload" #excelDownload></a>
+</div>

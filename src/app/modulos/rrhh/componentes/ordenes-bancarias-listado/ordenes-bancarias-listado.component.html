@@ -1,0 +1,57 @@
+<div class="card mb-0" *ngIf="listaOrdenBancario?.length>0" [ngClass]="{'modal-primary': isModal}">
+  <div class="modal-header p-2" *ngIf="isModal">
+    <h4 class="modal-title">{{constantes.TALENTO_HUMANO_ORDENES_BANCARIAS_LISTADO}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="card-header p-1" *ngIf="!isModal">
+    <button class="btn btn-sm btn-primary" id="btnActivar" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button"
+      title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{constantes.TALENTO_HUMANO_ORDENES_BANCARIAS_LISTADO}}</b>
+    <div class="card-header-actions">
+      <button type="button" class="btn btn-sm btn-primary mr-1" id="btnExportar" (click)="exportarExcel()" placement="top"
+        ngbTooltip="{{constantes.LABEL_EXPORTAR}}" container="body" title="{{constantes.ATAJO_EXPORTAR}}">
+        <i class="{{constantes.ICON_EXPORTAR}}" aria-hidden="true"></i>
+        <span class="d-none d-md-inline"> {{constantes.LABEL_EXPORTAR}}</span>
+      </button>
+    </div>
+  </div>
+  <div class="card-body" style="padding: 0 0 0 0">
+    <div class="row">
+      <div class="col-sm-5 col-md-6">
+        <div class="input-group p-1">
+          <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+            size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+            size="100">
+          <div class="input-group-append">
+            <span class="input-group-text">
+              <i class="{{constantes.ICON_BUSCAR}}"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-7 col-md-6">
+        <div class="float-right pr-1">
+          <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+            maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+        </div>
+      </div>
+    </div>
+    <!--listado de ordenes bancarias-->
+    <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 206px);" class="ag-theme-balham"
+      [rowData]="listaOrdenBancario" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+      [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+      [frameworkComponents]="frameworkComponents" (gridSizeChanged)="redimensionarColumnas()" (gridReady)="onGridReady($event)"
+      [pinnedBottomRowData]="pinnedBottomRowData" (rowSelected)="objetoSeleccionado = $event.node.data" (filterChanged)="actualizarFilas()"
+      (gridColumnsChanged)="redimensionarColumnas()" (cellFocused)="filaFocused($event)">
+    </ag-grid-angular>
+    <!--end listado ordenes bancarias-->
+  </div>
+  <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+
+  <div *ngIf="cargando">
+    <app-cargando></app-cargando>
+  </div>

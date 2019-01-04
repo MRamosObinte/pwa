@@ -1,0 +1,42 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <div class="card-header">
+        <i class="{{constantes.ICON_FILTRAR}}"></i><b>{{constantes.TITULO_FILTROS}}</b>
+      </div>
+      <div class="card-body pb-0 pt-1">
+        <!--FORMULARIO EMPRESA-->
+        <form #frmNumeraciones='ngForm' name="frmNumeraciones" autocomplete="off">
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm  mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="limpiarFormulario()" [disabled]="vistaFormulario">
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})
+              </option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer text-muted">
+        <div class="text-right">
+          <button type="button" id="btnNuevo" class="btn btn-sm btn-primary" (click)="abrirFormularioPrestamo()"
+            [disabled]="vistaFormulario">
+            <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+            <span class="d-none d-md-inline"> {{constantes.LABEL_NUEVO}}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--Formulario prestamo-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="vistaFormulario">
+    <app-prestamo-formulario [parametrosFormulario]="parametrosFormulario" (enviarAccion)="ejecutarAccion($event)"></app-prestamo-formulario>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

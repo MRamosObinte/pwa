@@ -1,0 +1,110 @@
+<div class="row" *ngIf="!mostrarKardex">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <form #frmCostoPiscina='ngForm' name="frmCostoPiscina" class="card m-0 mb-2" autocomplete="off">
+      <fieldset>
+        <div class="card-header">
+          <span>
+            <i class="{{constantes.ICON_FILTRAR}}"></i>
+            <b> {{constantes.TITULO_FILTROS}}</b>
+          </span>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--FORMULARIO EMPRESA-->
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_EMPRESA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+              (ngModelChange)="cambiarEmpresaSeleccionada()" [appFocus]=true>
+              <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas">{{empresa.empNombre}}
+                ({{empresa.empCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_SECTOR}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="sector" required [(ngModel)]="sectorSeleccionado"
+              (ngModelChange)="listarPiscinas(); limpiarResultado();">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="sector" *ngFor="let sector of listaSectores">{{sector.secNombre}}
+                ({{sector.secCodigo}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_PISCINA}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="piscina" required [(ngModel)]="piscinaSeleccionado"
+              (ngModelChange)="listarCorridas(); limpiarResultado();">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="piscina" *ngFor="let piscina of listaPiscina">{{piscina.pisNombre}}
+                ({{piscina.pisNumero}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_CORRIDA_MAY}}</b>
+            </label>
+            <select class="form-control form-control-sm mousetrap" name="corrida" required [(ngModel)]="corridaSeleccionada"
+              (ngModelChange)="seleccionarFechas(); limpiarResultado();">
+              <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+              <option [ngValue]="corrida" *ngFor="let corrida of listaCorridas">{{corrida.corFechaDesde}} |
+                {{corrida.corFechaHasta}}
+                ({{corrida.corNumero}})</option>
+            </select>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_DESDE}}</b>
+            </label>
+            <p-calendar inputId="fechaDesde" class="mousetrap" name="fechaDesde" [(ngModel)]="fechaDesde" [minDate]="fechaDesde"
+              (ngModelChange)="limpiarResultado()" dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [required]="true"
+              [maxDate]="fechaHasta ? fechaHasta : (fechaFinCorrida ? fechaFinCorrida : fechaActual)" [appMaxDate]="fechaHasta"></p-calendar>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="control-label">
+              <b>{{constantes.TAG_HASTA}}</b>
+            </label>
+            <p-calendar inputId="fechaHasta" class="mousetrap" name="fechaHasta" [(ngModel)]="fechaHasta" [maxDate]="fechaHasta"
+              (ngModelChange)="limpiarResultado()" dateFormat="dd/mm/yy" [locale]="es" [showIcon]="true" [minDate]="fechaDesde"
+              [appMinDate]="fechaDesde" [required]="corridaSeleccionada ? (corridaSeleccionada.corFechaHasta ? true : false) : false"></p-calendar>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <div class="text-right">
+            <div class="btn-group mr-1">
+              <button type="button" id="btnBuscar" class="btn btn-sm btn-primary" (click)="listadoCostoPiscina(frmCostoPiscina, 'CATEGORIA')"
+                title="{{constantes.ATAJO_BUSCAR}}">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+                <span class="d-none d-md-inline"> {{constantes.LABEL_BUSCAR}}</span>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split mr-2"
+                data-toggle="dropdown">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="listadoCostoPiscina(frmCostoPiscina, 'TIPO PRODUCTO')">
+                  {{constantes.TAG_VISTA_ECONOMICA}}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <!--Listado-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" *ngIf="parametrosBusqueda">
+    <app-costos-piscina-listado [parametroBusqueda]="parametrosBusqueda" (activar)="activar = $event" (cargando)="cargando = $event"
+      (cerrarListado)="parametrosBusqueda =$event" (seObtuvoProducto)="consultarKardex($event)"></app-costos-piscina-listado>
+  </div>
+</div>
+
+<!--KARDEX-->
+<div *ngIf="productoSeleccionado && mostrarKardex">
+  <app-kardex [objetoDesdeFuera]="objetoDesdeFuera" (cerrarKardex)="cerrarKardex($event)"></app-kardex>
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

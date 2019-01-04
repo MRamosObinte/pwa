@@ -1,0 +1,203 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <div class="card m-0 mb-2">
+      <fieldset [disabled]="vistaFormulario">
+        <div class="card-header">
+          <b>
+            <i class="{{constantes.ICON_FILTRAR}}"></i> {{constantes.TITULO_FILTROS}}
+          </b>
+        </div>
+        <div class="card-body pb-0 pt-1">
+          <!--SELECCION EMPRESA-->
+          <form #frm='ngForm' name="frm">
+            <div class="form-group form-group-sm"><label class="control-label">
+                <b>{{constantes.TAG_EMPRESA}}</b>
+              </label>
+              <select class="form-control form-control-sm mousetrap" name="empresa" required [(ngModel)]="empresaSeleccionada"
+                (ngModelChange)="cambiarEmpresaSeleccionada()">
+                <option selected disabled value="">{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="empresa" *ngFor="let empresa of listaEmpresas"> {{empresa.empNombre}}
+                  ({{empresa.empCodigo}}) </option>
+              </select>
+            </div>
+            <!--SELECCION PERIODO-->
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <b>{{constantes.TAG_PERIODO}}</b>
+              </label>
+              <label class="form-control form-control-sm label-input" *ngIf="vistaFormulario">
+                {{periodoSeleccionado?.sisPeriodoPK?.perCodigo}} | ({{periodoSeleccionado?.perDetalle}})</label>
+              <p-dropdown [options]="listadoPeriodos" name="Periodo" [showClear]="true" [(ngModel)]="periodoSeleccionado"
+                (ngModelChange)="limpiarResultado()" placeholder="TODOS" optionLabel="perDetalle" class="mousetrap"
+                *ngIf="!vistaFormulario">
+                <ng-template let-item pTemplate="selectedItem">
+                  {{periodoSeleccionado?.sisPeriodoPK?.perCodigo}} | {{periodoSeleccionado?.perDetalle}}
+                </ng-template>
+                <ng-template let-fs pTemplate="item">
+                  <div class="">{{fs.value.sisPeriodoPK.perCodigo}} | {{fs.value.perDetalle}}</div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+            <!--SELECCION MOTIVO-->
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <b>{{constantes.TAG_MOTIVO}}</b>
+              </label>
+              <label class="form-control form-control-sm label-input" *ngIf="vistaFormulario">
+                {{motivoSeleccionado?.tmDetalle}} ({{motivoSeleccionado?.tmCodigo}})</label>
+              <p-dropdown [options]="listadoMotivos" name="motivo" [showClear]="true" [(ngModel)]="motivoSeleccionado"
+                (ngModelChange)="limpiarResultado()" placeholder="TODOS" optionLabel="tmDetalle" class="mousetrap"
+                *ngIf="!vistaFormulario">
+                <ng-template let-item pTemplate="selectedItem">
+                  {{motivoSeleccionado?.tmDetalle}} ({{motivoSeleccionado?.tmCodigo}})
+                </ng-template>
+                <ng-template let-fs pTemplate="item">
+                  <div class="">{{fs.value.tmDetalle}} ({{fs.value.tmCodigo}})</div>
+                </ng-template>
+              </p-dropdown>
+            </div>
+            <div class="form-group form-group-sm">
+              <label class="control-label">
+                <b>{{constantes.TAG_FILTRO}}</b>
+              </label>
+              <input type="text" [(ngModel)]="filtro" name="filtro" class="form-control form-control-sm mousetrap"
+                [appFocus]="true">
+            </div>
+          </form>
+        </div>
+        <div class="card-footer">
+          <div class="text-right" *ngIf="!vistaFormulario">
+            <div class="btn-group d-none d-lg-block">
+              <button type="button" id="btnBuscarTransferencias" class="btn btn-sm btn-primary" title="{{constantes.ATAJO_BUSCAR}}"
+                (click)="listarTransferencia(20)">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i> {{constantes.LABEL_BUSCAR}}
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split  mr-1"
+                data-toggle="dropdown" style="margin-right: 3px;">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="listarTransferencia(50)"> {{constantes.TAG_ULTIMOS_50}}</a>
+                <a class="dropdown-item" (click)="listarTransferencia(100)"> {{constantes.TAG_ULTIMOS_100}}</a>
+                <a class="dropdown-item" (click)="listarTransferencia(null)"> {{constantes.TAG_TODOS}}</a>
+              </div>
+              <button type="button" id="btnNuevo" class="btn btn-sm btn-primary" title="{{constantes.ATAJO_NUEVO}}"
+                (click)="nuevaTransferencia()">
+                <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i> {{constantes.LABEL_NUEVO}}
+              </button>
+            </div>
+            <div class="btn-group d-lg-none">
+              <button type="button" id="btnBuscarTransferencias" class="btn btn-sm btn-primary" title="{{constantes.ATAJO_BUSCAR}}"
+                (click)="listarTransferencia(20)">
+                <i class="{{constantes.ICON_BUSCAR}}" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary dropdown-toggle dropdown-toggle-split  mr-1"
+                data-toggle="dropdown" style="margin-right: 3px;">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="listarTransferencia(50)"> {{constantes.TAG_ULTIMOS_50}}</a>
+                <a class="dropdown-item" (click)="listarTransferencia(100)"> {{constantes.TAG_ULTIMOS_100}}</a>
+                <a class="dropdown-item" (click)="listarTransferencia(null)"> {{constantes.TAG_TODOS}}</a>
+              </div>
+              <button type="button" id="btnNuevo" class="btn btn-sm btn-primary" title="{{constantes.ATAJO_NUEVO}}"
+                (click)="nuevaTransferencia()">
+                <i class="{{constantes.ICON_NUEVO}}" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  <!--LISTADO TRANSFERENCIA-->
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}" [hidden]="vistaFormulario">
+    <div class="card m-0" *ngIf="listaResultado?.length>0">
+      <div class="card-header p-1">
+        <button id="btnActivarTransferencia" class="btn btn-sm btn-primary mr-1" *ngIf="!screamXS" (click)="activar=!activar"
+          type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+          <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+        </button>
+        <strong>{{constantes.INVENTARIO_TRANSFERENCIAS_LISTADO}}</strong>
+        <div class="card-header-actions">
+          <div class="btn-group d-lg-none">
+            <button type="button" class="btn btn-sm btn-primary mr-1" (click)="desmayorizarTransferenciaPorLote()"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruMayorizarContables" placement="top" ngbTooltip="{{constantes.LABEL_DESMAYORIZAR}}"
+              container="body" title="{{constantes.ATAJO_DESMAYORIZAR}}">
+              <i class="{{constantes.ICON_DESMAYORIZAR}}" aria-hidden="true"></i>
+            </button>
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary" id="btnImprimirTransferencia" (click)="imprimirTransferencia()"
+                placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i>
+              </button>
+              <button type="button" class="btn btn-sm btn-primary mr-1 dropdown-toggle dropdown-toggle-split"
+                data-toggle="dropdown" id="btnInactivo">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="imprimirReporteTransferenciaPorLote()">{{constantes.LABEL_IMPRIMIR_LOTE}}</a>
+              </div>
+            </div>
+          </div>
+          <div class="btn-group d-none d-lg-block">
+            <button type="button" class="btn btn-sm btn-primary mr-1" (click)="desmayorizarTransferenciaPorLote()"
+              [disabled]="!empresaSeleccionada.listaSisPermisoTO.gruMayorizarContables" placement="top" ngbTooltip="{{constantes.LABEL_DESMAYORIZAR}}"
+              container="body" title="{{constantes.ATAJO_DESMAYORIZAR}}">
+              <i class="{{constantes.ICON_DESMAYORIZAR}}" aria-hidden="true"></i>
+              <span class="d-none d-md-inline"> {{constantes.LABEL_DESMAYORIZAR}}</span>
+            </button>
+            <div class="btn-group">
+              <button type="button" class="btn btn-sm btn-primary" id="btnImprimirTransferencia" (click)="imprimirTransferencia()"
+                placement="top" ngbTooltip="{{constantes.LABEL_IMPRIMIR}}" container="body" title="{{constantes.ATAJO_IMPRIMIR}}">
+                <i class="{{constantes.ICON_IMPRIMIR}}" aria-hidden="true"></i> {{constantes.LABEL_IMPRIMIR}}
+              </button>
+              <button type="button" class="btn btn-sm btn-primary mr-1 dropdown-toggle dropdown-toggle-split"
+                data-toggle="dropdown" id="btnInactivo">
+              </button>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" (click)="imprimirReporteTransferenciaPorLote()">{{constantes.LABEL_IMPRIMIR_LOTE}}</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body p-0">
+        <div class="row">
+          <div class="col-sm-5 col-md-6">
+            <div class="input-group p-1">
+              <input type="text" [(ngModel)]="filtroGlobal" (input)="filtrarRapido()" class="form-control form-control-sm input-filter mousetrap"
+                size="100" style="font-family: Arial, FontAwesome;" placeholder="&#xf0b0; {{constantes.TAG_FILTRAR}}..."
+                size="100">
+              <div class="input-group-append">
+                <span class="input-group-text">
+                  <i class="{{constantes.ICON_BUSCAR}}"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-7 col-md-6">
+            <div class="float-right pr-1">
+              <p-multiSelect [options]="columnDefs" [(ngModel)]="columnDefsSelected" optionLabel="headerName"
+                maxSelectedLabels="1" selectedItemsLabel="{0} {{constantes.MSJ_COLUMNAS}}" defaultLabel="{{constantes.TAG_SELECCIONE}}"></p-multiSelect>
+            </div>
+          </div>
+        </div>
+        <ag-grid-angular #agGrid id="agGrid" style="width: 100%; height: calc(100vh - 203px);" class="ag-theme-balham"
+          [rowData]="listaResultado" [columnDefs]="columnDefsSelected" [enableSorting]="true" [multiSortKey]="multiSortKey"
+          [rowSelection]="rowSelection" [enableColResize]="true" [components]="components" [context]="context"
+          (gridReady)="onGridReady($event)" (rowSelected)="objetoSeleccionado = $event.node.data" (filterChanged)="actualizarFilas()"
+          (gridColumnsChanged)="redimencionarColumnas()" (gridSizeChanged)="redimencionarColumnas()" (cellContextMenu)="mostrarContextMenu($event.data, $event.event)"
+          (contextmenu)="$event.preventDefault()" [rowClassRules]="rowClassRules" (cellDoubleClicked)="objetoSeleccionado = $event.node.data;operacionTransferenciaListado(constantes.ACCION_CONSULTAR, true)">
+        </ag-grid-angular>
+        <p-contextMenu #menuOpciones [model]="opciones" appendTo="body"></p-contextMenu>
+      </div>
+    </div>
+  </div>
+
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <app-transferencias-formulario *ngIf="vistaFormulario" [empresaSeleccionada]="empresaSeleccionada" (enviarCancelar)="cancelar()"
+      [data]=objetoTransferenciaEnviar (activarEstado)="activar=!$event" (enviarAccion)="ejecutarAccion($event)"></app-transferencias-formulario>
+  </div>
+</div>
+
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

@@ -1,0 +1,359 @@
+<form #frmClienteDatos='ngForm' autocomplete="off" class="card m-0">
+  <div class="card-header p-1">
+    <button id="btnActivarCliente" class="btn btn-sm btn-primary" *ngIf="isScreamMd" (click)="cambiarActivar(activar)" type="button" title="{{constantes.ATAJO_MOSTRAR_OCULTAR_FILTROS}}">
+      <i class="{{activar?constantes.ICON_MOSTRAR_FILTRO:constantes.ICON_OCULTAR_FILTRO}}" aria-hidden="true"></i>
+    </button>
+    <b> {{accion}} {{constantes.TAG_CLIENTE_MINUSCULA}} - {{empresaSeleccionada.empNombre}}</b>
+    <div class="card-header-actions">
+      <!--Sin etiquetas-->
+      <div class="btn-group d-lg-none">
+        <ng-template #tipContentNuevo>{{constantes.LABEL_GUARDAR}}</ng-template>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentNuevo" *ngIf="accion === constantes.ACCION_NUEVO"
+          (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? insertarCliente(frmClienteDatos) : null" title="{{constantes.ATAJO_GUARDAR}}"
+          id="btnGuardar">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentNuevo" *ngIf="accion === constantes.ACCION_EDITAR" id="btnGuardar"
+          (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarCliente(frmClienteDatos) : null" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+        </button>
+        <ng-template #tipContentRegresar>{{constantes.LABEL_REGRESAR}}</ng-template>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion === constantes.ACCION_CONSULTAR"
+          [ngbTooltip]="tipContentRegresar" (click)="cancelar()">
+          <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+        </button>
+        <ng-template #tipContentCancelar>{{constantes.LABEL_CANCELAR}}</ng-template>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion !== constantes.ACCION_CONSULTAR"
+          [ngbTooltip]="tipContentCancelar" (click)="cancelar()">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+        </button>
+      </div>
+      <!-- con etiquetas-->
+      <div class="btn-group d-none d-lg-block">
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentNuevo" *ngIf="accion === constantes.ACCION_NUEVO" id="btnGuardar"
+          (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? insertarCliente(frmClienteDatos) : null" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-primary mr-1" [ngbTooltip]="tipContentNuevo" *ngIf="accion === constantes.ACCION_EDITAR" id="btnGuardar"
+          (click)="verificarPermiso(constantes.ACCION_EDITAR, true) ? actualizarCliente(frmClienteDatos) : null" title="{{constantes.ATAJO_GUARDAR}}">
+          <i class="{{constantes.ICON_GUARDAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_GUARDAR}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion === constantes.ACCION_CONSULTAR"
+          [ngbTooltip]="constantes.LABEL_REGRESAR" (click)="cancelar()">
+          <i class="{{constantes.ICON_REGRESAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_REGRESAR}}</span>
+        </button>
+        <button type="button" class="btn btn-sm btn-default mr-1" title="{{constantes.ATAJO_CANCELAR}}" *ngIf="accion !== constantes.ACCION_CONSULTAR"
+          [ngbTooltip]="constantes.LABEL_CANCELAR" (click)="cancelar()">
+          <i class="{{constantes.ICON_CANCELAR}}" aria-hidden="true"></i>
+          <span class="d-none d-md-inline"> {{constantes.LABEL_CANCELAR}}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="card-body p-1">
+    <fieldset [disabled]="accion === constantes.ACCION_CONSULTAR">
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_CLIENTE_INFORMACION}}</b>
+          <div class="card-header-actions">
+            <a (click)="mostrarContactos()" *ngIf="activarContactos">
+              <span container="body">
+                <i class="fa fa-plus-square"></i> {{constantes.TAG_CONFIGURAR_CONTACTOS}}</span>
+            </a>
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseClienteInfo"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClienteInfo">
+          <div class="row">
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_CODIGO}}</strong>
+              </label>
+              <input [appFocus]="accion===constantes.ACCION_NUEVO" class="form-control form-control-sm text-uppercase mousetrap m-1"
+                name="codigo" maxlength="30" type="text" placeholder="{{constantes.TAG_OPCIONAL}}" pattern="{{constantes.PATTERN_CODIGO}}"
+                [(ngModel)]="cliente.cliCodigo" appUppercase *ngIf="accion === constantes.ACCION_NUEVO">
+              <label *ngIf="accion!=constantes.ACCION_NUEVO" class="form-control form-control-sm text-uppercase label-input">{{cliente.cliCodigo}}</label>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_TIPO_IDENTIFICACION}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" name="identificacion"
+                [(ngModel)]="cliente.cliTipoId" required (ngModelChange)="establecerLongitudIdentificacion(cliente.cliTipoId)">
+                <option disabled value=undefined>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="identificacion.tiCodigo" *ngFor="let identificacion of listadoTipoIdentificacion">
+                  {{identificacion.tiDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.TAG_NUMERO_IDENTIFICACION}}</strong>
+              </label>
+              <input *ngIf="empresaExtranjera" type="text" name="cliId" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                [(ngModel)]="cliente.cliId" class="form-control form-control-sm text-uppercase mousetrap m-1" required [disabled]="!cliente.cliTipoId"
+                appUppercase (blur)="validarIdentificacion(cliente.cliTipoId)">
+              <input [ngClass]="{'has-error':rptaCedula || rptaRepetido}" *ngIf="!empresaExtranjera" type="text" name="cliId"
+                pKeyFilter="pint" (keypress)="soloNumeros($event)" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                minlength="{{digitosCedulaMin}}" maxlength="{{digitosCedulaMax}}" [(ngModel)]="cliente.cliId" class="form-control form-control-sm text-uppercase mousetrap m-1"
+                required [disabled]="!cliente.cliTipoId" (blur)="validarIdentificacion(cliente.cliTipoId)">
+            </div>
+            <div class="form-group form-group-sm col-lg-3 col-sm-6">
+              <label>
+                <strong>{{constantes.INVENTARIO_GRUPO_EMPRESARIAL}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? mostrarGrupoEmpresarial() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" name="grupo" [(ngModel)]="cliente.geCodigo">
+                <option value="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="grupo.geCodigo" *ngFor="let grupo of listadoGrupoEmpresarial"> {{grupo.geNombre}}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_RAZON_SOCIAL}}</strong>
+              </label>
+              <input type="text" name="cliRazonSocial" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="cliente.cliRazonSocial"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase (blur)="espacios()">
+            </div>
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_NOMBRE_COMERCIAL}}</strong>
+              </label>
+              <input appUppercase type="text" name="cliNombreComercial" placeholder="{{constantes.TAG_OPCIONAL}}"
+                [(ngModel)]="cliente.cliNombreComercial" class="form-control form-control-sm text-uppercase mousetrap">
+            </div>
+          </div>
+
+          <div class="row" *ngIf="!empresaExtranjera">
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PROVINCIA}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" name="provincia" [(ngModel)]="provinciaSeleccionada"
+                (ngModelChange)="listarCiudades()">
+                <option value=undefined disabled selected hidden>{{constantes.TAG_OPCIONAL}}</option>
+                <option [ngValue]="provincia" *ngFor="let provincia of listadoProvincias"> {{provincia.nombre}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_CIUDAD}}</strong>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" name="ciudad" [(ngModel)]="cliente.cliCiudad">
+                <option value="" disabled selected hidden>{{constantes.TAG_OPCIONAL}}</option>
+                <option [ngValue]="ciudad.nombre" *ngFor="let ciudad of listadoCiudades"> {{ciudad.nombre}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PARROQIA}}</strong>
+              </label>
+              <input type="text" name="cliParroquia" appUppercase placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliParroquia"
+                class="form-control form-control-sm text-uppercase mousetrap m-1">
+            </div>
+          </div>
+
+          <div class="row" *ngIf="empresaExtranjera">
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PROVINCIA}}</strong>
+              </label>
+              <input type="text" name="cliProvincia" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliProvincia"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_CIUDAD}}</strong>
+              </label>
+              <input type="text" name="cliCiudad" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliCiudad"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_PARROQIA}}</strong>
+              </label>
+              <input type="text" name="cliParroquia" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliParroquia"
+                class="form-control form-control-sm text-uppercase mousetrap" required appUppercase>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_ZONA}}</strong>
+              </label>
+              <input type="text" name="cliZona" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliZona"
+                class="form-control form-control-sm text-uppercase mousetrap" appUppercase>
+            </div>
+            <div class="form-group form-group-sm col-md-8">
+              <label>
+                <strong>{{constantes.TAG_DIRECCION}}</strong>
+              </label>
+              <input type="text" name="cliDireccion" placeholder="{{constantes.TAG_OBLIGATORIO}}" [(ngModel)]="cliente.cliDireccion"
+                class="form-control form-control-sm text-uppercase mousetrap" appUppercase required maxlength="500">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group form-group-sm col-md-4">
+              <label ngbTooltip="{{constantes.LABEL_TELEFONO_CONVENCIONAL}}" placement="top">
+                <strong>{{constantes.TAG_TELEFONO_CONVENCIONAL}}</strong>
+              </label>
+              <input class="form-control form-control-sm text-uppercase mousetrap" name="cliTelefono" maxlength="130"
+                type="text" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliTelefono" (keypress)="soloNumeros($event)">
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label ngbTooltip="{{constantes.LABEL_TELEFONO_CELULAR}}" placement="top">
+                <strong>{{constantes.TAG_TELEFONO_CELULAR}}</strong>
+              </label>
+              <input class="form-control form-control-sm text-uppercase mousetrap" name="cliCelular" maxlength="130"
+                type="text" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliCelular" (keypress)="soloNumeros($event)">
+            </div>
+            <div class="form-group form-group-sm col-md-4">
+              <label>
+                <strong>{{constantes.TAG_EMAIL}}
+                  <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                    autoClose="outside" ngbPopover="{{constantes.MSJ_EMAIL}}" container="body"></span>
+                </strong>
+              </label>
+              <span class="ui-fluid">
+                <p-chips [(ngModel)]="correos" name="emails" class="mousetrap" [inputStyleClass]="accion===constantes.ACCION_CREAR || correos.length==0 ? 
+                'form-control form-control-sm grande text-lowercase' : 'form-control form-control-sm chico text-lowercase'"
+                  [allowDuplicate]="false" (onAdd)="clickear()" addOnTab="false" id="chip" placeholder="{{constantes.TAG_OPCIONAL}}"
+                  [disabled]="accion === constantes.ACCION_CONSULTAR" (onBlur)="tamanioGrande()" (onFocus)="tamanioChico()" id="correosolo">
+                  <ng-template let-item pTemplate="item">
+                    {{item}}
+                  </ng-template>
+                </p-chips>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-1">
+        <div class="card-header">
+          <b> {{constantes.TAG_PRECIO_DE_VENTA}}</b>
+          <div class="card-header-actions">
+            <a href="#" class="card-header-action btn-minimize" data-toggle="collapse" data-target="#collapseClientePrecios"
+              aria-expanded="true" placement="top" ngbTooltip="{{constantes.TAG_MOSTRAR_OCULTAR}}">
+              <i class="fa fa-minus"></i>
+            </a>
+          </div>
+        </div>
+        <div class="card-body collapse show mt-0 mb-0 pt-1 pb-0" id="collapseClientePrecios">
+          <div class="row" *ngIf="caja?.permisoClienteCredito">
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_DIAS_CREDITO}}
+                  <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                    autoClose="outside" ngbPopover="{{constantes.MSJ_DIAS_CREDITO}}" container="body"></span>
+                </strong>
+              </label>
+              <input type="text" id="cliDiasCredito" pKeyFilter="pint" name="cliDiasCredito" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                [(ngModel)]="cliente.cliDiasCredito" class="form-control form-control-sm mousetrap" required>
+            </div>
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_CUPO_CREDITO}}
+                  <span class="fa fa-info-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                    autoClose="outside" ngbPopover="{{constantes.MSJ_CUPO_CREDITO}}" container="body"></span>
+                </strong>
+              </label>
+              <input type="text" id="cliCupoCredito" name="cliCupoCredito" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                [(ngModel)]="cliente.cliCupoCredito" class="form-control form-control-sm mousetrap" [appAutonumeric2]="cliente.cliCupoCredito"
+                value="{{cliente.cliCupoCredito}}" (updateValue)="cliente.cliCupoCredito=$event" [appAutoRead]="accion === constantes.ACCION_CONSULTAR">
+            </div>
+          </div>
+          <div class="row" *ngIf="!caja?.permisoClienteCredito">
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_DIAS_CREDITO}}
+                  <span class="fa fa-question-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                    autoClose="outside" ngbPopover="{{constantes.MSJ_DIAS_CREDITO}}" container="body"></span>
+                </strong>
+              </label>
+              <label class="form-control form-control-sm mousetrap label-input">{{cliente.cliDiasCredito}}</label>
+            </div>
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_CUPO_CREDITO}}
+                  <span class="fa fa-question-circle text-primary" placement="right" triggers="mouseenter:mouseleave"
+                    autoClose="outside" ngbPopover="{{constantes.MSJ_CUPO_CREDITO}}" container="body"></span>
+                </strong>
+              </label>
+              <input type="text" id="cliCupoCredito" name="cliCupoCredito" placeholder="{{constantes.TAG_OBLIGATORIO}}"
+                [disabled]="true" [(ngModel)]="cliente.cliCupoCredito" class="form-control form-control-sm mousetrap"
+                [appAutonumeric2]="cliente.cliCupoCredito" value="{{cliente.cliCupoCredito}}" (updateValue)="cliente.cliCupoCredito=$event"
+                [appAutoRead]="accion === constantes.ACCION_CONSULTAR">
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_TIPO_CONTRIBUYENTE}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? mostrarTipoContribuyente() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" name="categoria" [(ngModel)]="cliente.cliCategoria"
+                required>
+                <option value="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="categoria.ccCodigo" *ngFor="let categoria of listadoCategorias">
+                  {{categoria.ccDetalle}}</option>
+              </select>
+            </div>
+            <div class="form-group form-group-sm col-md-6">
+              <label>
+                <strong>{{constantes.TAG_VENDEDOR}}</strong>
+                &nbsp;
+                <a (click)="verificarPermiso(constantes.ACCION_NUEVO, true) ? mostrarVendedor() : null" *ngIf="accion != constantes.ACCION_CONSULTAR">
+                  <span class="fa fa-plus-square" placement="top" ngbTooltip="Añadir" container="body"></span>
+                </a>
+              </label>
+              <select class="form-control input-sm mousetrap text-uppercase" name="vendedor" [(ngModel)]="cliente.vendCodigo"
+                required>
+                <option value="" disabled selected hidden>{{constantes.TAG_SELECCIONE}}</option>
+                <option [ngValue]="vendedor.vendCodigo" *ngFor="let vendedor of listadoVendedores">
+                  {{vendedor.vendNombre}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group form-group-sm col-md-9">
+              <label>
+                <strong>{{constantes.TAG_OBSERVACIONES}}</strong>
+              </label>
+              <textarea class="form-control form-control-sm text-uppercase mousetrap" name="observaciones" maxlength="1200"
+                type="text" placeholder="{{constantes.TAG_OPCIONAL}}" [(ngModel)]="cliente.cliObservaciones"
+                appUppercase></textarea>
+            </div>
+            <div class="form-group form-group-sm col-md-3">
+              <label>
+                <strong>{{constantes.TAG_RELACIONADO}}</strong>
+              </label>
+              <div class="text-md-center pt-3">
+                <input type="checkbox" name="relacionado" [(ngModel)]="cliente.cliRelacionado">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</form>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>

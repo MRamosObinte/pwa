@@ -1,0 +1,19 @@
+<div class="row">
+  <div [ngClass]="{'sr-only':activar}" class="col-lg-3 col-md-4 col-sm-5">
+    <app-venta-busqueda [ruta]="ruta" [vistaFormulario]="vistaFormulario" [tipoDocumento]="tipoDocumento"
+      (enviarAccion)="ejecutarAccion($event)"></app-venta-busqueda>
+  </div>
+  <div [ngClass]="{'col-lg-9 col-md-8 col-sm-7':!activar,'col-lg-12 col-md-12 col-sm-12':activar}">
+    <div *ngIf="vistaFormulario">
+      <app-venta-formulario [parametros]="parametrosFormulario" [empresaSeleccionada]="empresaSeleccionada"
+        [tipoDocumento]="tipoDocumento" (enviarAccion)="ejecutarAccion($event)"></app-venta-formulario>
+    </div>
+    <div [hidden]="vistaFormulario">
+      <app-venta-listado [parametrosBusqueda]="parametrosLista" [empresaSeleccionada]="empresaSeleccionada"
+        (enviarActivar)="activar=!$event" (enviarAccion)="ejecutarAccion($event)"></app-venta-listado>
+    </div>
+  </div>
+</div>
+<div *ngIf="cargando">
+  <app-cargando></app-cargando>
+</div>
