@@ -200,7 +200,7 @@ const appRoutes: Routes = [
     RouterModule.forRoot(
       appRoutes,
       {
-        preloadingStrategy: SelectivePreloadingStrategy,
+        //preloadingStrategy: SelectivePreloadingStrategy,
         onSameUrlNavigation: 'reload',
         useHash: true
       }
